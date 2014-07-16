@@ -58,7 +58,6 @@ throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX
 
 	mAsyncHandle->data = (void*) event;
 
-	std::cout << "Alerting main thread from fromApp event" << std::endl;
 	uv_async_send(mAsyncHandle);
 }
 

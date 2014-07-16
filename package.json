@@ -26,4 +26,8 @@
       "name" : "Kermen Deol"
       , "email" : "kermen.deol@electronifie.com"
     }
+  , "repository" : {
+      "type" : "git"
+      , "url" : "https://bitbucket.org/electronifie/node_quickfix.git"
+    }
 }

@@ -206,6 +206,7 @@ Handle<Value> FixInitiator::stop(const Arguments& args) {
 		uv_close((uv_handle_t*)&appAsync, NULL);
 		//delete initiator;
 	}
+	printf("Initiator stopped!");
 	return Undefined();
 }
 

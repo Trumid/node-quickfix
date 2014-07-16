@@ -4,7 +4,7 @@ var df = require('dateformat');
 
 SegfaultHandler.registerHandler();
 
-var outsideVar = "Hey am I out of scope?";
+var responseCount = 0;
 
 var createTagField = function(tag, object) {
 	return {key: tag, value: object};
@@ -17,7 +17,10 @@ var client = quickfix.Initiator({
 	'fromApp': function(message, sessionId) {
 		console.log("In javascript fromApp...we made it back!");
 		console.log(JSON.stringify(sessionId, null, 4) + ": " + JSON.stringify(message, null, 4));
-		console.log(outsideVar);
+		responseCount++;
+		if(responseCount == 2) {
+			client.stop();
+		}
 	}
 });
 
@@ -48,7 +51,6 @@ client.start('nodeQuickfixExample.properties', function() {
 	
 	client.send(msg, function(){
 		console.log("ZOMG MESSAGE SENT AGAIN!");
-		//client.stop();
 	});
 });
 
