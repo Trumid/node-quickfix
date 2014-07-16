@@ -221,25 +221,26 @@ void FixInitiator::setInitiator(FIX::SocketInitiator* initiator)
 
 FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 	FIX::Message *message = new FIX::Message;
-	Local<Array> header = Local<Array>::Cast(msg->Get(String::New("header")));
+	Local<Object> header = Local<Object>::Cast(msg->Get(String::New("header")));
 	FIX::Header &msgHeader = message->getHeader();
 
-	for(int i=0; i<(int)header->Length(); i++) {
-		Local<Object> field = Local<Object>::Cast(header->Get(i));
-		String::Utf8Value keyStr(field->Get(String::New("key"))->ToString());
+	Local<Array> headerTags = header->GetPropertyNames();
+	for(int i=0; i<(int)headerTags->Length(); i++) {
+		Local<String> prop = headerTags->Get(i)->ToString();
+		String::Utf8Value keyStr(prop->ToString());
 
-		String::Utf8Value valueStr(field->Get(String::New("value"))->ToString());
+		String::Utf8Value valueStr(header->Get(prop)->ToString());
 
 		msgHeader.setField(atoi(string(*keyStr).c_str()), string(*valueStr));
 	}
 
-	Local<Array> tags = Local<Array>::Cast(msg->Get(String::New("message")));
+	Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("message")));
+	Local<Array> msgTags = tags->GetPropertyNames();
+	for(int i=0; i<(int)msgTags->Length(); i++) {
+		Local<String> prop = msgTags->Get(i)->ToString();
+		String::Utf8Value keyStr(prop->ToString());
 
-	for(int i=0; i<(int)tags->Length(); i++) {
-		Local<Object> field = Local<Object>::Cast(tags->Get(i));
-		String::Utf8Value keyStr(field->Get(String::New("key"))->ToString());
-
-		String::Utf8Value valueStr(field->Get(String::New("value"))->ToString());
+		String::Utf8Value valueStr(tags->Get(prop)->ToString());
 		message->setField(atoi(string(*keyStr).c_str()), string(*valueStr));
 	}
 

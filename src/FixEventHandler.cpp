@@ -41,27 +41,21 @@ static Handle<Value> sessionIdToJs(FIX::SessionID* sessionId) {
 
 static Handle<Value> messageToJs(FIX::Message* message) {
 	Handle<Object> msg = Object::New();
+	Handle<Object> header = Object::New();
+	Handle<Object> tags = Object::New();
 	FIX::Header messageHeader = message->getHeader();
-	Handle<Array> header = Array::New(messageHeader.totalFields());
-	Handle<Array> tags = Array::New(message->totalFields()); //Do I need to subtract header count here?
 
 	int i=0;
 	for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
 	{
-		Handle<Object> field = Object::New();
-		field->Set(String::New("id"), Integer::New(it->first));
-		field->Set(String::New("value"), String::New(it->second.getString().c_str()));
-		header->Set(i, field);
+		header->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
 		++i;
 	}
 
 	int j=0;
 	for(FIX::FieldMap::iterator it = message->begin(); it != message->end(); ++it)
 	{
-		Handle<Object> field = Object::New();
-		field->Set(String::New("id"), Integer::New(it->first));
-		field->Set(String::New("value"), String::New(it->second.getString().c_str()));
-		tags->Set(j, field);
+		tags->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
 		++j;
 	}
 
