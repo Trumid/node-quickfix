@@ -1,18 +1,18 @@
 #include <node/v8.h>
 #include <node/node.h>
-#include "FixClient.h"
+#include "FixInitiator.h"
 
 using namespace v8;
 
-Handle<Value> Client(const Arguments& args) {
+Handle<Value> Initiator(const Arguments& args) {
   HandleScope scope;
-  return scope.Close(FixClient::NewInstance(args));
+  return scope.Close(FixInitiator::NewInstance(args));
 }
 
 void init(Handle<Object> target) {
-	FixClient::Init();
-	target->Set(String::NewSymbol("Client"),
-      FunctionTemplate::New(Client)->GetFunction());
+	FixInitiator::Init();
+	target->Set(String::NewSymbol("Initiator"),
+      FunctionTemplate::New(Initiator)->GetFunction());
 }
 
 // Register the module with node.

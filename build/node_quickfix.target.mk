@@ -93,7 +93,7 @@ INCS_Release := \
 OBJS := \
 	$(obj).target/$(TARGET)/src/FixEventHandler.o \
 	$(obj).target/$(TARGET)/src/FixApplication.o \
-	$(obj).target/$(TARGET)/src/FixClient.o \
+	$(obj).target/$(TARGET)/src/FixInitiator.o \
 	$(obj).target/$(TARGET)/src/node_quickfix.o
 
 # Add to the list of files we specially track dependencies for.

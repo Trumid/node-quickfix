@@ -1,5 +1,5 @@
-#ifndef FIXCLIENT_H
-#define FIXCLIENT_H
+#ifndef FIXINITIATOR_H
+#define FIXINITIATOR_H
 
 #include <node.h>
 #include "FixApplication.h"
@@ -8,7 +8,7 @@
 
 using namespace v8;
 
-class FixClient : public node::ObjectWrap {
+class FixInitiator : public node::ObjectWrap {
  public:
   static void Init();
   static Handle<Value> NewInstance(const Arguments& args);
@@ -16,8 +16,8 @@ class FixClient : public node::ObjectWrap {
   void setInitiator(FIX::SocketInitiator* initiator);
 
  private:
-  explicit FixClient(FixApplication application);
-  ~FixClient();
+  explicit FixInitiator(FixApplication application);
+  ~FixInitiator();
   static Handle<Value> New(const Arguments& args);
   static Persistent<Function> constructor;
   FixApplication mApplication;

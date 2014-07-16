@@ -10,7 +10,7 @@ var createTagField = function(tag, object) {
 	return {key: tag, value: object};
 }
 
-var client = quickfix.Client({
+var client = quickfix.Initiator({
     'onLogon': function() {},
     'onLogout': function() {},
 	'toApp': function() {},

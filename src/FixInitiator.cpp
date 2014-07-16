@@ -5,26 +5,26 @@
 #include "quickfix/Session.h"
 #include "quickfix/SessionSettings.h"
 #include "quickfix/Application.h"
-#include "FixClient.h"
+#include "FixInitiator.h"
 #include "FixApplication.h"
 #include "FixEventHandler.h"
 
 using namespace v8;
 using namespace std;
 
-Persistent<Function> FixClient::constructor;
+Persistent<Function> FixInitiator::constructor;
 FIX::SessionID mSessionId;
 uv_async_t initiatorAsync;
 uv_async_t appAsync;
 
-FixClient::FixClient(FixApplication application) :
+FixInitiator::FixInitiator(FixApplication application) :
 		mApplication(application) {
 }
 
-FixClient::~FixClient() {
+FixInitiator::~FixInitiator() {
 }
 
-void FixClient::Init() {
+void FixInitiator::Init() {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
   tpl->SetClassName(String::NewSymbol("FixClient"));
@@ -38,13 +38,13 @@ void FixClient::Init() {
   constructor = Persistent<Function>::New(tpl->GetFunction());
 }
 
-Handle<Value> FixClient::New(const Arguments& args) {
+Handle<Value> FixInitiator::New(const Arguments& args) {
   HandleScope scope;
 
   if (args.IsConstructCall()) {
     // Invoked as constructor: `new MyObject(...)`
 	FixEventHandler* handler = new FixEventHandler(args);
-    FixClient* obj = new FixClient(FixApplication::FixApplication(handler, &appAsync));
+	FixInitiator* obj = new FixInitiator(FixApplication::FixApplication(handler, &appAsync));
     obj->Wrap(args.This());
     return scope.Close(args.This());
   } else {
@@ -55,7 +55,7 @@ Handle<Value> FixClient::New(const Arguments& args) {
   }
 }
 
-Handle<Value> FixClient::NewInstance(const Arguments& args) {
+Handle<Value> FixInitiator::NewInstance(const Arguments& args) {
   HandleScope scope;
 
   const unsigned argc = 1;
@@ -69,7 +69,7 @@ struct InitiatorRequest {
 	Persistent<Function> callback;
 	std::string propertiesFile;
 	FixApplication app;
-	FixClient* client;
+	FixInitiator* client;
 	FIX::SessionID sessionId;
 };
 
@@ -127,10 +127,10 @@ void initiatorStartRunCallback(uv_async_t *handle, int status /*UNUSED*/) {
 	uv_close((uv_handle_t*) &initiatorAsync, NULL);
 }
 
-Handle<Value> FixClient::start(const Arguments& args) {
+Handle<Value> FixInitiator::start(const Arguments& args) {
 	HandleScope scope;
 
-	FixClient* obj = ObjectWrap::Unwrap<FixClient>(args.This());
+	FixInitiator* obj = ObjectWrap::Unwrap<FixInitiator>(args.This());
 
 	FixApplication app = obj->mApplication;
 	//app.setAsyncHandle(&appAsync);
@@ -176,11 +176,11 @@ void afterMessageSent(uv_work_t *req, int status) {
 	delete req;
 }
 
-Handle<Value> FixClient::send(const Arguments& args) {
+Handle<Value> FixInitiator::send(const Arguments& args) {
 	HandleScope scope;
 	printf("In send()\n");
 	//Add validation on args here!
-	FixClient* client = ObjectWrap::Unwrap<FixClient>(args.This());
+	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
 	uv_work_t *req = new uv_work_t;
 	SendMessageRequest *data = new SendMessageRequest;
 	data->callback = Persistent<Function>::New(args[1].As<Function>());
@@ -194,9 +194,9 @@ Handle<Value> FixClient::send(const Arguments& args) {
 	return Undefined();
 }
 
-Handle<Value> FixClient::stop(const Arguments& args) {
+Handle<Value> FixInitiator::stop(const Arguments& args) {
 	HandleScope scope;
-	FixClient* client = ObjectWrap::Unwrap<FixClient>(args.This());
+	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
 	FIX::SocketInitiator* initiator = client->mInitiator;
 	if(initiator == NULL)
 	{
@@ -209,17 +209,17 @@ Handle<Value> FixClient::stop(const Arguments& args) {
 	return Undefined();
 }
 
-void FixClient::setSessionId(FIX::SessionID sessionId)
+void FixInitiator::setSessionId(FIX::SessionID sessionId)
 {
 	mSessionId = sessionId;
 }
 
-void FixClient::setInitiator(FIX::SocketInitiator* initiator)
+void FixInitiator::setInitiator(FIX::SocketInitiator* initiator)
 {
 	mInitiator = initiator;
 }
 
-FIX::Message* FixClient::convertToFixMessage(Handle<Object> msg) {
+FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 	FIX::Message *message = new FIX::Message;
 	Local<Array> header = Local<Array>::Cast(msg->Get(String::New("header")));
 	FIX::Header &msgHeader = message->getHeader();

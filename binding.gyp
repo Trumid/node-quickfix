@@ -2,7 +2,7 @@
   'targets': [
     {
       'target_name': 'node_quickfix',
-      'sources': [ 'src/FixEvent.h', 'src/FixEventHandler.h', 'src/FixEventHandler.cpp', 'src/FixApplication.h', 'src/FixApplication.cpp', 'src/FixClient.h', 'src/FixClient.cpp', 'src/node_quickfix.cpp' ],
+      'sources': [ 'src/FixEvent.h', 'src/FixEventHandler.h', 'src/FixEventHandler.cpp', 'src/FixApplication.h', 'src/FixApplication.cpp', 'src/FixInitiator.h', 'src/FixInitiator.cpp', 'src/node_quickfix.cpp' ],
 	  'link_settings': {
 	  	'libraries': [
 	  		'-L/usr/lib',
