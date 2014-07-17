@@ -5,9 +5,5 @@
     "preinstall": "node-gyp clean && node-gyp configure && node-gyp build"
   },
   "main": "build/Release/node_quickfix.node",
-  "description": "This is a wrapper for the Quickfix C++ library to be used within node applications...Currently it only supports an initiator",
-  "author": {
-    "name": "Kermen Deol",
-    "email": "kermen.deol@electronifie.com"
-  }
+  "description": "This is a wrapper for the Quickfix C++ library to be used within node applications...Currently it only supports an initiator"
 }
