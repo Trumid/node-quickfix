@@ -1,25 +1,15 @@
 {
-  // Name of your extension (do not include node or js in the name, this is implicit). 
-  // This is the name that will be used to import the extension through require().
 
   "name" : "node_quickfix",
 
-  // Version should be http://semver.org/ compliant
-
   "version" : "v0.1.0"
-
-  // These scripts will be run when calling npm install and npm uninstall.
 
   , "scripts" : {
       "preinstall" : "node-gyp clean && node-gyp configure && node-gyp build"
       , "preuninstall" : "rm -rf build/*"
     }
 
-  // This is the relative path to our built extension.
-
   , "main" : "build/Release/node_quickfix.node"
-
-  // The following fields are optional:
 
   , "description" : "This is a wrapper for the Quickfix C++ library to be used within node applications...Currently it only supports an initiator"
   , "author" : {
