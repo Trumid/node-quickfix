@@ -6,7 +6,7 @@
 
   // Version should be http://semver.org/ compliant
 
-  "version" : "v0.1"
+  "version" : "v0.1.0"
 
   // These scripts will be run when calling npm install and npm uninstall.
 
