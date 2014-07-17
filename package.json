@@ -6,7 +6,7 @@
     "preuninstall": "rm -rf build/*"
   },
   "main": "build/Release/node_quickfix.node",
-  "description": "This is a wrapper for the Quickfi C++ library to be used within node applications...Currently it only supports an initiator",
+  "description": "This is a wrapper for the Quickfix C++ library to be used within node applications...Currently it only supports an initiator",
   "author": {
     "name": "Kermen Deol",
     "email": "kermen.deol@electronifie.com"
