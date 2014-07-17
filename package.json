@@ -1,5 +1,4 @@
 {
   "name": "node_quickfix",
-  "version": "v0.1.0",
-  "main": "build/Release/node_quickfix.node"
+  "version": "v0.1.0"
 }
