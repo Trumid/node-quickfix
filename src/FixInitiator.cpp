@@ -128,12 +128,12 @@ void initiatorStartRunCallback(uv_async_t *handle, int status /*UNUSED*/) {
 }
 
 Handle<Value> FixInitiator::start(const Arguments& args) {
+	try{
 	HandleScope scope;
 
 	FixInitiator* obj = ObjectWrap::Unwrap<FixInitiator>(args.This());
 
 	FixApplication app = obj->mApplication;
-	//app.setAsyncHandle(&appAsync);
 	String::Utf8Value utf8(args[0]->ToString());
 	std::string fileName = string(*utf8);
 
@@ -149,7 +149,9 @@ Handle<Value> FixInitiator::start(const Arguments& args) {
 	uv_async_init(loop, &initiatorAsync, initiatorStartRunCallback);
 	uv_async_init(loop, &appAsync, FixEventHandler::handleFixEvent);
 	uv_queue_work(loop, req, startInitiator, afterInitiatorStart);
-
+	} catch (FIX::FieldConvertError& e) {
+		printf(e.what());
+	}
 	return Undefined();
 }
 

@@ -11,14 +11,15 @@ var createTagField = function(tag, object) {
 }
 
 var client = quickfix.Initiator({
-    'onLogon': function() {},
-    'onLogout': function() {},
-	'toApp': function() {},
+    'onLogon': function(sessionId) {},
+    'onLogout': function(sessionId) {},
+	'toApp': function(message, sessionId) {},
 	'fromApp': function(message, sessionId) {
 		console.log("In javascript fromApp...we made it back!");
 		console.log(JSON.stringify(sessionId, null, 4) + ": " + JSON.stringify(message, null, 4));
 		responseCount++;
 		if(responseCount == 2) {
+			//both messages received responses so we can shut down our initiator now
 			client.stop();
 		}
 	}
