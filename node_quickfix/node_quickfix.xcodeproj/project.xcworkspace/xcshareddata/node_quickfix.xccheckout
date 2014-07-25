@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D1451A7A-908E-45D9-97C6-8BD1FE867E22</string>
+	<key>IDESourceControlProjectName</key>
+	<string>node_quickfix</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>EDF67780-34BE-4E03-9B0C-B21A04D46B40</key>
+		<string>ssh://bitbucket.org/electronifie/node_quickfix</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>node_quickfix/node_quickfix.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>EDF67780-34BE-4E03-9B0C-B21A04D46B40</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://bitbucket.org/electronifie/node_quickfix</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>EDF67780-34BE-4E03-9B0C-B21A04D46B40</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>EDF67780-34BE-4E03-9B0C-B21A04D46B40</string>
+			<key>IDESourceControlWCCName</key>
+			<string>node_quickfix</string>
+		</dict>
+	</array>
+</dict>
+</plist>
