@@ -33,7 +33,7 @@ client.start('nodeQuickfixExample.properties', function() {
 		},
 		message:{
 			11: 'ClOrdId',
-	        48: '00206RAG',
+	        48: '01748XAA0',
 	        22: 1,
 	        38: 1000,
 	        40: 2,

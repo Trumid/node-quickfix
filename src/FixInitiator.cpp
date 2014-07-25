@@ -73,6 +73,12 @@ struct InitiatorRequest {
 	FIX::SessionID sessionId;
 };
 
+struct InitiatorStopRequest {
+	Persistent<Function> callback;
+	FIX::SocketInitiator* initiator;
+	FIX::SessionID sessionId;
+};
+
 void startInitiator(uv_work_t *req) {
 	try
 	{
@@ -115,6 +121,8 @@ void afterInitiatorStart(uv_work_t *req, int status) {
 
 	delete m;
 	delete req;
+
+	scope.Close(Undefined());
 }
 
 void initiatorStartRunCallback(uv_async_t *handle, int status /*UNUSED*/) {
@@ -125,10 +133,10 @@ void initiatorStartRunCallback(uv_async_t *handle, int status /*UNUSED*/) {
 	callback->Call(Context::GetCurrent()->Global(), 0, argv);
 	callback.Dispose();
 	uv_close((uv_handle_t*) &initiatorAsync, NULL);
+	scope.Close(Undefined());
 }
 
 Handle<Value> FixInitiator::start(const Arguments& args) {
-	try{
 	HandleScope scope;
 
 	FixInitiator* obj = ObjectWrap::Unwrap<FixInitiator>(args.This());
@@ -149,9 +157,7 @@ Handle<Value> FixInitiator::start(const Arguments& args) {
 	uv_async_init(loop, &initiatorAsync, initiatorStartRunCallback);
 	uv_async_init(loop, &appAsync, FixEventHandler::handleFixEvent);
 	uv_queue_work(loop, req, startInitiator, afterInitiatorStart);
-	} catch (FIX::FieldConvertError& e) {
-		printf(e.what());
-	}
+
 	return Undefined();
 }
 
@@ -176,6 +182,7 @@ void afterMessageSent(uv_work_t *req, int status) {
 	data->callback.Dispose();
 	delete data;
 	delete req;
+	scope.Close(Undefined());
 }
 
 Handle<Value> FixInitiator::send(const Arguments& args) {
@@ -196,20 +203,52 @@ Handle<Value> FixInitiator::send(const Arguments& args) {
 	return Undefined();
 }
 
-Handle<Value> FixInitiator::stop(const Arguments& args) {
-	HandleScope scope;
-	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
-	FIX::SocketInitiator* initiator = client->mInitiator;
+void stopInitiator(uv_work_t *req) {
+	InitiatorStopRequest* input = static_cast<InitiatorStopRequest*>(req->data);
+	FIX::SocketInitiator* initiator = input->initiator;
+
 	if(initiator == NULL)
 	{
 		cout << "Trying to stop an Initiator that is not started!" << endl;
 	} else {
+		initiator->getSession(input->sessionId)->disconnect();
 		initiator->stop(true);
-		uv_close((uv_handle_t*)&appAsync, NULL);
+		while(!initiator->isStopped() && initiator->isLoggedOn()) {} //wait until initiator is stopped and logged out
+		//uv_close((uv_handle_t*)&appAsync, NULL);
 		//delete initiator;
+		printf("Initiator stopped!\n");
 	}
-	printf("Initiator stopped!");
-	return Undefined();
+}
+
+void afterInitiatorStop(uv_work_t *req, int status) {
+	HandleScope scope;
+
+	InitiatorRequest *m = (InitiatorRequest *)req->data;
+	Handle<Value> argv[0] = {};
+	m->callback->Call(Context::GetCurrent()->Global(), 0, argv);
+	m->callback.Dispose();
+
+	//delete m;
+	delete req;
+
+	scope.Close(Undefined());
+}
+
+Handle<Value> FixInitiator::stop(const Arguments& args) {
+
+	HandleScope scope;
+	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
+
+	uv_work_t *req = new uv_work_t;
+	InitiatorStopRequest *data = new InitiatorStopRequest;
+	data->callback = Persistent<Function>::New(args[0].As<Function>());
+	data->initiator = client->mInitiator;
+	data->sessionId = client->mSessionId;
+	req->data = data;
+	printf("Stopping Initiator!\n");
+	uv_queue_work(uv_default_loop(), req, stopInitiator, afterInitiatorStop);
+
+	return scope.Close(Undefined());
 }
 
 void FixInitiator::setSessionId(FIX::SessionID sessionId)
@@ -226,6 +265,7 @@ FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 	FIX::Message *message = new FIX::Message;
 	Local<Object> header = Local<Object>::Cast(msg->Get(String::New("header")));
 	FIX::Header &msgHeader = message->getHeader();
+	FIX::Trailer &msgTrailer = message->getTrailer();
 
 	Local<Array> headerTags = header->GetPropertyNames();
 	for(int i=0; i<(int)headerTags->Length(); i++) {
@@ -247,11 +287,45 @@ FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 		message->setField(atoi(string(*keyStr).c_str()), string(*valueStr));
 	}
 
-	//come back to groups when it needs to be implemented
 	Local<String> groupKey = String::New("groups");
 	if(msg->Has(groupKey))
 	{
 		Local<Array> groups = Local<Array>::Cast(groupKey);
+		for(int i=0; i<(int)groups->Length(); i++) {
+			Local<Object> groupObj = groups->Get(i)->ToObject();
+			FIX::Group* group = new FIX::Group(
+					groupObj->Get(String::New("index"))->ToInteger()->Value(),
+					groupObj->Get(String::New("delim"))->ToInteger()->Value());
+
+			Local<Array> groupEntries = Local<Array>::Cast(groupObj->Get(String::New("entries")));
+			for(int j=0; j<(int)groupEntries->Length(); i++) {
+				Local<Object> entry = groupEntries->Get(i)->ToObject();
+				Local<Array> entryTags = entry->GetPropertyNames();
+				for(int i=0; i<(int)entryTags->Length(); i++) {
+					Local<String> prop = entryTags->Get(i)->ToString();
+					String::Utf8Value keyStr(prop->ToString());
+
+					String::Utf8Value valueStr(entry->Get(prop)->ToString());
+					group->setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+				}
+			}
+			message->addGroup(*group);
+		}
+	}
+
+	Local<String> trailerKey = String::New("trailer");
+	if(msg->Has(trailerKey))
+	{
+		Local<Object> trailer = Local<Object>::Cast(msg->Get(trailerKey));
+		Local<Array> trailerTags = trailer->GetPropertyNames();
+		for(int i=0; i<(int)trailerTags->Length(); i++) {
+			Local<String> prop = trailerTags->Get(i)->ToString();
+			String::Utf8Value keyStr(prop->ToString());
+
+			String::Utf8Value valueStr(trailer->Get(prop)->ToString());
+
+			msgTrailer.setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+		}
 	}
 
 	return message;

@@ -43,24 +43,50 @@ static Handle<Value> messageToJs(FIX::Message* message) {
 	Handle<Object> msg = Object::New();
 	Handle<Object> header = Object::New();
 	Handle<Object> tags = Object::New();
+	Handle<Object> trailer = Object::New();
+	Handle<Object> groups = Object::New();
 	FIX::Header messageHeader = message->getHeader();
+	FIX::Trailer messageTrailer = message->getTrailer();
 
-	int i=0;
 	for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
 	{
 		header->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
-		++i;
 	}
 
-	int j=0;
 	for(FIX::FieldMap::iterator it = message->begin(); it != message->end(); ++it)
 	{
 		tags->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
-		++j;
+	}
+
+	for(FIX::FieldMap::iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
+	{
+		trailer->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+	}
+
+	for(FIX::FieldMap::g_iterator it = message->g_begin(); it != message->g_end(); ++it)
+	{
+		std::vector< FIX::FieldMap* > groupVector = it->second;
+		Handle<Array> groupList = Array::New(groupVector.size());
+		int i=0;
+		for(std::vector< FIX::FieldMap* >::iterator v_it = groupVector.begin(); v_it != groupVector.end(); ++v_it)
+		{
+			Handle<Object> groupEntry = Object::New();
+			FIX::FieldMap* fields = *v_it;
+			for(FIX::FieldMap::iterator field_it = fields->begin(); field_it != fields->end(); ++field_it)
+			{
+				groupEntry->Set(Integer::New(field_it->first), String::New(field_it->second.getString().c_str()));
+			}
+			groupList->Set(i, groupEntry);
+			i++;
+		}
+
+		groups->Set(Integer::New(it->first), groupList);
 	}
 
 	msg->Set(String::New("header"), header);
 	msg->Set(String::New("tags"), tags);
+	msg->Set(String::New("trailer"), trailer);
+	msg->Set(String::New("groups"), groups);
 	return msg;
 }
 

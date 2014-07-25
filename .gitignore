@@ -1,4 +1,4 @@
-/data
-/log
-/node_modules
-/build
+/data/
+/log/
+/node_modules/
+build/
