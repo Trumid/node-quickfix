@@ -22,6 +22,7 @@ FixInitiator::FixInitiator(FixApplication application) :
 }
 
 FixInitiator::~FixInitiator() {
+	printf("dispozed");
 }
 
 void FixInitiator::Init() {
@@ -88,20 +89,20 @@ void startInitiator(uv_work_t *req) {
 
 		FIX::FileStoreFactory storeFactory(settings);
 		FIX::FileLogFactory logFactory(settings);
-		FIX::SocketInitiator initiator
-		  (app, storeFactory, settings, logFactory);
+		FIX::SocketInitiator initiator(app, storeFactory, settings, logFactory);
 
 		printf("Starting initiator!\n");
 		initiator.start();
 		FIX::SessionID sessionId = *initiator.getSessions().begin();
+
 		input->client->setSessionId(sessionId);
 		input->client->setInitiator(&initiator);
 
 		initiatorAsync.data = (void*) &input->callback;
 
-		while(!initiator.isLoggedOn()){} //wait until we are logged on
 		uv_async_send(&initiatorAsync); //notify that we have finished starting the initiator and are logged on
-		while(true){} //keep this thing running until we call stop
+
+		while(true){ } //keep this thing running until we call stop
 	}
 	catch(FIX::ConfigError& e)
 	{
@@ -170,6 +171,12 @@ struct SendMessageRequest {
 void sendMessage(uv_work_t *req) {
 	SendMessageRequest *data = static_cast<SendMessageRequest*>(req->data);
 	printf("Sending message with sessionId %s \n", data->sessionId.toString().c_str());
+
+
+	FIX::Session* session = FIX::Session::lookupSession(data->sessionId);
+	printf("session is enabled: %d \n", session->isEnabled());
+	printf("session is isLoggedOn: %d \n", session->isLoggedOn());
+
 	FIX::Session::sendToTarget(*(data->message), data->sessionId);
 }
 
@@ -211,11 +218,7 @@ void stopInitiator(uv_work_t *req) {
 	{
 		cout << "Trying to stop an Initiator that is not started!" << endl;
 	} else {
-		initiator->getSession(input->sessionId)->disconnect();
-		initiator->stop(true);
-		while(!initiator->isStopped() && initiator->isLoggedOn()) {} //wait until initiator is stopped and logged out
-		//uv_close((uv_handle_t*)&appAsync, NULL);
-		//delete initiator;
+		initiator->stop();
 		printf("Initiator stopped!\n");
 	}
 }

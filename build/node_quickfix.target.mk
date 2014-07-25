@@ -42,9 +42,9 @@ CFLAGS_OBJC_Debug :=
 CFLAGS_OBJCC_Debug :=
 
 INCS_Debug := \
-	-I/Users/kdeol/.node-gyp/0.10.28/src \
-	-I/Users/kdeol/.node-gyp/0.10.28/deps/uv/include \
-	-I/Users/kdeol/.node-gyp/0.10.28/deps/v8/include \
+	-I/Users/stefankutko/.node-gyp/0.10.29/src \
+	-I/Users/stefankutko/.node-gyp/0.10.29/deps/uv/include \
+	-I/Users/stefankutko/.node-gyp/0.10.29/deps/v8/include \
 	-I/usr/local/include/quickfix
 
 DEFS_Release := \
@@ -85,9 +85,9 @@ CFLAGS_OBJC_Release :=
 CFLAGS_OBJCC_Release :=
 
 INCS_Release := \
-	-I/Users/kdeol/.node-gyp/0.10.28/src \
-	-I/Users/kdeol/.node-gyp/0.10.28/deps/uv/include \
-	-I/Users/kdeol/.node-gyp/0.10.28/deps/v8/include \
+	-I/Users/stefankutko/.node-gyp/0.10.29/src \
+	-I/Users/stefankutko/.node-gyp/0.10.29/deps/uv/include \
+	-I/Users/stefankutko/.node-gyp/0.10.29/deps/v8/include \
 	-I/usr/local/include/quickfix
 
 OBJS := \
