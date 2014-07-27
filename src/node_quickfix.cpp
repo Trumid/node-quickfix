@@ -6,13 +6,11 @@ using namespace v8;
 
 Handle<Value> Initiator(const Arguments& args) {
   HandleScope scope;
-  return scope.Close(FixInitiator::NewInstance(args));
+  return scope.Close(FixInitiator::New(args));
 }
 
 void init(Handle<Object> target) {
-	FixInitiator::Init();
-	target->Set(String::NewSymbol("Initiator"),
-      FunctionTemplate::New(Initiator)->GetFunction());
+	FixInitiator::Initialize(target);
 }
 
 // Register the module with node.

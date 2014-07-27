@@ -1,293 +1,173 @@
-#include <node.h>
+
 #include "quickfix/FileStore.h"
 #include "quickfix/FileLog.h"
+#include "quickfix/Initiator.h"
 #include "quickfix/SocketInitiator.h"
 #include "quickfix/Session.h"
 #include "quickfix/SessionSettings.h"
-#include "quickfix/Application.h"
+
 #include "FixInitiator.h"
 #include "FixApplication.h"
-#include "FixEventHandler.h"
+#include "FixEvent.h"
 
-using namespace v8;
-using namespace std;
+#include "FixStartWorker.h"
+#include "FixSendWorker.h"
+#include "FixStopWorker.h"
+
+//#include "closure.h"
 
 Persistent<Function> FixInitiator::constructor;
-FIX::SessionID mSessionId;
-uv_async_t initiatorAsync;
-uv_async_t appAsync;
 
-FixInitiator::FixInitiator(FixApplication application) :
-		mApplication(application) {
+
+/*
+ * Node API
+ */
+
+void FixInitiator::Initialize(Handle<Object> target) {
+  NanScope();
+
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixInitiator::New);
+
+  // TODO:: Figure out what the compile error is with this
+  //NanAssignPersistent(constructor, ctor);
+
+  ctor->InstanceTemplate()->SetInternalFieldCount(1);
+  ctor->SetClassName(NanNew("FixInitiator"));
+
+  NODE_SET_PROTOTYPE_METHOD(ctor, "start", start);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "send", send);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "stop", stop);
+
+  target->Set(NanNew("FixInitiator"), ctor->GetFunction());
+}
+
+NAN_METHOD(FixInitiator::New) {
+	NanScope();
+
+	String::Utf8Value propertiesFile(args[0]);
+	FixInitiator *initiator = new FixInitiator(*propertiesFile);
+
+	initiator->Wrap(args.This());
+	initiator->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
+
+	uv_async_init(uv_default_loop(), &initiator->mAsyncFIXEvent, handleFixEvent);
+
+	NanReturnValue(args.This());
+}
+
+NAN_METHOD(FixInitiator::start) {
+	NanScope();
+
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+
+	NanCallback *callback = new NanCallback(args[0].As<Function>());
+
+	NanAsyncQueueWorker(new FixStartWorker(callback, instance->mInitiator));
+
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixInitiator::send) {
+	NanScope();
+
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+
+	Local<Object> message = args[0]->ToObject();
+	NanCallback *callback = new NanCallback(args[1].As<Function>());
+
+	FIX::Message* fixMessage = new FIX::Message();
+	js2Fix(fixMessage, message);
+
+	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixInitiator::stop) {
+	NanScope();
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+
+	NanCallback *callback = new NanCallback(args[0].As<Function>());
+
+	NanAsyncQueueWorker(new FixStopWorker(callback, instance->mInitiator));
+
+	NanReturnUndefined();
+}
+
+/*
+ * Implementation of FixInitiator Class
+ */
+
+FixInitiator::FixInitiator(const char* propertiesFile): ObjectWrap() {
+	mSettings = FIX::SessionSettings(propertiesFile);
+	FIX::FileStoreFactory storeFactory(mSettings);
+	FIX::FileLogFactory logFactory(mSettings);
+
+	mFixApplication = new FixApplication(&mAsyncFIXEvent, &mCallbacks);
+
+	mInitiator = new FIX::SocketInitiator(*mFixApplication, storeFactory, mSettings);
 }
 
 FixInitiator::~FixInitiator() {
-	printf("dispozed");
+	uv_close((uv_handle_t*) &mAsyncFIXEvent, NULL);
 }
 
-void FixInitiator::Init() {
-  // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("FixClient"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("start"),
-		  FunctionTemplate::New(start)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("send"),
-		  FunctionTemplate::New(send)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("stop"),
-		  FunctionTemplate::New(stop)->GetFunction());
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-}
+void FixInitiator::handleFixEvent(uv_async_t *handle, int status) {
+	NanScope();
 
-Handle<Value> FixInitiator::New(const Arguments& args) {
-  HandleScope scope;
+	fix_event_t* event = (fix_event_t*)handle->data;
 
-  if (args.IsConstructCall()) {
-    // Invoked as constructor: `new MyObject(...)`
-	FixEventHandler* handler = new FixEventHandler(args);
-	FixInitiator* obj = new FixInitiator(FixApplication::FixApplication(handler, &appAsync));
-    obj->Wrap(args.This());
-    return scope.Close(args.This());
-  } else {
-    // Invoked as plain function `MyObject(...)`, turn into construct call.
-    const int argc = 1;
-    Local<Value> argv[argc] = { args[0] };
-    return scope.Close(constructor->NewInstance(argc, argv));
-  }
-}
+	Local<String> eventName = NanNew<String>(event->eventName.c_str());
 
-Handle<Value> FixInitiator::NewInstance(const Arguments& args) {
-  HandleScope scope;
+	Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
 
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = { args[0] };
-  Local<Object> instance = constructor->NewInstance(argc, argv);
+	if(event->message != NULL){
+		Local<Object> msg = NanNew<Object>();
 
-  return scope.Close(instance);
-}
+		fix2Js(msg, event->message);
 
-struct InitiatorRequest {
-	Persistent<Function> callback;
-	std::string propertiesFile;
-	FixApplication app;
-	FixInitiator* client;
-	FIX::SessionID sessionId;
-};
-
-struct InitiatorStopRequest {
-	Persistent<Function> callback;
-	FIX::SocketInitiator* initiator;
-	FIX::SessionID sessionId;
-};
-
-void startInitiator(uv_work_t *req) {
-	try
-	{
-		InitiatorRequest *input = static_cast<InitiatorRequest*>(req->data);
-		FixApplication app = input->app;
-		FIX::SessionSettings settings(input->propertiesFile);
-
-		FIX::FileStoreFactory storeFactory(settings);
-		FIX::FileLogFactory logFactory(settings);
-		FIX::SocketInitiator initiator(app, storeFactory, settings, logFactory);
-
-		printf("Starting initiator!\n");
-		initiator.start();
-		FIX::SessionID sessionId = *initiator.getSessions().begin();
-
-		input->client->setSessionId(sessionId);
-		input->client->setInitiator(&initiator);
-
-		initiatorAsync.data = (void*) &input->callback;
-
-		uv_async_send(&initiatorAsync); //notify that we have finished starting the initiator and are logged on
-
-		while(true){ } //keep this thing running until we call stop
-	}
-	catch(FIX::ConfigError& e)
-	{
-	    //handle this exception
-		std::cout << e.what();
-		return;
-	}
-}
-
-void afterInitiatorStart(uv_work_t *req, int status) {
-	HandleScope scope;
-
-	InitiatorRequest *m = (InitiatorRequest *)req->data;
-	Handle<Value> argv[0] = {};
-	m->callback->Call(Context::GetCurrent()->Global(), 0, argv);
-	m->callback.Dispose();
-
-	delete m;
-	delete req;
-
-	scope.Close(Undefined());
-}
-
-void initiatorStartRunCallback(uv_async_t *handle, int status /*UNUSED*/) {
-	HandleScope scope;
-	Persistent<Function> callback = *((Persistent<Function>*)handle->data);
-
-	Handle<Value> argv[0] = {};
-	callback->Call(Context::GetCurrent()->Global(), 0, argv);
-	callback.Dispose();
-	uv_close((uv_handle_t*) &initiatorAsync, NULL);
-	scope.Close(Undefined());
-}
-
-Handle<Value> FixInitiator::start(const Arguments& args) {
-	HandleScope scope;
-
-	FixInitiator* obj = ObjectWrap::Unwrap<FixInitiator>(args.This());
-
-	FixApplication app = obj->mApplication;
-	String::Utf8Value utf8(args[0]->ToString());
-	std::string fileName = string(*utf8);
-
-	uv_work_t *req = new uv_work_t;
-	InitiatorRequest *data = new InitiatorRequest;
-	data->callback = Persistent<Function>::New(args[1].As<Function>());
-	data->propertiesFile = fileName;
-	data->app = app;
-	data->client = obj;
-	req->data = data;
-
-	uv_loop_t* loop = uv_default_loop();
-	uv_async_init(loop, &initiatorAsync, initiatorStartRunCallback);
-	uv_async_init(loop, &appAsync, FixEventHandler::handleFixEvent);
-	uv_queue_work(loop, req, startInitiator, afterInitiatorStart);
-
-	return Undefined();
-}
-
-struct SendMessageRequest {
-	Persistent<Function> callback;
-	FIX::Message* message;
-	FIX::SessionID sessionId;
-};
-
-void sendMessage(uv_work_t *req) {
-	SendMessageRequest *data = static_cast<SendMessageRequest*>(req->data);
-	printf("Sending message with sessionId %s \n", data->sessionId.toString().c_str());
-
-
-	FIX::Session* session = FIX::Session::lookupSession(data->sessionId);
-	printf("session is enabled: %d \n", session->isEnabled());
-	printf("session is isLoggedOn: %d \n", session->isLoggedOn());
-
-	FIX::Session::sendToTarget(*(data->message), data->sessionId);
-}
-
-void afterMessageSent(uv_work_t *req, int status) {
-	HandleScope scope;
-	SendMessageRequest *data = static_cast<SendMessageRequest*>(req->data);
-	Handle<Value> argv[0] = {};
-
-	data->callback->Call(Context::GetCurrent()->Global(), 0, argv);
-	data->callback.Dispose();
-	delete data;
-	delete req;
-	scope.Close(Undefined());
-}
-
-Handle<Value> FixInitiator::send(const Arguments& args) {
-	HandleScope scope;
-	printf("In send()\n");
-	//Add validation on args here!
-	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
-	uv_work_t *req = new uv_work_t;
-	SendMessageRequest *data = new SendMessageRequest;
-	data->callback = Persistent<Function>::New(args[1].As<Function>());
-	data->message = convertToFixMessage(args[0]->ToObject());
-	data->sessionId = client->mSessionId;
-	req->data = data;
-
-	printf("Queuing async send thread\n");
-	uv_queue_work(uv_default_loop(), req, sendMessage, afterMessageSent);
-	//When to close scope vs not? Is this because closing the scope before task finishes running would cause fuckups?
-	return Undefined();
-}
-
-void stopInitiator(uv_work_t *req) {
-	InitiatorStopRequest* input = static_cast<InitiatorStopRequest*>(req->data);
-	FIX::SocketInitiator* initiator = input->initiator;
-
-	if(initiator == NULL)
-	{
-		cout << "Trying to stop an Initiator that is not started!" << endl;
+		Local<Value> argv[] = {
+				msg,
+				NanNew<String>(event->sessionId->toString().c_str())
+		};
+		NanMakeCallback(NanGetCurrentContext()->Global(), callback, 2, argv);
 	} else {
-		initiator->stop();
-		printf("Initiator stopped!\n");
+		Local<Value> argv[] = {
+				NanNew<String>(event->sessionId->toString().c_str())
+		};
+
+		NanMakeCallback(NanGetCurrentContext()->Global(), callback, 1, argv);
 	}
+
 }
 
-void afterInitiatorStop(uv_work_t *req, int status) {
-	HandleScope scope;
 
-	InitiatorRequest *m = (InitiatorRequest *)req->data;
-	Handle<Value> argv[0] = {};
-	m->callback->Call(Context::GetCurrent()->Global(), 0, argv);
-	m->callback.Dispose();
+void FixInitiator::js2Fix(FIX::Message* message, Local<Object> msg) {
 
-	//delete m;
-	delete req;
-
-	scope.Close(Undefined());
-}
-
-Handle<Value> FixInitiator::stop(const Arguments& args) {
-
-	HandleScope scope;
-	FixInitiator* client = ObjectWrap::Unwrap<FixInitiator>(args.This());
-
-	uv_work_t *req = new uv_work_t;
-	InitiatorStopRequest *data = new InitiatorStopRequest;
-	data->callback = Persistent<Function>::New(args[0].As<Function>());
-	data->initiator = client->mInitiator;
-	data->sessionId = client->mSessionId;
-	req->data = data;
-	printf("Stopping Initiator!\n");
-	uv_queue_work(uv_default_loop(), req, stopInitiator, afterInitiatorStop);
-
-	return scope.Close(Undefined());
-}
-
-void FixInitiator::setSessionId(FIX::SessionID sessionId)
-{
-	mSessionId = sessionId;
-}
-
-void FixInitiator::setInitiator(FIX::SocketInitiator* initiator)
-{
-	mInitiator = initiator;
-}
-
-FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
-	FIX::Message *message = new FIX::Message;
 	Local<Object> header = Local<Object>::Cast(msg->Get(String::New("header")));
+	Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("message")));
+
 	FIX::Header &msgHeader = message->getHeader();
 	FIX::Trailer &msgTrailer = message->getTrailer();
 
 	Local<Array> headerTags = header->GetPropertyNames();
-	for(int i=0; i<(int)headerTags->Length(); i++) {
-		Local<String> prop = headerTags->Get(i)->ToString();
-		String::Utf8Value keyStr(prop->ToString());
+	for(int i=0; i < (int)headerTags->Length(); i++) {
+		String::Utf8Value value(header->Get(headerTags->Get(i))->ToString());
 
-		String::Utf8Value valueStr(header->Get(prop)->ToString());
-
-		msgHeader.setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+		msgHeader.setField(
+				headerTags->Get(i)->Int32Value(),
+				std::string(*value)
+		);
 	}
 
-	Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("message")));
 	Local<Array> msgTags = tags->GetPropertyNames();
-	for(int i=0; i<(int)msgTags->Length(); i++) {
-		Local<String> prop = msgTags->Get(i)->ToString();
-		String::Utf8Value keyStr(prop->ToString());
+	for(int i=0; i < (int)msgTags->Length(); i++) {
+		String::Utf8Value value(tags->Get(msgTags->Get(i))->ToString());
 
-		String::Utf8Value valueStr(tags->Get(prop)->ToString());
-		message->setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+		message->setField(
+				msgTags->Get(i)->Int32Value(),
+				std::string(*value)
+		);
 	}
 
 	Local<String> groupKey = String::New("groups");
@@ -309,7 +189,7 @@ FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 					String::Utf8Value keyStr(prop->ToString());
 
 					String::Utf8Value valueStr(entry->Get(prop)->ToString());
-					group->setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+					group->setField(atoi(std::string(*keyStr).c_str()), std::string(*valueStr));
 				}
 			}
 			message->addGroup(*group);
@@ -327,15 +207,69 @@ FIX::Message* FixInitiator::convertToFixMessage(Handle<Object> msg) {
 
 			String::Utf8Value valueStr(trailer->Get(prop)->ToString());
 
-			msgTrailer.setField(atoi(string(*keyStr).c_str()), string(*valueStr));
+			msgTrailer.setField(atoi(std::string(*keyStr).c_str()), std::string(*valueStr));
 		}
 	}
-
-	return message;
 }
 
+ Handle<Value> sessionIdToJs(FIX::SessionID* sessionId) {
+	Handle<Object> session = Object::New();
+	session->Set(String::New("beginString"), String::New(sessionId->getBeginString().getString().c_str()));
+	session->Set(String::New("senderCompID"), String::New(sessionId->getSenderCompID().getString().c_str()));
+	session->Set(String::New("targetCompID"), String::New(sessionId->getTargetCompID().getString().c_str()));
+	session->Set(String::New("sessionQualifier"), String::New(sessionId->getSessionQualifier().c_str()));
 
+	return session;
+}
 
+void FixInitiator::fix2Js(Local<Object> msg, const FIX::Message* message) {
+	Local<Object> header = NanNew<Object>();
+	Local<Object> tags = NanNew<Object>();
+	Local<Object> trailer = NanNew<Object>();
+	Local<Object> groups = NanNew<Object>();
 
+	FIX::Header messageHeader = message->getHeader();
+	FIX::Trailer messageTrailer = message->getTrailer();
+
+	for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
+	{
+		header->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+	}
+
+	for(FIX::FieldMap::iterator it = message->begin(); it != message->end(); ++it)
+	{
+		tags->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+	}
+
+	for(FIX::FieldMap::iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
+	{
+		trailer->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+	}
+
+	for(FIX::FieldMap::g_iterator it = message->g_begin(); it != message->g_end(); ++it)
+	{
+		std::vector< FIX::FieldMap* > groupVector = it->second;
+		Handle<Array> groupList = Array::New(groupVector.size());
+		int i=0;
+		for(std::vector< FIX::FieldMap* >::iterator v_it = groupVector.begin(); v_it != groupVector.end(); ++v_it)
+		{
+			Handle<Object> groupEntry = Object::New();
+			FIX::FieldMap* fields = *v_it;
+			for(FIX::FieldMap::iterator field_it = fields->begin(); field_it != fields->end(); ++field_it)
+			{
+				groupEntry->Set(Integer::New(field_it->first), String::New(field_it->second.getString().c_str()));
+			}
+			groupList->Set(i, groupEntry);
+			i++;
+		}
+
+		groups->Set(Integer::New(it->first), groupList);
+	}
+
+	msg->Set(String::New("header"), header);
+	msg->Set(String::New("tags"), tags);
+	msg->Set(String::New("trailer"), trailer);
+	msg->Set(String::New("groups"), groups);
+}
 
 

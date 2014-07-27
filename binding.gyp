@@ -2,7 +2,19 @@
   'targets': [
     {
       'target_name': 'node_quickfix',
-      'sources': [ 'src/FixEvent.h', 'src/FixEventHandler.h', 'src/FixEventHandler.cpp', 'src/FixApplication.h', 'src/FixApplication.cpp', 'src/FixInitiator.h', 'src/FixInitiator.cpp', 'src/node_quickfix.cpp' ],
+      'sources': [ 
+      	'src/FixEvent.h', 
+      	'src/FixApplication.h', 
+      	'src/FixApplication.cpp', 
+      	'src/FixInitiator.h', 
+      	'src/FixInitiator.cpp', 
+      	'src/FixStartWorker.h', 
+      	'src/FixStartWorker.cpp',
+      	'src/FixSendWorker.h', 
+      	'src/FixSendWorker.cpp',
+      	'src/FixStopWorker.h', 
+      	'src/FixStopWorker.cpp',
+      	'src/node_quickfix.cpp' ],
 	  'link_settings': {
 	  	'libraries': [
 	  		'-L/usr/lib',
@@ -14,6 +26,7 @@
 	  	]
 	  },
 	  'include_dirs': [
+	  	"<!(node -e \"require('nan')\")",
 	  	'/usr/local/include/quickfix'
 	  ],
 	  'cflags!': [ '-fno-exceptions' ],

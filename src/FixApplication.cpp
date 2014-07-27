@@ -1,14 +1,14 @@
+#include <v8.h>
 #include <node.h>
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
 #include "FixApplication.h"
-#include "FixEventHandler.h"
 #include "FixEvent.h"
 
 FixApplication::FixApplication() {}
 
-FixApplication::FixApplication(FixEventHandler* handler, uv_async_t* handle) :
-		mEventHandler(handler), mAsyncHandle(handle)
+FixApplication::FixApplication(uv_async_t* handle, v8::Persistent<v8::Object>* callbacks) :
+		mAsyncHandle(handle), mCallbacks(callbacks)
 {
 }
 
@@ -18,28 +18,28 @@ FixApplication::~FixApplication()
 
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
-	std::cout <<"Logged on" << std::endl;
-	FixEvent* event = new FixEvent();
+	std::cout << "FIX onLogon" << std::endl;
 
-	event->eventName = "onLogon";
-	event->handler = mEventHandler;
-	event->sessionId = new FIX::SessionID(sessionID);
-
-	mAsyncHandle->data = (void*) event;
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("onLogon");
+	data->sessionId = &sessionID;
+	data->callbacks = mCallbacks;
+	data->message = NULL;
+	mAsyncHandle->data = data;
 
 	uv_async_send(mAsyncHandle);
 }
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
-	std::cout <<"Logged out" << std::endl;
-	FixEvent* event = new FixEvent();
+	std::cout << "FIX onLogout" << std::endl;
 
-	event->eventName = "onLogout";
-	event->handler = mEventHandler;
-	event->sessionId = new FIX::SessionID(sessionID);
-
-	mAsyncHandle->data = (void*) event;
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("onLogout");
+	data->sessionId = &sessionID;
+	data->callbacks = mCallbacks;
+	data->message = NULL;
+	mAsyncHandle->data = data;
 
 	uv_async_send(mAsyncHandle);
 }
@@ -47,16 +47,14 @@ void FixApplication::onLogout( const FIX::SessionID& sessionID )
 void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
 {
-	std::cout <<"Message received in fromApp:" << std::endl;
-	std::cout << message.toString() << std::endl;
+	std::cout << "FIX fromApp" << std::endl;
 
-	FixEvent* event = new FixEvent();
-	event->eventName = "fromApp";
-	event->handler = mEventHandler;
-	event->message = new FIX::Message(message);
-	event->sessionId = new FIX::SessionID(sessionID);
-
-	mAsyncHandle->data = (void*) event;
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("fromApp");
+	data->sessionId = &sessionID;
+	data->message = new FIX::Message(message);
+	data->callbacks = mCallbacks;
+	mAsyncHandle->data = data;
 
 	uv_async_send(mAsyncHandle);
 }
@@ -64,16 +62,15 @@ throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
-	std::cout <<"Message sent in toApp:" << std::endl;
-	std::cout << message.toString() << std::endl;
+	std::cout << "FIX fromApp" << std::endl;
 
-	FixEvent* event = new FixEvent();
-	event->eventName = "toApp";
-	event->handler = mEventHandler;
-	event->message = new FIX::Message(message);
-	event->sessionId = new FIX::SessionID(sessionID);
-
-	mAsyncHandle->data = (void*) event;
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("toApp");
+	data->sessionId = &sessionID;
+	data->message = new FIX::Message(message);
+	data->callbacks = mCallbacks;
+	mAsyncHandle->data = data;
 
 	uv_async_send(mAsyncHandle);
 }
+

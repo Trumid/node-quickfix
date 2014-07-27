@@ -10,12 +10,15 @@
 #include "quickfix/Message.h"
 #include "quickfix/SessionID.h"
 #include <string>
+#include <v8.h>
+#include <node.h>
+#include <nan.h>
 
-struct FixEvent {
+typedef struct {
 	std::string eventName;
-	FIX::Message* message;
-	FIX::SessionID* sessionId;
-	FixEventHandler* handler;
-};
+	const FIX::SessionID* sessionId;
+	const FIX::Message* message;
+	v8::Persistent<v8::Object>* callbacks;
+} fix_event_t;
 
 #endif /* FIXEVENT_H_ */

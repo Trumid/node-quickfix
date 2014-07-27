@@ -45,6 +45,7 @@ INCS_Debug := \
 	-I/Users/stefankutko/.node-gyp/0.10.29/src \
 	-I/Users/stefankutko/.node-gyp/0.10.29/deps/uv/include \
 	-I/Users/stefankutko/.node-gyp/0.10.29/deps/v8/include \
+	-I$(srcdir)/node_modules/nan \
 	-I/usr/local/include/quickfix
 
 DEFS_Release := \
@@ -88,12 +89,15 @@ INCS_Release := \
 	-I/Users/stefankutko/.node-gyp/0.10.29/src \
 	-I/Users/stefankutko/.node-gyp/0.10.29/deps/uv/include \
 	-I/Users/stefankutko/.node-gyp/0.10.29/deps/v8/include \
+	-I$(srcdir)/node_modules/nan \
 	-I/usr/local/include/quickfix
 
 OBJS := \
-	$(obj).target/$(TARGET)/src/FixEventHandler.o \
 	$(obj).target/$(TARGET)/src/FixApplication.o \
 	$(obj).target/$(TARGET)/src/FixInitiator.o \
+	$(obj).target/$(TARGET)/src/FixStartWorker.o \
+	$(obj).target/$(TARGET)/src/FixSendWorker.o \
+	$(obj).target/$(TARGET)/src/FixStopWorker.o \
 	$(obj).target/$(TARGET)/src/node_quickfix.o
 
 # Add to the list of files we specially track dependencies for.
