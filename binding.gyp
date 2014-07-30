@@ -8,12 +8,12 @@
       	'src/FixApplication.cpp', 
       	'src/FixInitiator.h', 
       	'src/FixInitiator.cpp', 
-      	'src/FixStartWorker.h', 
-      	'src/FixStartWorker.cpp',
+      	'src/FixInitiatorStartWorker.h', 
+      	'src/FixInitiatorStartWorker.cpp',
       	'src/FixSendWorker.h', 
       	'src/FixSendWorker.cpp',
-      	'src/FixStopWorker.h', 
-      	'src/FixStopWorker.cpp',
+      	'src/FixInitiatorStopWorker.h', 
+      	'src/FixInitiatorStopWorker.cpp',
       	'src/node_quickfix.cpp' ],
 	  'link_settings': {
 	  	'libraries': [

@@ -10,9 +10,9 @@
 #include "FixApplication.h"
 #include "FixEvent.h"
 
-#include "FixStartWorker.h"
+#include "FixInitiatorStartWorker.h"
 #include "FixSendWorker.h"
-#include "FixStopWorker.h"
+#include "FixInitiatorStopWorker.h"
 
 //#include "closure.h"
 
@@ -62,7 +62,7 @@ NAN_METHOD(FixInitiator::start) {
 
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixStartWorker(callback, instance->mInitiator));
+	NanAsyncQueueWorker(new FixInitiatorStartWorker(callback, instance->mInitiator));
 
 	NanReturnUndefined();
 }
@@ -89,7 +89,7 @@ NAN_METHOD(FixInitiator::stop) {
 
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixStopWorker(callback, instance->mInitiator));
+	NanAsyncQueueWorker(new FixInitiatorStopWorker(callback, instance->mInitiator));
 
 	NanReturnUndefined();
 }
@@ -173,7 +173,7 @@ void FixInitiator::js2Fix(FIX::Message* message, Local<Object> msg) {
 	Local<String> groupKey = String::New("groups");
 	if(msg->Has(groupKey))
 	{
-		Local<Array> groups = Local<Array>::Cast(groupKey);
+		Local<Array> groups = Local<Array>::Cast(msg->Get(groupKey));
 		for(int i=0; i<(int)groups->Length(); i++) {
 			Local<Object> groupObj = groups->Get(i)->ToObject();
 			FIX::Group* group = new FIX::Group(
@@ -181,11 +181,11 @@ void FixInitiator::js2Fix(FIX::Message* message, Local<Object> msg) {
 					groupObj->Get(String::New("delim"))->ToInteger()->Value());
 
 			Local<Array> groupEntries = Local<Array>::Cast(groupObj->Get(String::New("entries")));
-			for(int j=0; j<(int)groupEntries->Length(); i++) {
-				Local<Object> entry = groupEntries->Get(i)->ToObject();
+			for(int j=0; j<(int)groupEntries->Length(); j++) {
+				Local<Object> entry = groupEntries->Get(j)->ToObject();
 				Local<Array> entryTags = entry->GetPropertyNames();
-				for(int i=0; i<(int)entryTags->Length(); i++) {
-					Local<String> prop = entryTags->Get(i)->ToString();
+				for(int k=0; k<(int)entryTags->Length(); k++) {
+					Local<String> prop = entryTags->Get(k)->ToString();
 					String::Utf8Value keyStr(prop->ToString());
 
 					String::Utf8Value valueStr(entry->Get(prop)->ToString());

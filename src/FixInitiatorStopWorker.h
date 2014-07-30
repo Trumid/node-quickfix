@@ -1,6 +1,6 @@
 
-#ifndef FIXSTARTWORKER_H_
-#define FIXSTARTWORKER_H_
+#ifndef FIXSTOPWORKER_H_
+#define FIXSTOPWORKER_H_
 
 #include "quickfix/SocketInitiator.h"
 
@@ -10,12 +10,12 @@
 using namespace v8;
 using namespace node;
 
-class FixStartWorker : public NanAsyncWorker
+class FixInitiatorStopWorker : public NanAsyncWorker
 {
 	public:
-		FixStartWorker(NanCallback *callback, FIX::SocketInitiator* initiator)
+		FixInitiatorStopWorker(NanCallback *callback, FIX::SocketInitiator* initiator)
 			: NanAsyncWorker(callback), initiator(initiator) {}
-		~FixStartWorker() {}
+		~FixInitiatorStopWorker() {}
 
 		void Execute();
 		void HandleOKCallback();
@@ -25,4 +25,4 @@ class FixStartWorker : public NanAsyncWorker
 };
 
 
-#endif /* FIXSTARTWORKER_H_ */
+#endif /* FIXSTOPWORKER_H_ */

@@ -10,7 +10,7 @@
 
 #include "quickfix/Exceptions.h"
 #include "quickfix/SocketInitiator.h"
-#include "FixStartWorker.h"
+#include "FixInitiatorStopWorker.h"
 
 using namespace v8;
 using namespace node;
@@ -19,9 +19,9 @@ using namespace node;
 // It is not safe to access V8, or V8 data structures
 // here, so everything we need for input and output
 // should go on `this`.
-void FixStartWorker::Execute () {
+void FixInitiatorStopWorker::Execute () {
 	try {
-		initiator->start();
+		initiator->stop();
 	} catch(FIX::ConfigError& e) {
 		//handle this exception
 	}
@@ -30,7 +30,7 @@ void FixStartWorker::Execute () {
 // Executed when the async work is complete
 // this function will be run inside the main event loop
 // so it is safe to use V8 again
-void FixStartWorker::HandleOKCallback () {
+void FixInitiatorStopWorker::HandleOKCallback () {
 	NanScope();
 
 	Local<Value> argv[] = {
