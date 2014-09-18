@@ -2,7 +2,7 @@
   "name" : "node_quickfix",
   "version" : "v0.1.0"
   , "scripts" : {
-      "preinstall" : "node-gyp clean && node-gyp configure && node-gyp build"
+      "preinstall" : "npm install nan && node-gyp clean && node-gyp configure && node-gyp build"
       , "preuninstall" : "rm -rf build/*"
     }
   , "main" : "index.js"
