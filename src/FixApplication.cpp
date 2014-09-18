@@ -62,7 +62,7 @@ throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
-	std::cout << "FIX fromApp" << std::endl;
+	std::cout << "FIX toApp" << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("toApp");

@@ -2,19 +2,31 @@
   'targets': [
     {
       'target_name': 'node_quickfix',
-      'sources': [ 
-      	'src/FixEvent.h', 
-      	'src/FixApplication.h', 
-      	'src/FixApplication.cpp', 
-      	'src/FixInitiator.h', 
-      	'src/FixInitiator.cpp', 
-      	'src/FixInitiatorStartWorker.h', 
+      'sources': [
+      	'src/FixEvent.h',
+      	'src/FixSession.h',
+      	'src/FixSession.cpp',
+      	'src/FixAcceptor.h',
+      	'src/FixAcceptor.cpp',
+      	'src/FixAcceptorStartWorker.h',
+      	'src/FixAcceptorStartWorker.cpp',
+      	'src/FixAcceptorStopWorker.h',
+      	'src/FixAcceptorStopWorker.cpp',
+      	'src/FixApplication.h',
+      	'src/FixApplication.cpp',
+      	'src/FixConnection.h',
+      	'src/FixConnection.cpp',
+      	'src/FixInitiator.h',
+      	'src/FixInitiator.cpp',
+      	'src/FixInitiatorStartWorker.h',
       	'src/FixInitiatorStartWorker.cpp',
-      	'src/FixSendWorker.h', 
-      	'src/FixSendWorker.cpp',
-      	'src/FixInitiatorStopWorker.h', 
+      	'src/FixInitiatorStopWorker.h',
       	'src/FixInitiatorStopWorker.cpp',
-      	'src/node_quickfix.cpp' ],
+      	'src/FixMessageUtil.h',
+      	'src/FixSendWorker.h',
+      	'src/FixSendWorker.cpp',
+      	'src/node_quickfix.cpp'
+      ],
 	  'link_settings': {
 	  	'libraries': [
 	  		'-L/usr/lib',

@@ -6,7 +6,7 @@
       , "preuninstall" : "rm -rf build/*"
     }
   , "main" : "index.js"
-  , "description" : "This is a wrapper for the Quickfix C++ library to be used within node applications...Currently it only supports an initiator"
+  , "description" : "This is a wrapper for the Quickfix C++ library to be used within node applications"
   , "author" : {
       "name" : "Kermen Deol"
       , "email" : "kermen.deol@electronifie.com"

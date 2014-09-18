@@ -1,6 +1,7 @@
 #include <node/v8.h>
 #include <node/node.h>
 #include "FixInitiator.h"
+#include "FixAcceptor.h"
 
 using namespace v8;
 
@@ -9,8 +10,14 @@ Handle<Value> Initiator(const Arguments& args) {
   return scope.Close(FixInitiator::New(args));
 }
 
+Handle<Value> Acceptor(const Arguments& args) {
+  HandleScope scope;
+  return scope.Close(FixAcceptor::New(args));
+}
+
 void init(Handle<Object> target) {
 	FixInitiator::Initialize(target);
+	FixAcceptor::Initialize(target);
 }
 
 // Register the module with node.

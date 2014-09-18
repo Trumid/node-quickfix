@@ -5,6 +5,7 @@
 #include <node.h>
 #include <nan.h>
 
+#include "FixConnection.h"
 #include "FixInitiator.h"
 #include "FixApplication.h"
 
@@ -16,31 +17,22 @@
 using namespace v8;
 using namespace node;
 
-class FixInitiator : public node::ObjectWrap {
+class FixInitiator : public FixConnection {
  public:
-  static Persistent<Function> constructor;
+  //virtual static Persistent<Function> constructor;
   static void Initialize(Handle<Object> target);
   static NAN_METHOD(New);
   static NAN_METHOD(start);
   static NAN_METHOD(send);
   static NAN_METHOD(stop);
-
-  static void handleFixEvent(uv_async_t *handle, int status);
+  static NAN_METHOD(isLoggedOn);
+  static NAN_METHOD(getSessions);
+  static NAN_METHOD(getSession);
 
   FixInitiator(const char* propertiesFile);
 
  private:
   ~FixInitiator();
-
-  static void js2Fix(FIX::Message* message, Local<Object> msg);
-  static void fix2Js(Local<Object> msg, const FIX::Message* message);
-
-  uv_async_t mAsyncFIXEvent;
-
-  FixApplication* mFixApplication;
-
-  FIX::SessionSettings mSettings;
-  Persistent<Object> mCallbacks;
   FIX::SocketInitiator* mInitiator;
 };
 
