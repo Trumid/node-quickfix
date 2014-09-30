@@ -39,25 +39,25 @@ exports.initiator = function(propertiesFile) {
 exports.acceptor = function(propertiesFile) {
 	var acceptor = new FIXAcceptor(propertiesFile, {
 		onCreate: function(sessionID) {
-			initiator.emit('onCreate', { sessionID: sessionID });
+			acceptor.emit('onCreate', { sessionID: sessionID });
 		},
 		onLogon: function(sessionID) {
-			initiator.emit('onLogon', { sessionID: sessionID });
+			acceptor.emit('onLogon', { sessionID: sessionID });
 		},
 		onLogout: function(sessionID) {
-			initiator.emit('onLogout', { sessionID: sessionID });
+			acceptor.emit('onLogout', { sessionID: sessionID });
 		},
 		toAdmin: function(sessionID) {
-			initiator.emit('toAdmin', { message: message, sessionID: sessionID });
+			acceptor.emit('toAdmin', { message: message, sessionID: sessionID });
 		},
 		fromAdmin: function(message, sessionID) {
-			initiator.emit('fromAdmin', { message: message, sessionID: sessionID });
+			acceptor.emit('fromAdmin', { message: message, sessionID: sessionID });
 		},
 		toApp: function(message, sessionID) {
-			initiator.emit('toApp', { message: message, sessionID: sessionID });
+			acceptor.emit('toApp', { message: message, sessionID: sessionID });
 		},
 		fromApp: function(message, sessionID) {
-			initiator.emit('fromApp', { message: message, sessionID: sessionID });
+			acceptor.emit('fromApp', { message: message, sessionID: sessionID });
 		}
     });
 

@@ -56,7 +56,7 @@ public:
 	static void js2Fix(FIX::Message* message, Local<Object> msg) {
 
 		Local<Object> header = Local<Object>::Cast(msg->Get(String::New("header")));
-		Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("message")));
+		Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("tags")));
 
 		FIX::Header &msgHeader = message->getHeader();
 		FIX::Trailer &msgTrailer = message->getTrailer();

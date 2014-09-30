@@ -57,12 +57,15 @@ NAN_METHOD(FixAcceptor::send) {
 	NanScope();
 
 	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
-
 	Local<Object> message = args[0]->ToObject();
 	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
+
+	FIX::SessionID senderSessionId = *(instance->mAcceptor->getSessions().begin());
+	std::string senderId = senderSessionId.getSenderCompID().getString();
+	fixMessage->getHeader().setField(49, senderId);
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
 
