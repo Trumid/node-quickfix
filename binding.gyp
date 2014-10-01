@@ -41,7 +41,7 @@
         "<!(node -e \"require('nan')\")",
         '/usr/local/include/quickfix'
       ],
-      'cflags': [ '-fexceptions', '-fstd=c++11' ],
+      'cflags': [ '-fexceptions', '-std=c++11' ],
       'cflags_cc': [ '-fexceptions' ],
       'conditions': [
         ['OS=="mac"', {
