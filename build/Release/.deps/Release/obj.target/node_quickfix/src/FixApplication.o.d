@@ -11,7 +11,8 @@ Release/obj.target/node_quickfix/src/FixApplication.o: \
   /Users/kdeol/.node-gyp/0.10.28/src/node_object_wrap.h \
   ../src/FixApplication.h ../node_modules/nan/nan.h \
   /Users/kdeol/.node-gyp/0.10.28/src/node_buffer.h \
-  /Users/kdeol/.node-gyp/0.10.28/src/node_version.h ../src/FixEvent.h
+  /Users/kdeol/.node-gyp/0.10.28/src/node_version.h \
+  ../src/FixLoginProvider.h ../src/FixLogonEvent.h ../src/FixEvent.h
 ../src/FixApplication.cpp:
 /Users/kdeol/.node-gyp/0.10.28/deps/v8/include/v8.h:
 /Users/kdeol/.node-gyp/0.10.28/deps/v8/include/v8stdint.h:
@@ -25,4 +26,6 @@ Release/obj.target/node_quickfix/src/FixApplication.o: \
 ../node_modules/nan/nan.h:
 /Users/kdeol/.node-gyp/0.10.28/src/node_buffer.h:
 /Users/kdeol/.node-gyp/0.10.28/src/node_version.h:
+../src/FixLoginProvider.h:
+../src/FixLogonEvent.h:
 ../src/FixEvent.h:

@@ -17,6 +17,7 @@
 #include "quickfix/Message.h"
 #include "quickfix/SocketInitiator.h"
 #include "FixApplication.h"
+#include "FixLogonEvent.h"
 
 #include "quickfix/FileStore.h"
 #include "quickfix/FileLog.h"
@@ -33,6 +34,7 @@ private:
 protected:
 	~FixConnection();
 	uv_async_t mAsyncFIXEvent;
+	uv_async_t mAsyncLogonEvent;
 
 	FixApplication* mFixApplication;
 	FIX::FileStoreFactory* mStoreFactory;
@@ -40,6 +42,8 @@ protected:
 
 	FIX::SessionSettings mSettings;
 	Persistent<Object> mCallbacks;
+	FixLoginProvider* mFixLoginProvider;
+	static void handleLogonEvent(uv_async_t *handle, int status);
 };
 
 #endif /* FIXCONNECTION_H_ */

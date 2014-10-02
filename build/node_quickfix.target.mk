@@ -93,11 +93,17 @@ INCS_Release := \
 	-I/usr/local/include/quickfix
 
 OBJS := \
+	$(obj).target/$(TARGET)/src/FixSession.o \
+	$(obj).target/$(TARGET)/src/FixLoginProvider.o \
+	$(obj).target/$(TARGET)/src/FixAcceptor.o \
+	$(obj).target/$(TARGET)/src/FixAcceptorStartWorker.o \
+	$(obj).target/$(TARGET)/src/FixAcceptorStopWorker.o \
 	$(obj).target/$(TARGET)/src/FixApplication.o \
+	$(obj).target/$(TARGET)/src/FixConnection.o \
 	$(obj).target/$(TARGET)/src/FixInitiator.o \
 	$(obj).target/$(TARGET)/src/FixInitiatorStartWorker.o \
-	$(obj).target/$(TARGET)/src/FixSendWorker.o \
 	$(obj).target/$(TARGET)/src/FixInitiatorStopWorker.o \
+	$(obj).target/$(TARGET)/src/FixSendWorker.o \
 	$(obj).target/$(TARGET)/src/node_quickfix.o
 
 # Add to the list of files we specially track dependencies for.

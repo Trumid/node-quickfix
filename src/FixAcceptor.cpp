@@ -35,6 +35,11 @@ NAN_METHOD(FixAcceptor::New) {
 
 	acceptor->Wrap(args.This());
 	acceptor->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
+	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+		acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New( args[2]->ToObject()));
+		acceptor->mFixApplication->setLogonProvider(acceptor->mFixLoginProvider);
+		uv_async_init(uv_default_loop(), &acceptor->mAsyncLogonEvent, handleLogonEvent);
+	}
 
 	uv_async_init(uv_default_loop(), &acceptor->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
 

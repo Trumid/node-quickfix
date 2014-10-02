@@ -12,6 +12,7 @@
 #include <node.h>
 #include <nan.h>
 #include "FixConnection.h"
+#include "FixLoginProvider.h"
 #include "quickfix/SocketAcceptor.h"
 
 using namespace v8;

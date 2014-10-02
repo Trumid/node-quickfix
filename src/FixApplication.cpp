@@ -4,11 +4,15 @@
 #include "quickfix/Message.h"
 #include "FixApplication.h"
 #include "FixEvent.h"
+#include "FixLoginProvider.h"
 
 FixApplication::FixApplication() {}
 
-FixApplication::FixApplication(uv_async_t* handle, v8::Persistent<v8::Object>* callbacks) :
-		mAsyncHandle(handle), mCallbacks(callbacks)
+FixApplication::FixApplication(
+		uv_async_t* handle,
+		uv_async_t* logonHandle,
+		v8::Persistent<v8::Object>* callbacks) :
+		mAsyncHandle(handle), mLogonHandle(logonHandle), mCallbacks(callbacks)
 {
 }
 
@@ -32,7 +36,7 @@ void FixApplication::onLogon( const FIX::SessionID& sessionID )
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
-	std::cout << "FIX onLogout" << std::endl;
+	std::cout << "FIX onLogout" << sessionID.toString() << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onLogout");
@@ -72,5 +76,9 @@ throw( FIX::DoNotSend )
 	mAsyncHandle->data = data;
 
 	uv_async_send(mAsyncHandle);
+}
+
+void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {
+	mLoginProvider = loginProvider;
 }
 

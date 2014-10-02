@@ -11,6 +11,7 @@
 #include "FixApplication.h"
 #include "FixEvent.h"
 #include "FixSession.h"
+#include "FixLoginProvider.h"
 
 #include "FixInitiatorStartWorker.h"
 #include "FixSendWorker.h"
@@ -55,6 +56,11 @@ NAN_METHOD(FixInitiator::New) {
 
 	initiator->Wrap(args.This());
 	initiator->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
+	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+		initiator->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New( args[2]->ToObject()));
+		initiator->mFixApplication->setLogonProvider(initiator->mFixLoginProvider);
+		uv_async_init(uv_default_loop(), &initiator->mAsyncLogonEvent, handleLogonEvent);
+	}
 
 	uv_async_init(uv_default_loop(), &initiator->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
 

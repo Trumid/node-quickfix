@@ -3,12 +3,16 @@ var quickfix = require(__dirname + '/build/Release/node_quickfix.node');
 
 var FIXInitiator = quickfix.FixInitiator;
 var FIXAcceptor = quickfix.FixAcceptor;
+exports.logonProvider = function(logon) {
+	return new quickfix.FixLoginProvider(logon);
+};
+
 var events = require('events');
 
 inherits(FIXInitiator, events.EventEmitter);
 inherits(FIXAcceptor, events.EventEmitter);
 
-exports.initiator = function(propertiesFile) {
+exports.initiator = function(propertiesFile, logonProvider) {
 	var initiator = new FIXInitiator(propertiesFile, {
 		onCreate: function(sessionID) {
 			initiator.emit('onCreate', { sessionID: sessionID });
@@ -31,12 +35,12 @@ exports.initiator = function(propertiesFile) {
 		fromApp: function(message, sessionID) {
 			initiator.emit('fromApp', { message: message, sessionID: sessionID });
 		}
-    });
+    }, logonProvider);
 
 	return initiator;
 };
 
-exports.acceptor = function(propertiesFile) {
+exports.acceptor = function(propertiesFile, logonProvider) {
 	var acceptor = new FIXAcceptor(propertiesFile, {
 		onCreate: function(sessionID) {
 			acceptor.emit('onCreate', { sessionID: sessionID });
@@ -59,7 +63,7 @@ exports.acceptor = function(propertiesFile) {
 		fromApp: function(message, sessionID) {
 			acceptor.emit('fromApp', { message: message, sessionID: sessionID });
 		}
-    });
+    }, logonProvider);
 
 	return acceptor;
 };

@@ -15,7 +15,13 @@ Handle<Value> Acceptor(const Arguments& args) {
   return scope.Close(FixAcceptor::New(args));
 }
 
+Handle<Value> LoginProvider(const Arguments& args) {
+  HandleScope scope;
+  return scope.Close(FixLoginProvider::New(args));
+}
+
 void init(Handle<Object> target) {
+	FixLoginProvider::Initialize(target);
 	FixInitiator::Initialize(target);
 	FixAcceptor::Initialize(target);
 }
