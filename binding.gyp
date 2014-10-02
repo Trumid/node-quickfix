@@ -30,22 +30,22 @@
       	'src/FixSendWorker.cpp',
       	'src/node_quickfix.cpp'
       ],
-	  'link_settings': {
-	  	'libraries': [
-	  		'-L/usr/lib',
-	  		'-L/usr/local/lib',
-	  		'-lquickfix',
-	  		'-lpthread', 
-	  		'-lxml2',
-	  		'-lz'
-	  	]
-	  },
-	  'include_dirs': [
-	  	"<!(node -e \"require('nan')\")",
-	  	'/usr/local/include/quickfix'
-	  ],
-	  'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      'link_settings': {
+        'libraries': [
+          '-L/usr/lib',
+          '-L/usr/local/lib',
+          '-lquickfix',
+          '-lpthread', 
+          '-lxml2',
+          '-lz'
+        ]
+      },
+      'include_dirs': [
+        "<!(node -e \"require('nan')\")",
+        '/usr/local/include/quickfix'
+      ],
+      'cflags': [ '-fexceptions', '-std=c++11' ],
+      'cflags_cc': [ '-fexceptions' ],
       'conditions': [
         ['OS=="mac"', {
           'xcode_settings': {

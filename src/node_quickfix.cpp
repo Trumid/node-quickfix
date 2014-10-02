@@ -1,5 +1,5 @@
-#include <node/v8.h>
-#include <node/node.h>
+#include <v8.h>
+#include <node.h>
 #include "FixInitiator.h"
 #include "FixAcceptor.h"
 
