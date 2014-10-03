@@ -6,7 +6,7 @@ var logonProvider = quickfix.logonProvider(function(msg, sessionId) {
 	logonProvider.finish(true);
 });
 
-var fixServer = quickfix.acceptor("./nodeQuickfixExample.properties"), logonProvider);
+var fixServer = quickfix.acceptor("./nodeQuickfixExample.properties", logonProvider);
 
 fixServer.start(function() {
 	console.log("FIX Acceptor Started")

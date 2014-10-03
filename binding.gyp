@@ -45,7 +45,9 @@
         '/usr/local/include/quickfix'
       ],
       'cflags': [ '-fexceptions', '-std=c++11' ],
+      'cflags!': ['-fno-exceptions'],
       'cflags_cc': [ '-fexceptions' ],
+      'cflags_cc!': [ '-fno-exceptions' ],
       'conditions': [
         ['OS=="mac"', {
           'xcode_settings': {

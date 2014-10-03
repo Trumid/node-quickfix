@@ -47,7 +47,7 @@ class FixApplication : public FIX::Application
 			  }
 
 			  if(!mLoginProvider->getIsLoggedOn()) {
-				  throw new FIX::RejectLogon();
+				  throw FIX::RejectLogon();
 			  }
 		  }
 		}
