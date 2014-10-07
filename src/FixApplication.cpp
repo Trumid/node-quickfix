@@ -22,7 +22,7 @@ FixApplication::~FixApplication()
 
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
-	std::cout << "FIX onLogon" << std::endl;
+	std::cout << "FIX onLogon " << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onLogon");
@@ -36,7 +36,7 @@ void FixApplication::onLogon( const FIX::SessionID& sessionID )
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
-	std::cout << "FIX onLogout" << sessionID.toString() << std::endl;
+	std::cout << "FIX onLogout " << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onLogout");
@@ -51,7 +51,7 @@ void FixApplication::onLogout( const FIX::SessionID& sessionID )
 void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
 {
-	std::cout << "FIX fromApp" << std::endl;
+	std::cout << "FIX fromApp " << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("fromApp");
@@ -66,7 +66,7 @@ throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
-	std::cout << "FIX toApp" << std::endl;
+	std::cout << "FIX toApp " << std::endl;
 
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("toApp");
@@ -80,5 +80,9 @@ throw( FIX::DoNotSend )
 
 void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {
 	mLoginProvider = loginProvider;
+}
+
+void FixApplication::setCredentials(fix_credentials* credentials) {
+	mCredentials = credentials;
 }
 

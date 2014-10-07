@@ -12,7 +12,7 @@ var events = require('events');
 inherits(FIXInitiator, events.EventEmitter);
 inherits(FIXAcceptor, events.EventEmitter);
 
-exports.initiator = function(propertiesFile, logonProvider) {
+exports.initiator = function(propertiesFile, options) {
 	var initiator = new FIXInitiator(propertiesFile, {
 		onCreate: function(sessionID) {
 			initiator.emit('onCreate', { sessionID: sessionID });
@@ -35,12 +35,12 @@ exports.initiator = function(propertiesFile, logonProvider) {
 		fromApp: function(message, sessionID) {
 			initiator.emit('fromApp', { message: message, sessionID: sessionID });
 		}
-    }, logonProvider);
+    }, options);
 
 	return initiator;
 };
 
-exports.acceptor = function(propertiesFile, logonProvider) {
+exports.acceptor = function(propertiesFile, options) {
 	var acceptor = new FIXAcceptor(propertiesFile, {
 		onCreate: function(sessionID) {
 			acceptor.emit('onCreate', { sessionID: sessionID });
@@ -51,7 +51,7 @@ exports.acceptor = function(propertiesFile, logonProvider) {
 		onLogout: function(sessionID) {
 			acceptor.emit('onLogout', { sessionID: sessionID });
 		},
-		toAdmin: function(sessionID) {
+		toAdmin: function(message, sessionID) {
 			acceptor.emit('toAdmin', { message: message, sessionID: sessionID });
 		},
 		fromAdmin: function(message, sessionID) {
@@ -63,7 +63,7 @@ exports.acceptor = function(propertiesFile, logonProvider) {
 		fromApp: function(message, sessionID) {
 			acceptor.emit('fromApp', { message: message, sessionID: sessionID });
 		}
-    }, logonProvider);
+    }, options);
 
 	return acceptor;
 };

@@ -10,6 +10,7 @@
 #include "FixAcceptorStartWorker.h"
 #include "FixSendWorker.h"
 #include "FixAcceptorStopWorker.h"
+#include "FixCredentials.h"
 
 //Persistent<Function> FixAcceptor::constructor;
 
@@ -36,9 +37,24 @@ NAN_METHOD(FixAcceptor::New) {
 	acceptor->Wrap(args.This());
 	acceptor->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
 	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
-		acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New( args[2]->ToObject()));
-		acceptor->mFixApplication->setLogonProvider(acceptor->mFixLoginProvider);
-		uv_async_init(uv_default_loop(), &acceptor->mAsyncLogonEvent, handleLogonEvent);
+		Local<Object> options = Local<Object>::New( args[2]->ToObject() );
+		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
+		if(options->Has(logonProviderKey)) {
+			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
+			acceptor->mFixApplication->setLogonProvider(acceptor->mFixLoginProvider);
+			uv_async_init(uv_default_loop(), &acceptor->mAsyncLogonEvent, handleLogonEvent);
+		}
+
+		Local<String> credentialsKey =  NanNew<String>("credentials");
+		if(options->Has(credentialsKey)){
+			Local<Object> creds = options->Get(credentialsKey)->ToObject();
+			fix_credentials* credentials = new fix_credentials;
+			String::Utf8Value usernameStr(creds->Get(NanNew<String>("username"))->ToString());
+			String::Utf8Value passwordStr(creds->Get(NanNew<String>("password"))->ToString());
+			credentials->username = std::string(*usernameStr);
+			credentials->password = std::string(*passwordStr);
+			acceptor->mFixApplication->setCredentials(credentials);
+		}
 	}
 
 	uv_async_init(uv_default_loop(), &acceptor->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);

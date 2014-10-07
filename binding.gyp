@@ -3,6 +3,7 @@
     {
       'target_name': 'node_quickfix',
       'sources': [
+      	'src/FixCredentials.h',
       	'src/FixEvent.h',
       	'src/FixSession.h',
       	'src/FixSession.cpp',

@@ -57,9 +57,24 @@ NAN_METHOD(FixInitiator::New) {
 	initiator->Wrap(args.This());
 	initiator->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
 	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
-		initiator->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New( args[2]->ToObject()));
-		initiator->mFixApplication->setLogonProvider(initiator->mFixLoginProvider);
-		uv_async_init(uv_default_loop(), &initiator->mAsyncLogonEvent, handleLogonEvent);
+		Local<Object> options = Local<Object>::New( args[2]->ToObject() );
+		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
+		if(options->Has(logonProviderKey)) {
+			initiator->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
+			initiator->mFixApplication->setLogonProvider(initiator->mFixLoginProvider);
+			uv_async_init(uv_default_loop(), &initiator->mAsyncLogonEvent, handleLogonEvent);
+		}
+
+		Local<String> credentialsKey =  NanNew<String>("credentials");
+		if(options->Has(credentialsKey)){
+			Local<Object> creds = options->Get(credentialsKey)->ToObject();
+			fix_credentials* credentials = new fix_credentials;
+			String::Utf8Value usernameStr(creds->Get(NanNew<String>("username"))->ToString());
+			String::Utf8Value passwordStr(creds->Get(NanNew<String>("password"))->ToString());
+			credentials->username = std::string(*usernameStr);
+			credentials->password = std::string(*passwordStr);
+			initiator->mFixApplication->setCredentials(credentials);
+		}
 	}
 
 	uv_async_init(uv_default_loop(), &initiator->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
