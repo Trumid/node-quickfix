@@ -174,8 +174,8 @@ public:
 		msg->Set(String::New("groups"), groups);
 	}
 
-	static Handle<Value> sessionIdToJs(FIX::SessionID* sessionId) {
-		Handle<Object> session = Object::New();
+	static Local<Value> sessionIdToJs(const FIX::SessionID* sessionId) {
+		Local<Object> session = Object::New();
 		session->Set(String::New("beginString"), String::New(sessionId->getBeginString().getString().c_str()));
 		session->Set(String::New("senderCompID"), String::New(sessionId->getSenderCompID().getString().c_str()));
 		session->Set(String::New("targetCompID"), String::New(sessionId->getTargetCompID().getString().c_str()));

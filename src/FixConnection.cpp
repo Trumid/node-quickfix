@@ -38,10 +38,11 @@ void FixConnection::handleLogonEvent(uv_async_t *handle, int status) {
 	Local<Object> msg = NanNew<Object>();
 
 	FixMessageUtil::fix2Js(msg, logonEvent->message);
+	Local<Value> session = FixMessageUtil::sessionIdToJs(logonEvent->sessionId);
 
 	Local<Value> argv[] = {
 			msg,
-			NanNew<String>(logonEvent->sessionId->toString().c_str())
+			session
 	};
 
 	logonEvent->logon->Call(2, argv);
