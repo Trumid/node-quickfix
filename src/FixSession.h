@@ -23,7 +23,7 @@ public:
 	static void Initialize(v8::Handle<v8::Object> target);
 	static NAN_METHOD(New);
 	void setSession(FIX::Session* session);
-	static Handle<Object> wrapFixSession(FixSession* fixSession, Handle<Object> handle);
+	static Handle<Object> wrapFixSession(FixSession* fixSession);
 
 private:
 	virtual ~FixSession();

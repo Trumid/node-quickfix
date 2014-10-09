@@ -75,7 +75,7 @@ void FixSession::Initialize(Handle<Object> target) {
 
 	Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixSession::New);
 
-	ctor->InstanceTemplate()->SetInternalFieldCount(6);
+	ctor->InstanceTemplate()->SetInternalFieldCount(1);
 	ctor->SetClassName(NanNew("FixSession"));
 
 	node::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
@@ -88,10 +88,22 @@ void FixSession::Initialize(Handle<Object> target) {
 	target->Set(NanNew("FixSession"), ctor->GetFunction());
 }
 
-Handle<Object> FixSession::wrapFixSession(FixSession* fixSession, Handle<Object> handle) {
-	NanScope();
-	fixSession->Wrap(handle);
-	return handle;
+Handle<Object> FixSession::wrapFixSession(FixSession* fixSession) {
+	Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>();
+
+	ctor->InstanceTemplate()->SetInternalFieldCount(1);
+	ctor->SetClassName(NanNew("FixSession"));
+
+	node::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
+	node::SetPrototypeMethod(ctor, "logon", logon);
+	node::SetPrototypeMethod(ctor, "logout", logout);
+	node::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
+	node::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
+	node::SetPrototypeMethod(ctor, "disconnect", disconnect);
+
+	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
+	obj->SetInternalField(0, External::New(fixSession));
+	return obj;
 }
 
 NAN_METHOD(FixSession::New) {

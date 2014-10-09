@@ -157,9 +157,7 @@ NAN_METHOD(FixInitiator::getSession) {
 	FixSession* fixSession = new FixSession();
 	fixSession->setSession(session);
 
-	Handle<Object> jsSession = Object::New();
-	FixSession::Initialize(jsSession);
-	jsSession = FixSession::wrapFixSession(fixSession, jsSession);
+	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
 
 	NanReturnValue(jsSession);
 }

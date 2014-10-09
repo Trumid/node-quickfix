@@ -40,12 +40,12 @@ public:
 
 			Local<Value> argv[] = {
 					msg,
-					NanNew<String>(event->sessionId->toString().c_str())
+					sessionIdToJs(event->sessionId)
 			};
 			NanMakeCallback(NanGetCurrentContext()->Global(), callback, 2, argv);
 		} else {
 			Local<Value> argv[] = {
-					NanNew<String>(event->sessionId->toString().c_str())
+					sessionIdToJs(event->sessionId)
 			};
 
 			NanMakeCallback(NanGetCurrentContext()->Global(), callback, 1, argv);
