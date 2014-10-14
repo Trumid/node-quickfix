@@ -23,7 +23,7 @@ exports.initiator = function(propertiesFile, options) {
 		onLogout: function(sessionID) {
 			initiator.emit('onLogout', { sessionID: sessionID });
 		},
-		toAdmin: function(sessionID) {
+		toAdmin: function(message, sessionID) {
 			initiator.emit('toAdmin', { message: message, sessionID: sessionID });
 		},
 		fromAdmin: function(message, sessionID) {

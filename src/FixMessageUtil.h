@@ -103,7 +103,9 @@ public:
 						group->setField(atoi(std::string(*keyStr).c_str()), std::string(*valueStr));
 					}
 				}
-				message->addGroup(*group);
+				if(groupEntries->Length() > 0) {
+					message->addGroup(*group);
+				}
 			}
 		}
 
