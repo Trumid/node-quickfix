@@ -43,6 +43,7 @@
       },
       'include_dirs': [
         "<!(node -e \"require('nan')\")",
+        '/usr/local/include',
         '/usr/local/include/quickfix'
       ],
       'cflags': [ '-fexceptions', '-std=c++11' ],
