@@ -11,6 +11,7 @@
 #include "FixSendWorker.h"
 #include "FixAcceptorStopWorker.h"
 #include "FixCredentials.h"
+#include "FixSession.h"
 
 //Persistent<Function> FixAcceptor::constructor;
 
@@ -24,6 +25,8 @@ void FixAcceptor::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(ctor, "start", start);
   NODE_SET_PROTOTYPE_METHOD(ctor, "send", send);
   NODE_SET_PROTOTYPE_METHOD(ctor, "stop", stop);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "getSessions", getSessions);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "getSession", getSession);
 
   target->Set(NanNew("FixAcceptor"), ctor->GetFunction());
 }
@@ -102,6 +105,38 @@ NAN_METHOD(FixAcceptor::stop) {
 	NanAsyncQueueWorker(new FixAcceptorStopWorker(callback, instance->mAcceptor));
 
 	NanReturnUndefined();
+}
+
+NAN_METHOD(FixAcceptor::getSessions) {
+	NanScope();
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+
+	std::set<FIX::SessionID> sessions = instance->mAcceptor->getSessions();
+
+	Local<Array> sessionsArr = Array::New(sessions.size());
+	std::set<FIX::SessionID>::iterator it;
+	int i = 0;
+	for(it = sessions.begin(); it != sessions.end(); ++it ){
+		FIX::SessionID id = *it;
+		sessionsArr->Set(i, FixMessageUtil::sessionIdToJs(&id));
+	}
+
+	NanReturnValue(sessionsArr);
+}
+
+NAN_METHOD(FixAcceptor::getSession) {
+	NanScope();
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+
+	Local<Object> sessionId = args[0]->ToObject();
+
+	FIX::Session* session = instance->mAcceptor->getSession(FixMessageUtil::jsToSessionId(sessionId));
+	FixSession* fixSession = new FixSession();
+	fixSession->setSession(session);
+
+	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
+
+	NanReturnValue(jsSession);
 }
 
 FixAcceptor::FixAcceptor(const char* propertiesFile): FixConnection(propertiesFile) {
