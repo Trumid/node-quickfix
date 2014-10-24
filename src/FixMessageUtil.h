@@ -102,8 +102,6 @@ public:
 						String::Utf8Value valueStr(entry->Get(prop)->ToString());
 						group->setField(atoi(std::string(*keyStr).c_str()), std::string(*valueStr));
 					}
-				}
-				if(groupEntries->Length() > 0) {
 					message->addGroup(*group);
 				}
 			}
