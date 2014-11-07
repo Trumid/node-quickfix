@@ -119,6 +119,7 @@ NAN_METHOD(FixAcceptor::getSessions) {
 	for(it = sessions.begin(); it != sessions.end(); ++it ){
 		FIX::SessionID id = *it;
 		sessionsArr->Set(i, FixMessageUtil::sessionIdToJs(&id));
+		i++;
 	}
 
 	NanReturnValue(sessionsArr);
@@ -140,7 +141,7 @@ NAN_METHOD(FixAcceptor::getSession) {
 }
 
 FixAcceptor::FixAcceptor(const char* propertiesFile): FixConnection(propertiesFile) {
-	mAcceptor = new FIX::SocketAcceptor(*mFixApplication, *mStoreFactory, mSettings);
+	mAcceptor = new FIX::SocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
 FixAcceptor::~FixAcceptor() {

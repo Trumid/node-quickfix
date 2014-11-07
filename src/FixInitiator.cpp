@@ -142,6 +142,7 @@ NAN_METHOD(FixInitiator::getSessions) {
 	for(it = sessions.begin(); it != sessions.end(); ++it ){
 		FIX::SessionID id = *it;
 		sessionsArr->Set(i, FixMessageUtil::sessionIdToJs(&id));
+		i++;
 	}
 
 	NanReturnValue(sessionsArr);
@@ -163,7 +164,7 @@ NAN_METHOD(FixInitiator::getSession) {
 }
 
 FixInitiator::FixInitiator(const char* propertiesFile): FixConnection(propertiesFile) {
-	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings);
+	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
 FixInitiator::~FixInitiator() {
