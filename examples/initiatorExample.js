@@ -1,5 +1,5 @@
 var df = require('dateformat')
-var quickfix = require('./index');
+var quickfix = require('../index');
 var options = {
   credentials: {
     username: "USERNAME",
@@ -7,7 +7,7 @@ var options = {
   }
 };
 
-var fixClient = quickfix.initiator("./nodeQuickfixClientExample.properties", options);
+var fixClient = quickfix.initiator("./nodeQuickfixInitiatorExample.properties", options);
 
 fixClient.start(function() {
 	console.log("FIX Initiator Started")

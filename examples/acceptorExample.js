@@ -1,5 +1,5 @@
 var df = require('dateformat')
-var quickfix = require('./index');
+var quickfix = require('../index');
 
 var logonProvider = quickfix.logonProvider(function(msg, sessionId) {
 	console.log("In JS Logon method");
