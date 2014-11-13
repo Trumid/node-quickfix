@@ -7,7 +7,8 @@ This is a node.js wrapper of the popular QuickFIX library. Information about Qui
 
 1. Download quickfix tar here: http://www.quickfixengine.org/
 2. Install via the following instructions: http://www.quickfixengine.org/quickfix/doc/html/building.html
-3. Include this module in your package.json file.
+3. Install the TBB library from https://www.threadingbuildingblocks.org/download
+4. Include this module in your package.json file.
 
 ###Features######
 
