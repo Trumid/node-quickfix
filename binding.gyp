@@ -5,6 +5,7 @@
       'sources': [
       	'src/FixCredentials.h',
       	'src/FixEvent.h',
+      	'src/FixEventQueue.h',
       	'src/FixSession.h',
       	'src/FixSession.cpp',
       	'src/FixLogon.h',
@@ -38,22 +39,25 @@
           '-lquickfix',
           '-lpthread', 
           '-lxml2',
-          '-lz'
+          '-lz',
+          '-ltbb'
         ]
       },
       'include_dirs': [
         "<!(node -e \"require('nan')\")",
         '/usr/local/include',
-        '/usr/local/include/quickfix'
+        '/usr/local/include/quickfix',
+        '/usr/local/include/tbb'
       ],
       'cflags': [ '-fexceptions', '-std=c++11' ],
-      'cflags!': ['-fno-exceptions'],
+      'cflags!': ['-fno-exceptions', '-fno-rtti'],
       'cflags_cc': [ '-fexceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      'cflags_cc!': [ '-fno-exceptions', '-fno-rtti' ],
       'conditions': [
         ['OS=="mac"', {
           'xcode_settings': {
             'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
+            'GCC_ENABLE_CPP_RTTI': 'YES',
             "OTHER_CFLAGS": ["-mmacosx-version-min=10.7", "-stdlib=libc++"]
           }
         }]

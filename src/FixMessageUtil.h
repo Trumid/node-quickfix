@@ -13,8 +13,10 @@
 #include <nan.h>
 
 #include "FixEvent.h"
+#include "FixEventQueue.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
+#include "tbb/concurrent_queue.h"
 
 using namespace v8;
 using namespace node;
@@ -27,28 +29,37 @@ public:
 	static void handleFixEvent(uv_async_t *handle, int status) {
 		NanScope();
 
-		fix_event_t* event = (fix_event_t*)handle->data;
+		tbb::concurrent_queue<fix_event_t*>* eventQueue = ((fix_event_queue_t*)handle->data)->queue;
 
-		Local<String> eventName = NanNew<String>(event->eventName.c_str());
+		fix_event_t* event;
 
-		Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
+		if(eventQueue != NULL) {
+			while(eventQueue->try_pop(event)) {
+				Local<String> eventName = NanNew<String>(event->eventName.c_str());
 
-		if(event->message != NULL){
-			Local<Object> msg = NanNew<Object>();
+				Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
 
-			fix2Js(msg, event->message);
+				if(event->message != NULL){
+					//std::cout<< "IN HANDLE EVENT 1 " << event->message->toString() <<std::endl;
+					Local<Object> msg = NanNew<Object>();
 
-			Local<Value> argv[] = {
-					msg,
-					sessionIdToJs(event->sessionId)
-			};
-			NanMakeCallback(NanGetCurrentContext()->Global(), callback, 2, argv);
-		} else {
-			Local<Value> argv[] = {
-					sessionIdToJs(event->sessionId)
-			};
+					fix2Js(msg, event->message);
 
-			NanMakeCallback(NanGetCurrentContext()->Global(), callback, 1, argv);
+					//std::cout<< "IN HANDLE EVENT 2 " << event->message->toString() <<std::endl;
+					Local<Value> argv[] = {
+							msg,
+							sessionIdToJs(event->sessionId)
+					};
+
+					NanMakeCallback(NanGetCurrentContext()->Global(), callback, 2, argv);
+				} else {
+					Local<Value> argv[] = {
+							sessionIdToJs(event->sessionId)
+					};
+
+					NanMakeCallback(NanGetCurrentContext()->Global(), callback, 1, argv);
+				}
+			}
 		}
 
 	}

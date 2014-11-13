@@ -8,8 +8,10 @@
 #include "quickfix/Application.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
+#include "tbb/concurrent_queue.h"
 #include "FixLoginProvider.h"
 #include "FixEvent.h"
+#include "FixEventQueue.h"
 #include "FixLogonEvent.h"
 #include "FixCredentials.h"
 
@@ -29,6 +31,8 @@ class FixApplication : public FIX::Application
 		v8::Persistent<v8::Object>* mCallbacks;
 		fix_credentials* mCredentials = NULL;
 		FixLoginProvider* mLoginProvider = NULL;
+		std::mutex m;
+		tbb::concurrent_queue<fix_event_t*> eventQueue;
 
 		void onCreate( const FIX::SessionID& ) {}
 		void onLogon( const FIX::SessionID& sessionID );
@@ -46,8 +50,12 @@ class FixApplication : public FIX::Application
 			data->sessionId = &sessionId;
 			data->callbacks = mCallbacks;
 			data->message = new FIX::Message(message);
-			mAsyncHandle->data = data;
 
+			fix_event_queue_t* queueHandle = new fix_event_queue_t;
+			queueHandle->queue = &eventQueue;
+			mAsyncHandle->data = queueHandle;
+
+			eventQueue.push(data);
 			uv_async_send(mAsyncHandle);
 		}
 		void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend );
@@ -77,8 +85,12 @@ class FixApplication : public FIX::Application
 		  data->sessionId = &sessionId;
 		  data->callbacks = mCallbacks;
 		  data->message = new FIX::Message(message);
-		  mAsyncHandle->data = data;
 
+		  fix_event_queue_t* queueHandle = new fix_event_queue_t;
+		  queueHandle->queue = &eventQueue;
+		  mAsyncHandle->data = queueHandle;
+
+		  eventQueue.push(data);
 		  uv_async_send(mAsyncHandle);
 		}
 		void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
