@@ -31,7 +31,6 @@ class FixApplication : public FIX::Application
 		v8::Persistent<v8::Object>* mCallbacks;
 		fix_credentials* mCredentials = NULL;
 		FixLoginProvider* mLoginProvider = NULL;
-		std::mutex m;
 		tbb::concurrent_queue<fix_event_t*> eventQueue;
 
 		void onCreate( const FIX::SessionID& ) {}
