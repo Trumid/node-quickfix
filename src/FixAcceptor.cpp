@@ -33,14 +33,32 @@ void FixAcceptor::Initialize(Handle<Object> target) {
 
 NAN_METHOD(FixAcceptor::New) {
 	NanScope();
+	bool hasOptions = false;
+	Local<Object> options;
+	FixAcceptor *acceptor = NULL;
+
+	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+		hasOptions = true;
+		options = Local<Object>::New( args[2]->ToObject() );
+	}
 
 	String::Utf8Value propertiesFile(args[0]);
-	FixAcceptor *acceptor = new FixAcceptor(*propertiesFile);
+
+	if(hasOptions) {
+		Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
+		if(options->Has(storeFactoryKey)) {
+			String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
+			acceptor = new FixAcceptor(*propertiesFile, std::string(*value));
+		} else {
+			acceptor = new FixAcceptor(*propertiesFile, "file");
+		}
+	} else {
+		acceptor = new FixAcceptor(*propertiesFile, "file");
+	}
 
 	acceptor->Wrap(args.This());
 	acceptor->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
-	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
-		Local<Object> options = Local<Object>::New( args[2]->ToObject() );
+	if(hasOptions){
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
 			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
@@ -140,7 +158,7 @@ NAN_METHOD(FixAcceptor::getSession) {
 	NanReturnValue(jsSession);
 }
 
-FixAcceptor::FixAcceptor(const char* propertiesFile): FixConnection(propertiesFile) {
+FixAcceptor::FixAcceptor(const char* propertiesFile, std::string storeFactory): FixConnection(propertiesFile, storeFactory) {
 	mAcceptor = new FIX::SocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 

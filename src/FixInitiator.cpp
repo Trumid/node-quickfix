@@ -51,13 +51,32 @@ void FixInitiator::Initialize(Handle<Object> target) {
 NAN_METHOD(FixInitiator::New) {
 	NanScope();
 
+	bool hasOptions = false;
+	Local<Object> options;
+	FixInitiator *initiator = NULL;
+
+	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+		hasOptions = true;
+		options = Local<Object>::New( args[2]->ToObject() );
+	}
+
 	String::Utf8Value propertiesFile(args[0]);
-	FixInitiator *initiator = new FixInitiator(*propertiesFile);
+
+	if(hasOptions) {
+		Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
+		if(options->Has(storeFactoryKey)) {
+			String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
+			initiator = new FixInitiator(*propertiesFile, std::string(*value));
+		} else {
+			initiator = new FixInitiator(*propertiesFile, "file");
+		}
+	} else {
+		initiator = new FixInitiator(*propertiesFile, "file");
+	}
 
 	initiator->Wrap(args.This());
 	initiator->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
-	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
-		Local<Object> options = Local<Object>::New( args[2]->ToObject() );
+	if(hasOptions){
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
 			initiator->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
@@ -163,7 +182,7 @@ NAN_METHOD(FixInitiator::getSession) {
 	NanReturnValue(jsSession);
 }
 
-FixInitiator::FixInitiator(const char* propertiesFile): FixConnection(propertiesFile) {
+FixInitiator::FixInitiator(const char* propertiesFile, std::string storeFactory): FixConnection(propertiesFile, storeFactory) {
 	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 

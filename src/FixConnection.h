@@ -19,7 +19,21 @@
 #include "FixApplication.h"
 #include "FixLogonEvent.h"
 
+#include "quickfix/MessageStore.h"
 #include "quickfix/FileStore.h"
+#include "quickfix/config.h"
+#ifdef HAVE_POSTGRESQL
+#include "quickfix/PostgreSQLStore.h"
+#include "quickfix/PostgreSQLLog.h"
+#endif
+#ifdef HAVE_MYSQL
+#include "quickfix/MySQLStore.h"
+#include "quickfix/MySQLLog.h"
+#endif
+#ifdef HAVE_ODBC
+#include "quickfix/OdbcStore.h"
+#include "quickfix/OdbcLog.h"
+#endif
 #include "quickfix/FileLog.h"
 
 using namespace v8;
@@ -27,7 +41,7 @@ using namespace node;
 
 class FixConnection : public node::ObjectWrap {
 public:
-	FixConnection(const char* propertiesFile);
+	FixConnection(const char* propertiesFile, std::string storeFactory);
 
 private:
 
@@ -37,8 +51,8 @@ protected:
 	uv_async_t mAsyncLogonEvent;
 
 	FixApplication* mFixApplication;
-	FIX::FileStoreFactory* mStoreFactory;
-	FIX::FileLogFactory* mLogFactory;
+	FIX::MessageStoreFactory* mStoreFactory;
+	FIX::LogFactory* mLogFactory;
 
 	FIX::SessionSettings mSettings;
 	Persistent<Object> mCallbacks;

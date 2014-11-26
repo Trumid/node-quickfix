@@ -29,7 +29,7 @@ class FixAcceptor : public FixConnection {
 		static NAN_METHOD(getSessions);
 		static NAN_METHOD(getSession);
 
-		FixAcceptor(const char* propertiesFile);
+		FixAcceptor(const char* propertiesFile, std::string storeFactory);
 
 	private:
 		~FixAcceptor();

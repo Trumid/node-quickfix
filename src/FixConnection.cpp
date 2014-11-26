@@ -17,12 +17,39 @@
 using namespace v8;
 using namespace node;
 
-FixConnection::FixConnection(const char* propertiesFile): ObjectWrap()  {
+FixConnection::FixConnection(const char* propertiesFile, std::string storeFactory): ObjectWrap()  {
 	mSettings = FIX::SessionSettings(propertiesFile);
 	mFixApplication = new FixApplication(
 			&mAsyncFIXEvent, &mAsyncLogonEvent, &mCallbacks);
+
+	#ifdef HAVE_POSTGRESQL
+	if(storeFactory == "postgresql") {
+		mStoreFactory = new FIX::PostgreSQLStoreFactory(mSettings);
+		mLogFactory = new FIX::PostgreSQLLogFactory(mSettings);
+	} else
+	#endif
+	#ifdef HAVE_MYSQL
+	if (storeFactory == "mysql") {
+		mStoreFactory = new FIX::MySQLStoreFactory(mSettings);
+		mLogFactory = new FIX::MySQLLogFactory(mSettings);
+	} else
+	#endif
+	#ifdef HAVE_ODBC
+	if (storeFactory == "odbc") {
+		mStoreFactory = new FIX::OdbcStoreFactory(mSettings);
+		mLogFactory = new FIX::OdbcLogFactory(mSettings);
+	} else
+	#endif
+	#if defined HAVE_POSTGRESQL || defined HAVE_MYSQL || defined HAVE_ODBC
+	{
+		mStoreFactory = new FIX::FileStoreFactory(mSettings);
+		mLogFactory = new FIX::FileLogFactory(mSettings);
+	}
+	#else
 	mStoreFactory = new FIX::FileStoreFactory(mSettings);
 	mLogFactory = new FIX::FileLogFactory(mSettings);
+	#endif
+
 }
 
 FixConnection::~FixConnection() {
