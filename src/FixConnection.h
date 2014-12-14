@@ -21,16 +21,18 @@
 
 #include "quickfix/MessageStore.h"
 #include "quickfix/FileStore.h"
-#include "quickfix/config.h"
 #ifdef HAVE_POSTGRESQL
+#include "quickfix/config.h"
 #include "quickfix/PostgreSQLStore.h"
 #include "quickfix/PostgreSQLLog.h"
 #endif
 #ifdef HAVE_MYSQL
+#include "quickfix/config.h"
 #include "quickfix/MySQLStore.h"
 #include "quickfix/MySQLLog.h"
 #endif
 #ifdef HAVE_ODBC
+#include "quickfix/config.h"
 #include "quickfix/OdbcStore.h"
 #include "quickfix/OdbcLog.h"
 #endif
