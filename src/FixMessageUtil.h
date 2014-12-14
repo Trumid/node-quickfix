@@ -40,12 +40,10 @@ public:
 				Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
 
 				if(event->message != NULL){
-					//std::cout<< "IN HANDLE EVENT 1 " << event->message->toString() <<std::endl;
 					Local<Object> msg = NanNew<Object>();
 
 					fix2Js(msg, event->message);
-
-					//std::cout<< "IN HANDLE EVENT 2 " << event->message->toString() <<std::endl;
+					
 					Local<Value> argv[] = {
 							msg,
 							sessionIdToJs(event->sessionId)

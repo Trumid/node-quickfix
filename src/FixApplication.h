@@ -37,8 +37,6 @@ class FixApplication : public FIX::Application
 		void onLogon( const FIX::SessionID& sessionID );
 		void onLogout( const FIX::SessionID& sessionID );
 		void toAdmin( FIX::Message& message, const FIX::SessionID& sessionId) {
-			std::cout << "FIX toAdmin " << std::endl;
-
 			if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mCredentials != NULL) {
 				message.setField(553, mCredentials->username.c_str());
 				message.setField(554, mCredentials->password.c_str());
@@ -76,9 +74,7 @@ class FixApplication : public FIX::Application
 				  throw FIX::RejectLogon();
 			  }
 		  }
-
-		  std::cout << "FIX fromAdmin " << std::endl;
-
+		  
 		  fix_event_t *data = new fix_event_t;
 		  data->eventName = std::string("fromAdmin");
 		  data->sessionId = &sessionId;
