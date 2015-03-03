@@ -74,7 +74,7 @@ class FixApplication : public FIX::Application
 				  throw FIX::RejectLogon();
 			  }
 		  }
-		  
+
 		  fix_event_t *data = new fix_event_t;
 		  data->eventName = std::string("fromAdmin");
 		  data->sessionId = &sessionId;

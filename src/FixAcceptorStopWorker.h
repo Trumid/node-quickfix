@@ -13,7 +13,7 @@ using namespace node;
 class FixAcceptorStopWorker : public NanAsyncWorker
 {
 	public:
-		FixAcceptorStopWorker(NanCallback *callback, FIX::SocketAcceptor* acceptor)
+		FixAcceptorStopWorker(NanCallback *callback, FIX::ThreadedSocketAcceptor* acceptor)
 			: NanAsyncWorker(callback), acceptor(acceptor) {}
 		~FixAcceptorStopWorker() {}
 
@@ -21,7 +21,7 @@ class FixAcceptorStopWorker : public NanAsyncWorker
 		void HandleOKCallback();
 
 	private:
-		FIX::SocketAcceptor* acceptor;
+		FIX::ThreadedSocketAcceptor* acceptor;
 };
 
 

@@ -159,7 +159,7 @@ NAN_METHOD(FixAcceptor::getSession) {
 }
 
 FixAcceptor::FixAcceptor(const char* propertiesFile, std::string storeFactory): FixConnection(propertiesFile, storeFactory) {
-	mAcceptor = new FIX::SocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
 FixAcceptor::~FixAcceptor() {

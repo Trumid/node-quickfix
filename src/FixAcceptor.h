@@ -13,7 +13,7 @@
 #include <nan.h>
 #include "FixConnection.h"
 #include "FixLoginProvider.h"
-#include "quickfix/SocketAcceptor.h"
+#include "quickfix/ThreadedSocketAcceptor.h"
 
 using namespace v8;
 using namespace node;
@@ -33,7 +33,7 @@ class FixAcceptor : public FixConnection {
 
 	private:
 		~FixAcceptor();
-		FIX::SocketAcceptor* mAcceptor;
+		FIX::ThreadedSocketAcceptor* mAcceptor;
 };
 
 #endif /* FIXACCEPTOR_H_ */

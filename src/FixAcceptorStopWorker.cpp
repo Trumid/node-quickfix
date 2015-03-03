@@ -9,7 +9,7 @@
 #include <nan.h>
 
 #include "quickfix/Exceptions.h"
-#include "quickfix/SocketAcceptor.h"
+#include "quickfix/ThreadedSocketAcceptor.h"
 #include "FixAcceptorStopWorker.h"
 
 using namespace v8;
