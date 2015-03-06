@@ -29,7 +29,7 @@ class FixInitiator : public FixConnection {
   static NAN_METHOD(getSessions);
   static NAN_METHOD(getSession);
 
-  FixInitiator(const char* propertiesFile, std::string storeFactory);
+  FixInitiator(FIX::SessionSettings settings, std::string storeFactory);
 
  private:
   ~FixInitiator();

@@ -12,8 +12,13 @@
 #include "FixAcceptorStopWorker.h"
 #include "FixCredentials.h"
 #include "FixSession.h"
+#include "quickfix/Dictionary.h"
+#include "quickfix/SessionSettings.h"
+#include <iostream>
+#include <sstream>
 
-//Persistent<Function> FixAcceptor::constructor;
+using namespace FIX;
+using namespace std;
 
 void FixAcceptor::Initialize(Handle<Object> target) {
   NanScope();
@@ -33,32 +38,49 @@ void FixAcceptor::Initialize(Handle<Object> target) {
 
 NAN_METHOD(FixAcceptor::New) {
 	NanScope();
+
 	bool hasOptions = false;
 	Local<Object> options;
 	FixAcceptor *acceptor = NULL;
 
-	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+	if(!(args[1]->IsUndefined() || args[1]->IsNull())){
 		hasOptions = true;
-		options = Local<Object>::New( args[2]->ToObject() );
+		options = Local<Object>::New( args[1]->ToObject() );
 	}
 
-	String::Utf8Value propertiesFile(args[0]);
+	FIX::SessionSettings sessionSettings;
 
-	if(hasOptions) {
-		Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
-		if(options->Has(storeFactoryKey)) {
-			String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-			acceptor = new FixAcceptor(*propertiesFile, std::string(*value));
-		} else {
-			acceptor = new FixAcceptor(*propertiesFile, "file");
-		}
+	if ( ! hasOptions) return NanThrowError("FixAcceptor requires an options parameter");
+
+	Local<String> propertiesFileKey =  NanNew<String>("propertiesFile");
+	Local<String> settingsKey =  NanNew<String>("settings");
+
+	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return NanThrowError("you must provide FixAcceptor either an options.settings string or options.propertiesFile path to a properties file");
+
+	if (options->Has(propertiesFileKey)){
+		String::Utf8Value propertiesFile(options->Get(NanNew<String>("propertiesFile"))->ToString());
+		sessionSettings = FIX::SessionSettings(*propertiesFile);
+	} else if (options->Has(settingsKey)){
+		String::Utf8Value settings(options->Get(NanNew<String>("settings"))->ToString());
+		stringstream stream;
+		stream << *settings;
+		sessionSettings = FIX::SessionSettings(stream);
+	}
+
+	Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
+
+	if(options->Has(storeFactoryKey)) {
+		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
+		acceptor = new FixAcceptor(sessionSettings, std::string(*value));
 	} else {
-		acceptor = new FixAcceptor(*propertiesFile, "file");
+		acceptor = new FixAcceptor(sessionSettings, "file");
 	}
 
 	acceptor->Wrap(args.This());
-	acceptor->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
+	acceptor->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
+
 	if(hasOptions){
+
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
 			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
@@ -67,6 +89,7 @@ NAN_METHOD(FixAcceptor::New) {
 		}
 
 		Local<String> credentialsKey =  NanNew<String>("credentials");
+
 		if(options->Has(credentialsKey)){
 			Local<Object> creds = options->Get(credentialsKey)->ToObject();
 			fix_credentials* credentials = new fix_credentials;
@@ -79,19 +102,14 @@ NAN_METHOD(FixAcceptor::New) {
 	}
 
 	uv_async_init(uv_default_loop(), &acceptor->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
-
 	NanReturnValue(args.This());
 }
 
 NAN_METHOD(FixAcceptor::start) {
 	NanScope();
-
 	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
-
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
-
 	NanAsyncQueueWorker(new FixAcceptorStartWorker(callback, instance->mAcceptor));
-
 	NanReturnUndefined();
 }
 
@@ -117,18 +135,15 @@ NAN_METHOD(FixAcceptor::send) {
 NAN_METHOD(FixAcceptor::stop) {
 	NanScope();
 	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
-
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 
 	NanAsyncQueueWorker(new FixAcceptorStopWorker(callback, instance->mAcceptor));
-
 	NanReturnUndefined();
 }
 
 NAN_METHOD(FixAcceptor::getSessions) {
 	NanScope();
 	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
-
 	std::set<FIX::SessionID> sessions = instance->mAcceptor->getSessions();
 
 	Local<Array> sessionsArr = Array::New(sessions.size());
@@ -139,14 +154,12 @@ NAN_METHOD(FixAcceptor::getSessions) {
 		sessionsArr->Set(i, FixMessageUtil::sessionIdToJs(&id));
 		i++;
 	}
-
 	NanReturnValue(sessionsArr);
 }
 
 NAN_METHOD(FixAcceptor::getSession) {
 	NanScope();
 	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
-
 	Local<Object> sessionId = args[0]->ToObject();
 
 	FIX::Session* session = instance->mAcceptor->getSession(FixMessageUtil::jsToSessionId(sessionId));
@@ -154,11 +167,10 @@ NAN_METHOD(FixAcceptor::getSession) {
 	fixSession->setSession(session);
 
 	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
-
 	NanReturnValue(jsSession);
 }
 
-FixAcceptor::FixAcceptor(const char* propertiesFile, std::string storeFactory): FixConnection(propertiesFile, storeFactory) {
+FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
 	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
