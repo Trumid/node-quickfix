@@ -17,6 +17,10 @@
 #include "FixSendWorker.h"
 #include "FixInitiatorStopWorker.h"
 #include "FixMessageUtil.h"
+#include <iostream>
+#include <sstream>
+
+using namespace std;
 
 //#include "closure.h"
 
@@ -55,27 +59,43 @@ NAN_METHOD(FixInitiator::New) {
 	Local<Object> options;
 	FixInitiator *initiator = NULL;
 
-	if(!(args[2]->IsUndefined() || args[2]->IsNull())){
+	if(!(args[1]->IsUndefined() || args[1]->IsNull())){
 		hasOptions = true;
-		options = Local<Object>::New( args[2]->ToObject() );
+		options = Local<Object>::New( args[1]->ToObject() );
 	}
 
 	String::Utf8Value propertiesFile(args[0]);
 
-	if(hasOptions) {
-		Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
-		if(options->Has(storeFactoryKey)) {
-			String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-			initiator = new FixInitiator(*propertiesFile, std::string(*value));
-		} else {
-			initiator = new FixInitiator(*propertiesFile, "file");
-		}
+	FIX::SessionSettings sessionSettings;
+
+	if ( ! hasOptions) return NanThrowError("FixInitiator requires an options parameter");
+
+	Local<String> propertiesFileKey =  NanNew<String>("propertiesFile");
+	Local<String> settingsKey =  NanNew<String>("settings");
+
+	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return NanThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
+
+	if (options->Has(propertiesFileKey)){
+		String::Utf8Value propertiesFile(options->Get(NanNew<String>("propertiesFile"))->ToString());
+		sessionSettings = FIX::SessionSettings(*propertiesFile);
+	} else if (options->Has(settingsKey)){
+		String::Utf8Value settings(options->Get(NanNew<String>("settings"))->ToString());
+		stringstream stream;
+		stream << *settings;
+		sessionSettings = FIX::SessionSettings(stream);
+	}
+
+	Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
+
+	if(options->Has(storeFactoryKey)) {
+		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
+		initiator = new FixInitiator(sessionSettings, std::string(*value));
 	} else {
-		initiator = new FixInitiator(*propertiesFile, "file");
+		initiator = new FixInitiator(sessionSettings, "file");
 	}
 
 	initiator->Wrap(args.This());
-	initiator->mCallbacks = Persistent<Object>::New( args[1]->ToObject() );
+	initiator->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
 	if(hasOptions){
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
@@ -182,7 +202,7 @@ NAN_METHOD(FixInitiator::getSession) {
 	NanReturnValue(jsSession);
 }
 
-FixInitiator::FixInitiator(const char* propertiesFile, std::string storeFactory): FixConnection(propertiesFile, storeFactory) {
+FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
 	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 

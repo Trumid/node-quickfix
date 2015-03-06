@@ -13,12 +13,18 @@
 #include "FixLogonEvent.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
+#include "quickfix/Dictionary.h"
+#include "quickfix/SessionSettings.h"
+#include "quickfix/Settings.h"
 
 using namespace v8;
 using namespace node;
+using namespace FIX;
 
-FixConnection::FixConnection(const char* propertiesFile, std::string storeFactory): ObjectWrap()  {
-	mSettings = FIX::SessionSettings(propertiesFile);
+FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFactory): ObjectWrap()  {
+
+  mSettings = settings;
+
 	mFixApplication = new FixApplication(
 			&mAsyncFIXEvent, &mAsyncLogonEvent, &mCallbacks);
 

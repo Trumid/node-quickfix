@@ -41,7 +41,7 @@ using namespace node;
 
 class FixConnection : public node::ObjectWrap {
 public:
-	FixConnection(const char* propertiesFile, std::string storeFactory);
+	FixConnection(FIX::SessionSettings settings, std::string storeFactory);
 
 private:
 

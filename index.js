@@ -3,6 +3,7 @@ var quickfix = require(__dirname + '/build/Release/node_quickfix.node');
 
 var FIXInitiator = quickfix.FixInitiator;
 var FIXAcceptor = quickfix.FixAcceptor;
+
 exports.logonProvider = function(logon) {
 	return new quickfix.FixLoginProvider(logon);
 };
@@ -12,8 +13,8 @@ var events = require('events');
 inherits(FIXInitiator, events.EventEmitter);
 inherits(FIXAcceptor, events.EventEmitter);
 
-exports.initiator = function(propertiesFile, options) {
-	var initiator = new FIXInitiator(propertiesFile, {
+exports.initiator = function (options) {
+	var initiator = new FIXInitiator({
 		onCreate: function(sessionID) {
 			initiator.emit('onCreate', { sessionID: sessionID });
 		},
@@ -40,8 +41,8 @@ exports.initiator = function(propertiesFile, options) {
 	return initiator;
 };
 
-exports.acceptor = function(propertiesFile, options) {
-	var acceptor = new FIXAcceptor(propertiesFile, {
+exports.acceptor = function (options) {
+	var acceptor = new FIXAcceptor({
 		onCreate: function(sessionID) {
 			acceptor.emit('onCreate', { sessionID: sessionID });
 		},
@@ -69,7 +70,7 @@ exports.acceptor = function(propertiesFile, options) {
 };
 
 // extend prototype
-function inherits(target, source) {
+function inherits (target, source) {
   for (var k in source.prototype)
     target.prototype[k] = source.prototype[k];
 }

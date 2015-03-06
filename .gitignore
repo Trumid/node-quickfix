@@ -4,3 +4,7 @@
 build/
 .project
 .cproject
+node-quickfix.xcworkspace
+node-quickfix.xcworkspace
+npm-debug.log
+.nadconfig.mk
