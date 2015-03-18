@@ -33,7 +33,7 @@ class FixApplication : public FIX::Application
 		FixLoginProvider* mLoginProvider = NULL;
 		tbb::concurrent_queue<fix_event_t*> eventQueue;
 
-		void onCreate( const FIX::SessionID& ) {}
+		void onCreate( const FIX::SessionID& sessionID );
 		void onLogon( const FIX::SessionID& sessionID );
 		void onLogout( const FIX::SessionID& sessionID );
 		void toAdmin( FIX::Message& message, const FIX::SessionID& sessionId) {

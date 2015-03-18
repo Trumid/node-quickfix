@@ -23,6 +23,22 @@ FixApplication::~FixApplication()
 {
 }
 
+void FixApplication::onCreate( const FIX::SessionID& sessionID )
+{
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("onCreate");
+	data->sessionId = &sessionID;
+	data->callbacks = mCallbacks;
+	data->message = NULL;
+
+	fix_event_queue_t* queueHandle = new fix_event_queue_t;
+	queueHandle->queue = &eventQueue;
+	mAsyncHandle->data = queueHandle;
+
+	eventQueue.push(data);
+	uv_async_send(mAsyncHandle);
+}
+
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
 	fix_event_t *data = new fix_event_t;
