@@ -1,3 +1,7 @@
+var SegfaultHandler = require('segfault-handler');
+
+SegfaultHandler.registerHandler();
+
 // javascript shim that lets our object inherit from EventEmitter
 var quickfix = require(__dirname + '/build/Release/node_quickfix.node');
 
@@ -51,6 +55,9 @@ exports.acceptor = function (options) {
 		},
 		onLogout: function(sessionID) {
 			acceptor.emit('onLogout', { sessionID: sessionID });
+		},
+		onLogonAttempt: function(message, sessionID) {
+			acceptor.emit('onLogonAttempt', { message: message, sessionID: sessionID });
 		},
 		toAdmin: function(message, sessionID) {
 			acceptor.emit('toAdmin', { message: message, sessionID: sessionID });

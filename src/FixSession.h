@@ -28,12 +28,21 @@ public:
 private:
 	virtual ~FixSession();
 	FIX::Session* mSession;
+
+	static NAN_METHOD(disconnect);
+	static NAN_METHOD(getSessionID);
 	static NAN_METHOD(isEnabled);
+	static NAN_METHOD(isLoggedOn);
 	static NAN_METHOD(logon);
 	static NAN_METHOD(logout);
-	static NAN_METHOD(isLoggedOn);
-	static NAN_METHOD(getSessionID);
-	static NAN_METHOD(disconnect);
+
+	static NAN_GETTER(getSenderSeqNum);
+	static NAN_SETTER(setSenderSeqNum);
+
+	static NAN_GETTER(getTargetSeqNum);
+	static NAN_SETTER(setTargetSeqNum);
+	
+	
 };
 
 #endif /* FIXSESSION_H_ */

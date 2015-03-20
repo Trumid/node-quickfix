@@ -3,6 +3,8 @@
     {
       'target_name': 'node_quickfix',
       'sources': [
+        'src/Threading.h',
+        'src/Dispatcher.h',
       	'src/FixCredentials.h',
       	'src/FixEvent.h',
       	'src/FixEventQueue.h',
@@ -39,15 +41,13 @@
           '-lquickfix',
           '-lpthread', 
           '-lxml2',
-          '-lz',
-          '-ltbb'
+          '-lz'
         ]
       },
       'include_dirs': [
         "<!(node -e \"require('nan')\")",
         '/usr/local/include',
-        '/usr/local/include/quickfix',
-        '/usr/local/include/tbb'
+        '/usr/local/include/quickfix'
       ],
       'cflags': [ '-fexceptions', '-std=c++11' ],
       'cflags!': ['-fno-exceptions', '-fno-rtti'],

@@ -13,10 +13,8 @@
 #include <nan.h>
 
 #include "FixEvent.h"
-#include "FixEventQueue.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
-#include "tbb/concurrent_queue.h"
 
 using namespace v8;
 using namespace node;
@@ -25,42 +23,6 @@ class FixMessageUtil {
 public:
 	FixMessageUtil();
 	virtual ~FixMessageUtil();
-
-	static void handleFixEvent(uv_async_t *handle, int status) {
-		NanScope();
-
-		tbb::concurrent_queue<fix_event_t*>* eventQueue = ((fix_event_queue_t*)handle->data)->queue;
-
-		fix_event_t* event;
-
-		if(eventQueue != NULL) {
-			while(eventQueue->try_pop(event)) {
-				Local<String> eventName = NanNew<String>(event->eventName.c_str());
-
-				Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
-
-				if(event->message != NULL){
-					Local<Object> msg = NanNew<Object>();
-
-					fix2Js(msg, event->message);
-					
-					Local<Value> argv[] = {
-							msg,
-							sessionIdToJs(event->sessionId)
-					};
-
-					NanMakeCallback(NanGetCurrentContext()->Global(), callback, 2, argv);
-				} else {
-					Local<Value> argv[] = {
-							sessionIdToJs(event->sessionId)
-					};
-
-					NanMakeCallback(NanGetCurrentContext()->Global(), callback, 1, argv);
-				}
-			}
-		}
-
-	}
 
 	static void js2Fix(FIX::Message* message, Local<Object> msg) {
 
@@ -132,7 +94,6 @@ public:
 		}
 	}
 
-
 	static void fix2Js(Local<Object> msg, const FIX::Message* message) {
 		Local<Object> header = NanNew<Object>();
 		Local<Object> tags = NanNew<Object>();
@@ -185,6 +146,7 @@ public:
 
 	static Local<Value> sessionIdToJs(const FIX::SessionID* sessionId) {
 		Local<Object> session = Object::New();
+
 		session->Set(String::New("beginString"), String::New(sessionId->getBeginString().getString().c_str()));
 		session->Set(String::New("senderCompID"), String::New(sessionId->getSenderCompID().getString().c_str()));
 		session->Set(String::New("targetCompID"), String::New(sessionId->getTargetCompID().getString().c_str()));

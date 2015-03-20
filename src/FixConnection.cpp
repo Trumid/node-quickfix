@@ -10,10 +10,9 @@
 #include <v8.h>
 #include <node.h>
 #include <nan.h>
-#include "FixLogonEvent.h"
+#include "quickfix/Dictionary.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
-#include "quickfix/Dictionary.h"
 #include "quickfix/SessionSettings.h"
 #include "quickfix/Settings.h"
 
@@ -25,8 +24,7 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 
   mSettings = settings;
 
-	mFixApplication = new FixApplication(
-			&mAsyncFIXEvent, &mAsyncLogonEvent, &mCallbacks);
+	mFixApplication = new FixApplication(&mCallbacks);
 
 	#ifdef HAVE_POSTGRESQL
 	if(storeFactory == "postgresql") {
@@ -59,25 +57,4 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 }
 
 FixConnection::~FixConnection() {
-	uv_close((uv_handle_t*) &mAsyncFIXEvent, NULL);
-	uv_close((uv_handle_t*) &mAsyncLogonEvent, NULL);
 }
-
-void FixConnection::handleLogonEvent(uv_async_t *handle, int status) {
-	NanScope();
-
-	fix_logon_t* logonEvent = (fix_logon_t*)handle->data;
-
-	Local<Object> msg = NanNew<Object>();
-
-	FixMessageUtil::fix2Js(msg, logonEvent->message);
-	Local<Value> session = FixMessageUtil::sessionIdToJs(logonEvent->sessionId);
-
-	Local<Value> argv[] = {
-			msg,
-			session
-	};
-
-	logonEvent->logon->Call(2, argv);
-
-};
