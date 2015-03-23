@@ -5,6 +5,7 @@
  *      Author: kdeol
  */
 
+#include "Dispatcher.h"
 #include "FixAcceptor.h"
 #include "FixMessageUtil.h"
 #include "FixAcceptorStartWorker.h"
@@ -19,6 +20,13 @@
 
 using namespace FIX;
 using namespace std;
+
+FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
+	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+}
+
+FixAcceptor::~FixAcceptor() {
+}
 
 void FixAcceptor::Initialize(Handle<Object> target) {
   NanScope();
@@ -80,12 +88,10 @@ NAN_METHOD(FixAcceptor::New) {
 	acceptor->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
 
 	if(hasOptions){
-
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
 			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
 			acceptor->mFixApplication->setLogonProvider(acceptor->mFixLoginProvider);
-			uv_async_init(uv_default_loop(), &acceptor->mAsyncLogonEvent, handleLogonEvent);
 		}
 
 		Local<String> credentialsKey =  NanNew<String>("credentials");
@@ -101,7 +107,6 @@ NAN_METHOD(FixAcceptor::New) {
 		}
 	}
 
-	uv_async_init(uv_default_loop(), &acceptor->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
 	NanReturnValue(args.This());
 }
 
@@ -128,7 +133,6 @@ NAN_METHOD(FixAcceptor::send) {
 	fixMessage->getHeader().setField(49, senderId);
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
-
 	NanReturnUndefined();
 }
 
@@ -169,12 +173,3 @@ NAN_METHOD(FixAcceptor::getSession) {
 	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
 	NanReturnValue(jsSession);
 }
-
-FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
-	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
-}
-
-FixAcceptor::~FixAcceptor() {
-}
-
-

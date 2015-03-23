@@ -97,13 +97,6 @@ NAN_METHOD(FixInitiator::New) {
 	initiator->Wrap(args.This());
 	initiator->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
 	if(hasOptions){
-		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
-		if(options->Has(logonProviderKey)) {
-			initiator->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
-			initiator->mFixApplication->setLogonProvider(initiator->mFixLoginProvider);
-			uv_async_init(uv_default_loop(), &initiator->mAsyncLogonEvent, handleLogonEvent);
-		}
-
 		Local<String> credentialsKey =  NanNew<String>("credentials");
 		if(options->Has(credentialsKey)){
 			Local<Object> creds = options->Get(credentialsKey)->ToObject();
@@ -115,8 +108,6 @@ NAN_METHOD(FixInitiator::New) {
 			initiator->mFixApplication->setCredentials(credentials);
 		}
 	}
-
-	uv_async_init(uv_default_loop(), &initiator->mAsyncFIXEvent, FixMessageUtil::handleFixEvent);
 
 	NanReturnValue(args.This());
 }

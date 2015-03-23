@@ -34,6 +34,7 @@ class FixAcceptor : public FixConnection {
 	private:
 		~FixAcceptor();
 		FIX::ThreadedSocketAcceptor* mAcceptor;
+		FixLoginProvider* mFixLoginProvider;
 };
 
 #endif /* FIXACCEPTOR_H_ */

@@ -78,12 +78,17 @@ void FixSession::Initialize(Handle<Object> target) {
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
 	ctor->SetClassName(NanNew("FixSession"));
 
-	node::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
-	node::SetPrototypeMethod(ctor, "logon", logon);
-	node::SetPrototypeMethod(ctor, "logout", logout);
-	node::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-	node::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
-	node::SetPrototypeMethod(ctor, "disconnect", disconnect);
+	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
+
+	NODE_SET_PROTOTYPE_METHOD(ctor, "disconnect", disconnect);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "getSessionID", getSessionID);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "isEnabled", isEnabled);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
+
+	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
+	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
 
 	target->Set(NanNew("FixSession"), ctor->GetFunction());
 }
@@ -94,12 +99,17 @@ Handle<Object> FixSession::wrapFixSession(FixSession* fixSession) {
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
 	ctor->SetClassName(NanNew("FixSession"));
 
-	node::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
-	node::SetPrototypeMethod(ctor, "logon", logon);
-	node::SetPrototypeMethod(ctor, "logout", logout);
-	node::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-	node::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
-	node::SetPrototypeMethod(ctor, "disconnect", disconnect);
+	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
+
+	NODE_SET_PROTOTYPE_METHOD(ctor, "disconnect", disconnect);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "getSessionID", getSessionID);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "isEnabled", isEnabled);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
+
+	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
+	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
 
 	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
 	obj->SetInternalField(0, External::New(fixSession));
@@ -176,3 +186,34 @@ NAN_METHOD(FixSession::logout) {
 
 	NanReturnUndefined();
 }
+
+NAN_GETTER(FixSession::getSenderSeqNum) {
+	NanScope();
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedSenderNum()));
+}
+
+NAN_SETTER(FixSession::setSenderSeqNum) {
+	NanScope();
+	if(value->IsNumber()) {
+		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+		instance->mSession->setNextSenderMsgSeqNum(value->Uint32Value());
+	}
+}
+
+NAN_GETTER(FixSession::getTargetSeqNum) {
+	NanScope();
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedTargetNum()));
+}
+
+NAN_SETTER(FixSession::setTargetSeqNum) {
+	NanScope();
+	if(value->IsNumber()) {
+		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+		instance->mSession->setNextTargetMsgSeqNum(value->Uint32Value());
+	}
+}
+
+
+

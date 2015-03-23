@@ -1,6 +1,6 @@
 {
   "name": "node-quickfix",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "scripts": {
     "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
     "preuninstall": "rm -rf build/*"
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "dateformat": "^1.0.8",
-    "nan": "^1.2.0"
+    "nan": "^1.2.0",
+    "segfault-handler": "^0.2.4"
   }
 }

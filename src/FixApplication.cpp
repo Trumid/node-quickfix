@@ -1,21 +1,18 @@
 #include <v8.h>
 #include <node.h>
-#include <chrono>
-#include <thread>
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
+#include "Dispatcher.h"
 #include "FixApplication.h"
 #include "FixEvent.h"
-#include "FixEventQueue.h"
 #include "FixLoginProvider.h"
+
+using namespace v8;
 
 FixApplication::FixApplication() {}
 
-FixApplication::FixApplication(
-		uv_async_t* handle,
-		uv_async_t* logonHandle,
-		v8::Persistent<v8::Object>* callbacks) :
-		mAsyncHandle(handle), mLogonHandle(logonHandle), mCallbacks(callbacks)
+FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks) 
+	: mCallbacks(callbacks)
 {
 }
 
@@ -25,84 +22,116 @@ FixApplication::~FixApplication()
 
 void FixApplication::onCreate( const FIX::SessionID& sessionID )
 {
+	// std::cout << "onCreate " << sessionID.toString() << '\n';
+
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onCreate");
-	data->sessionId = &sessionID;
 	data->callbacks = mCallbacks;
-	data->message = NULL;
+	data->sessionId = &sessionID;
 
-	fix_event_queue_t* queueHandle = new fix_event_queue_t;
-	queueHandle->queue = &eventQueue;
-	mAsyncHandle->data = queueHandle;
-
-	eventQueue.push(data);
-	uv_async_send(mAsyncHandle);
+	Dispatcher::getInstance().dispatch(data);
 }
 
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
+	// std::cout << "onLogon " << sessionID.toString() << '\n';
+
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onLogon");
-	data->sessionId = &sessionID;
 	data->callbacks = mCallbacks;
-	data->message = NULL;
+	data->sessionId = &sessionID;
 
-	fix_event_queue_t* queueHandle = new fix_event_queue_t;
-	queueHandle->queue = &eventQueue;
-	mAsyncHandle->data = queueHandle;
-
-	eventQueue.push(data);
-	uv_async_send(mAsyncHandle);
+	Dispatcher::getInstance().dispatch(data);
 }
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
+	// std::cout << "onLogout " << sessionID.toString() << '\n';
+
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("onLogout");
-	data->sessionId = &sessionID;
 	data->callbacks = mCallbacks;
-	data->message = NULL;
+	data->sessionId = &sessionID;
 
-	fix_event_queue_t* queueHandle = new fix_event_queue_t;
-	queueHandle->queue = &eventQueue;
-	mAsyncHandle->data = queueHandle;
-
-	eventQueue.push(data);
-	uv_async_send(mAsyncHandle);
+	Dispatcher::getInstance().dispatch(data);
 }
 
-void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
+void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessionID )
 {
+	// std::cout << "toAdmin " << sessionID.toString() << '\n';
+
+	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mCredentials != NULL) {
+		message.setField(553, mCredentials->username.c_str());
+		message.setField(554, mCredentials->password.c_str());
+	}
+
 	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("fromApp");
+	data->eventName = std::string("toAdmin");
+	data->callbacks = mCallbacks;
 	data->sessionId = &sessionID;
 	data->message = new FIX::Message(message);
-	data->callbacks = mCallbacks;
 
-	fix_event_queue_t* queueHandle = new fix_event_queue_t;
-	queueHandle->queue = &eventQueue;
-	mAsyncHandle->data = queueHandle;
+	Dispatcher::getInstance().dispatch(data);
+}
 
-	eventQueue.push(data);
-	uv_async_send(mAsyncHandle);
+void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
+	throw(FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon)
+{
+	// std::cout << "fromAdmin " << sessionID.toString() << '\n';
+
+  fix_event_t *data = new fix_event_t;
+  data->eventName = std::string("fromAdmin");
+  data->message = new FIX::Message(message);
+  data->sessionId = &sessionID;
+  data->callbacks = mCallbacks;
+  Dispatcher::getInstance().dispatch(data);
+
+	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mLoginProvider != NULL) {
+	  fix_event_t *data = new fix_event_t;
+	  data->eventName = std::string("onLogonAttempt");
+	  data->callbacks = mCallbacks;
+	  data->sessionId = &sessionID;
+	  data->message = new FIX::Message(message);
+	  data->logon = mLoginProvider->getLogon();
+
+	  Dispatcher::getInstance().dispatch(data);
+
+	  while(!mLoginProvider->getIsFinished()) {
+	  }
+
+	  if(!mLoginProvider->getIsLoggedOn()) {
+		  throw FIX::RejectLogon();
+	  }
+  }
+
 }
 
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
+	// std::cout << "toApp " << sessionID.toString() << '\n';
+
 	fix_event_t *data = new fix_event_t;
 	data->eventName = std::string("toApp");
+	data->callbacks = mCallbacks;
 	data->sessionId = &sessionID;
 	data->message = new FIX::Message(message);
-	data->callbacks = mCallbacks;
-
-	fix_event_queue_t* queueHandle = new fix_event_queue_t;
-	queueHandle->queue = &eventQueue;
-	mAsyncHandle->data = queueHandle;
 	
-	eventQueue.push(data);
-	uv_async_send(mAsyncHandle);
+	Dispatcher::getInstance().dispatch(data);
+}
+
+void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
+	throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
+{
+	// std::cout << "fromApp " << sessionID.toString() << '\n';
+
+	fix_event_t *data = new fix_event_t;
+	data->eventName = std::string("fromApp");
+	data->callbacks = mCallbacks;
+	data->sessionId = &sessionID;
+	data->message = new FIX::Message(message);
+	
+	Dispatcher::getInstance().dispatch(data);
 }
 
 void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {

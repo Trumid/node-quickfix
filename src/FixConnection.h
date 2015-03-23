@@ -12,15 +12,14 @@
 #include <node.h>
 #include <nan.h>
 
+
 #include "quickfix/Application.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
 #include "quickfix/SocketInitiator.h"
-#include "FixApplication.h"
-#include "FixLogonEvent.h"
-
 #include "quickfix/MessageStore.h"
 #include "quickfix/FileStore.h"
+#include "quickfix/FileLog.h"
 #include "quickfix/config.h"
 #ifdef HAVE_POSTGRESQL
 #include "quickfix/PostgreSQLStore.h"
@@ -34,7 +33,8 @@
 #include "quickfix/OdbcStore.h"
 #include "quickfix/OdbcLog.h"
 #endif
-#include "quickfix/FileLog.h"
+
+#include "FixApplication.h"
 
 using namespace v8;
 using namespace node;
@@ -47,17 +47,13 @@ private:
 
 protected:
 	~FixConnection();
-	uv_async_t mAsyncFIXEvent;
-	uv_async_t mAsyncLogonEvent;
 
 	FixApplication* mFixApplication;
 	FIX::MessageStoreFactory* mStoreFactory;
 	FIX::LogFactory* mLogFactory;
 
 	FIX::SessionSettings mSettings;
-	Persistent<Object> mCallbacks;
-	FixLoginProvider* mFixLoginProvider;
-	static void handleLogonEvent(uv_async_t *handle, int status);
+	v8::Persistent<v8::Object> mCallbacks;
 };
 
 #endif /* FIXCONNECTION_H_ */
