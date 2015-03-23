@@ -115,8 +115,6 @@ NAN_METHOD(FixInitiator::New) {
 NAN_METHOD(FixInitiator::start) {
 	NanScope();
 
-	std::cout << "Starting initiator " << '\n';
-
 	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
 
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
