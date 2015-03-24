@@ -24,6 +24,7 @@ class FixInitiator : public FixConnection {
   static NAN_METHOD(New);
   static NAN_METHOD(start);
   static NAN_METHOD(send);
+  static NAN_METHOD(sendRaw);
   static NAN_METHOD(stop);
   static NAN_METHOD(isLoggedOn);
   static NAN_METHOD(getSessions);

@@ -37,6 +37,7 @@ void FixAcceptor::Initialize(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(ctor, "start", start);
   NODE_SET_PROTOTYPE_METHOD(ctor, "send", send);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "sendRaw", sendRaw);
   NODE_SET_PROTOTYPE_METHOD(ctor, "stop", stop);
   NODE_SET_PROTOTYPE_METHOD(ctor, "getSessions", getSessions);
   NODE_SET_PROTOTYPE_METHOD(ctor, "getSession", getSession);
@@ -133,6 +134,26 @@ NAN_METHOD(FixAcceptor::send) {
 	fixMessage->getHeader().setField(49, senderId);
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixAcceptor::sendRaw) {
+	NanScope();
+
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+
+	String::Utf8Value message(args[0]->ToString());
+  
+	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
+
+	NanCallback *callback = new NanCallback(args[1].As<Function>());	
+
+	FIX::SessionID senderSessionId = *(instance->mAcceptor->getSessions().begin());
+	std::string senderId = senderSessionId.getSenderCompID().getString();
+	fixMessage->getHeader().setField(49, senderId);
+
+	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+
 	NanReturnUndefined();
 }
 
