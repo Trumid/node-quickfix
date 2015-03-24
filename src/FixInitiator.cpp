@@ -44,6 +44,7 @@ void FixInitiator::Initialize(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(ctor, "start", start);
   NODE_SET_PROTOTYPE_METHOD(ctor, "send", send);
+  NODE_SET_PROTOTYPE_METHOD(ctor, "sendRaw", sendRaw);
   NODE_SET_PROTOTYPE_METHOD(ctor, "stop", stop);
   NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
   NODE_SET_PROTOTYPE_METHOD(ctor, "getSessions", getSessions);
@@ -134,6 +135,22 @@ NAN_METHOD(FixInitiator::send) {
 
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
+
+	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixInitiator::sendRaw) {
+	NanScope();
+
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+
+	String::Utf8Value message(args[0]->ToString());
+  
+	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
+
+	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
 
