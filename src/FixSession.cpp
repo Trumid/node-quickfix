@@ -17,11 +17,14 @@ class FixSessionAsyncWorker : public NanAsyncWorker {
 		void HandleOKCallback () {
 			NanScope();
 
-			Local<Value> argv[] = {
-				NanNull()
-			};
+			if(!callback->IsEmpty()) {
+				Local<Value> argv[] = {
+					NanNull()
+				};
 
-			callback->Call(1, argv);
+				callback->Call(1, argv);
+			}
+
 		};
 	protected:
 		FIX::Session* session;
@@ -60,6 +63,28 @@ class FixSessionLogoutWorker : public FixSessionAsyncWorker {
 		};
 };
 
+class FixSessionRefreshWorker : public FixSessionAsyncWorker {
+	public:
+		FixSessionRefreshWorker(NanCallback *callback, FIX::Session* session)
+				: FixSessionAsyncWorker(callback, session) {}
+		~FixSessionRefreshWorker() {}
+
+		void Execute () {
+			session->refresh();
+		};
+};
+
+class FixSessionResetWorker : public FixSessionAsyncWorker {
+	public:
+		FixSessionResetWorker(NanCallback *callback, FIX::Session* session)
+				: FixSessionAsyncWorker(callback, session) {}
+		~FixSessionResetWorker() {}
+
+		void Execute () {
+			session->reset();
+		};
+};
+
 FixSession::FixSession() : ObjectWrap() {
 }
 
@@ -86,6 +111,8 @@ void FixSession::Initialize(Handle<Object> target) {
 	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
 	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
 	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "refresh", refresh);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "reset", reset);
 
 	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
 	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
@@ -107,6 +134,8 @@ Handle<Object> FixSession::wrapFixSession(FixSession* fixSession) {
 	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
 	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
 	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "refresh", refresh);
+	NODE_SET_PROTOTYPE_METHOD(ctor, "reset", reset);
 
 	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
 	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
@@ -183,6 +212,28 @@ NAN_METHOD(FixSession::logout) {
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 
 	NanAsyncQueueWorker(new FixSessionLogoutWorker(callback, instance->mSession));
+
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixSession::refresh) {
+	NanScope();
+
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+	NanCallback *callback = new NanCallback(args[0].As<Function>());
+
+	NanAsyncQueueWorker(new FixSessionRefreshWorker(callback, instance->mSession));
+
+	NanReturnUndefined();
+}
+
+NAN_METHOD(FixSession::reset) {
+	NanScope();
+
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+	NanCallback *callback = new NanCallback(args[0].As<Function>());
+
+	NanAsyncQueueWorker(new FixSessionResetWorker(callback, instance->mSession));
 
 	NanReturnUndefined();
 }
