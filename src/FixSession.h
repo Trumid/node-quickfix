@@ -35,6 +35,8 @@ private:
 	static NAN_METHOD(isLoggedOn);
 	static NAN_METHOD(logon);
 	static NAN_METHOD(logout);
+	static NAN_METHOD(refresh);
+	static NAN_METHOD(reset);
 
 	static NAN_GETTER(getSenderSeqNum);
 	static NAN_SETTER(setSenderSeqNum);
