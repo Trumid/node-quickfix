@@ -4,10 +4,11 @@ var options = {
   credentials: {
     username: "USERNAME",
     password: "PASSWORD"
-  }
+  },
+  propertiesFile: "./nodeQuickfixInitiatorExample.properties"
 };
 
-var fixClient = quickfix.initiator("./nodeQuickfixInitiatorExample.properties", options);
+var fixClient = quickfix.initiator(options);
 
 fixClient.start(function() {
 	console.log("FIX Initiator Started")
