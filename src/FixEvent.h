@@ -9,6 +9,7 @@
 #define FIXEVENT_H_
 #include "quickfix/Message.h"
 #include "quickfix/SessionID.h"
+#include "FixLoginResponse.h"
 #include <string>
 #include <v8.h>
 #include <node.h>
@@ -18,10 +19,11 @@ using namespace v8;
 
 typedef struct fix_event_t {
 	std::string eventName;
-  v8::Persistent<v8::Object>* callbacks;
+	v8::Persistent<v8::Object>* callbacks;
 	const FIX::SessionID* sessionId;
 	const FIX::Message* message = NULL;
-  NanCallback* logon = NULL;
+	NanCallback* logon = NULL;
+	FixLoginResponse* logonResponse;
 } fix_event_t;
 
 #endif /* FIXEVENT_H_ */

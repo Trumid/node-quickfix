@@ -13,6 +13,8 @@
       	'src/FixLogon.h',
       	'src/FixLoginProvider.h',
       	'src/FixLoginProvider.cpp',
+      	'src/FixLoginResponse.h',
+      	'src/FixLoginResponse.cpp',
       	'src/FixAcceptor.h',
       	'src/FixAcceptor.cpp',
       	'src/FixAcceptorStartWorker.h',

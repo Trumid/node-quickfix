@@ -6,6 +6,7 @@
 #include "FixApplication.h"
 #include "FixEvent.h"
 #include "FixLoginProvider.h"
+#include "FixLoginResponse.h"
 
 using namespace v8;
 
@@ -94,14 +95,20 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 	  data->message = new FIX::Message(message);
 	  data->logon = mLoginProvider->getLogon();
 
+	  FixLoginResponse* logonResponse = new FixLoginResponse();
+	  data->logonResponse = logonResponse;
+
 	  Dispatcher::getInstance().dispatch(data);
 
-	  while(!mLoginProvider->getIsFinished()) {
+	  while(!logonResponse->getIsFinished()) {
 	  }
 
-	  if(!mLoginProvider->getIsLoggedOn()) {
+	  if(!logonResponse->getIsLoggedOn()) {
+		  delete logonResponse;
 		  throw FIX::RejectLogon();
 	  }
+
+	  delete logonResponse;
   }
 
 }

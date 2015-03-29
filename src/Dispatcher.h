@@ -13,6 +13,7 @@
 #include <nan.h>
 #include "FixEvent.h"
 #include "FixMessageUtil.h"
+#include "FixLoginResponse.h"
 #include "Threading.h"
 
 using namespace v8;
@@ -42,11 +43,14 @@ class Dispatcher {
 
             Local<String> eventName = NanNew<String>(event->eventName.c_str());
             Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
-            if(event->logon != NULL) {
-                callback = event->logon->GetFunction();
-            }
 
             std::vector< Local<Value> > arguments;
+            if(event->logon != NULL) {
+                callback = event->logon->GetFunction();
+                Handle<Object> jsLogonResponse = FixLoginResponse::wrapFixLoginResponse(event->logonResponse);
+                arguments.push_back(NanNew<Object>(jsLogonResponse));
+            }
+
             if(event->message != NULL) {
                 Local<Object> msg = NanNew<Object>();
                 FixMessageUtil::fix2Js(msg, event->message);

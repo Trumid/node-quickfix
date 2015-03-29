@@ -28,8 +28,6 @@ void FixLoginProvider::Initialize(Handle<Object> target) {
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew("FixLoginProvider"));
 
-  NODE_SET_PROTOTYPE_METHOD(ctor, "finish", finish);
-
   target->Set(NanNew("FixLoginProvider"), ctor->GetFunction());
 }
 
@@ -42,35 +40,6 @@ NAN_METHOD(FixLoginProvider::New) {
 	loginProvider->logon = new NanCallback(args[0].As<Function>());
 
 	NanReturnValue(args.This());
-}
-
-NAN_METHOD(FixLoginProvider::finish) {
-	NanScope();
-
-	FixLoginProvider* instance = ObjectWrap::Unwrap<FixLoginProvider>(args.This());
-
-	bool success = args[0]->ToBoolean()->BooleanValue();
-
-	instance->setIsFinished(true);
-	instance->setIsLoggedOn(success);
-
-	NanReturnUndefined();
-}
-
-bool FixLoginProvider::getIsFinished() {
-	return isFinished;
-}
-
-bool FixLoginProvider::getIsLoggedOn() {
-	return isLoggedOn;
-}
-
-void FixLoginProvider::setIsFinished(bool finished) {
-	isFinished = finished;
-}
-
-void FixLoginProvider::setIsLoggedOn(bool loggedOn) {
-	isLoggedOn = loggedOn;
 }
 
 NanCallback* FixLoginProvider::getLogon() {
