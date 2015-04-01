@@ -45,24 +45,24 @@ var quickfix = require('node-quickfix');
 
 var fixAcceptor = quickfix.acceptor({
   settings: "[DEFAULT]\n
-  ReconnectInterval=60\n
-  RefreshOnLogon=Y\n
-  SendRedundantResendRequests=Y\n
-  PersistMessages=Y\n
-  FileStorePath=./data/1\n
-  FileLogPath=./log/1\n
-  HttpAcceptPort=9011\n\n
-  [SESSION]\n
-  ConnectionType=acceptor\n
-  SenderCompID=ELECTRONIFIE\n
-  TargetCompID=NODEQUICKFIX\n
-  BeginString=FIX.4.4\n
-  StartTime=00:00:00\n
-  EndTime=23:59:59\n
-  HeartBtInt=30\n
-  SocketAcceptPort=3223\n
-  UseDataDictionary=Y\n
-  DataDictionary=./fix_spec/FIX44.xml",
+  	ReconnectInterval=60\n
+  	RefreshOnLogon=Y\n
+  	SendRedundantResendRequests=Y\n
+  	PersistMessages=Y\n
+  	FileStorePath=./data/1\n
+  	FileLogPath=./log/1\n
+  	HttpAcceptPort=9011\n\n
+  	[SESSION]\n
+  	ConnectionType=acceptor\n
+  	SenderCompID=ELECTRONIFIE\n
+  	TargetCompID=NODEQUICKFIX\n
+  	BeginString=FIX.4.4\n
+  	StartTime=00:00:00\n
+  	EndTime=23:59:59\n
+  	HeartBtInt=30\n
+  	SocketAcceptPort=3223\n
+  	UseDataDictionary=Y\n
+  	DataDictionary=./fix_spec/FIX44.xml",
   logonProvider: logonProvider,
   storeFactory: "file"
 });
@@ -176,7 +176,7 @@ toApp:  message, sessionID
 fromApp:  message, sessionID
 ```
 
-####Initiator######
+####Initiator API######
 `start(callback) //start acceptor` 
 
 `send(msg, callback) //send json messages`
@@ -192,7 +192,7 @@ fromApp:  message, sessionID
 `isLoggedOn() //is initiator is currently connected to a session`
 
 
-####Session######
+####Session API######
 `disconnect(callback) //disconnect a session`
 
 `getSessionID() //get session id for a session`
