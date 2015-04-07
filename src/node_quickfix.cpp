@@ -5,19 +5,19 @@
 
 using namespace v8;
 
-Handle<Value> Initiator(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(FixInitiator::New(args));
+NAN_METHOD(Initiator) {
+  NanScope();
+  FixInitiator::New(args);
 }
 
-Handle<Value> Acceptor(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(FixAcceptor::New(args));
+NAN_METHOD(Acceptor) {
+  NanScope();
+  FixAcceptor::New(args);
 }
 
-Handle<Value> LoginProvider(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(FixLoginProvider::New(args));
+NAN_METHOD(LoginProvider) {
+  NanScope();
+  FixLoginProvider::New(args);
 }
 
 void init(Handle<Object> target) {

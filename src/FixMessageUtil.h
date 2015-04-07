@@ -26,8 +26,8 @@ public:
 
 	static void js2Fix(FIX::Message* message, Local<Object> msg) {
 
-		Local<Object> header = Local<Object>::Cast(msg->Get(String::New("header")));
-		Local<Object> tags = Local<Object>::Cast(msg->Get(String::New("tags")));
+		Local<Object> header = Local<Object>::Cast(msg->Get(NanNew<String>("header")));
+		Local<Object> tags = Local<Object>::Cast(msg->Get(NanNew<String>("tags")));
 
 		FIX::Header &msgHeader = message->getHeader();
 		FIX::Trailer &msgTrailer = message->getTrailer();
@@ -52,17 +52,17 @@ public:
 			);
 		}
 
-		Local<String> groupKey = String::New("groups");
+		Local<String> groupKey = NanNew<String>("groups");
 		if(msg->Has(groupKey))
 		{
 			Local<Array> groups = Local<Array>::Cast(msg->Get(groupKey));
 			for(int i=0; i<(int)groups->Length(); i++) {
 				Local<Object> groupObj = groups->Get(i)->ToObject();
 				FIX::Group* group = new FIX::Group(
-						groupObj->Get(String::New("index"))->ToInteger()->Value(),
-						groupObj->Get(String::New("delim"))->ToInteger()->Value());
+						groupObj->Get(NanNew<String>("index"))->ToInteger()->Value(),
+						groupObj->Get(NanNew<String>("delim"))->ToInteger()->Value());
 
-				Local<Array> groupEntries = Local<Array>::Cast(groupObj->Get(String::New("entries")));
+				Local<Array> groupEntries = Local<Array>::Cast(groupObj->Get(NanNew<String>("entries")));
 				for(int j=0; j<(int)groupEntries->Length(); j++) {
 					Local<Object> entry = groupEntries->Get(j)->ToObject();
 					Local<Array> entryTags = entry->GetPropertyNames();
@@ -78,7 +78,7 @@ public:
 			}
 		}
 
-		Local<String> trailerKey = String::New("trailer");
+		Local<String> trailerKey = NanNew<String>("trailer");
 		if(msg->Has(trailerKey))
 		{
 			Local<Object> trailer = Local<Object>::Cast(msg->Get(trailerKey));
@@ -105,60 +105,60 @@ public:
 
 		for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
 		{
-			header->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+			header->Set(NanNew<Integer>(it->first), NanNew<String>(it->second.getString().c_str()));
 		}
 
 		for(FIX::FieldMap::iterator it = message->begin(); it != message->end(); ++it)
 		{
-			tags->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+			tags->Set(NanNew<Integer>(it->first), NanNew<String>(it->second.getString().c_str()));
 		}
 
 		for(FIX::FieldMap::iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
 		{
-			trailer->Set(Integer::New(it->first), String::New(it->second.getString().c_str()));
+			trailer->Set(NanNew<Integer>(it->first), NanNew<String>(it->second.getString().c_str()));
 		}
 
 		for(FIX::FieldMap::g_iterator it = message->g_begin(); it != message->g_end(); ++it)
 		{
 			std::vector< FIX::FieldMap* > groupVector = it->second;
-			Handle<Array> groupList = Array::New(groupVector.size());
+			Handle<Array> groupList = NanNew<Array>(groupVector.size());
 			int i=0;
 			for(std::vector< FIX::FieldMap* >::iterator v_it = groupVector.begin(); v_it != groupVector.end(); ++v_it)
 			{
-				Handle<Object> groupEntry = Object::New();
+				Handle<Object> groupEntry = NanNew<Object>();
 				FIX::FieldMap* fields = *v_it;
 				for(FIX::FieldMap::iterator field_it = fields->begin(); field_it != fields->end(); ++field_it)
 				{
-					groupEntry->Set(Integer::New(field_it->first), String::New(field_it->second.getString().c_str()));
+					groupEntry->Set(NanNew<Integer>(field_it->first), NanNew<String>(field_it->second.getString().c_str()));
 				}
 				groupList->Set(i, groupEntry);
 				i++;
 			}
 
-			groups->Set(Integer::New(it->first), groupList);
+			groups->Set(NanNew<Integer>(it->first), groupList);
 		}
 
-		msg->Set(String::New("header"), header);
-		msg->Set(String::New("tags"), tags);
-		msg->Set(String::New("trailer"), trailer);
-		msg->Set(String::New("groups"), groups);
+		msg->Set(NanNew<String>("header"), header);
+		msg->Set(NanNew<String>("tags"), tags);
+		msg->Set(NanNew<String>("trailer"), trailer);
+		msg->Set(NanNew<String>("groups"), groups);
 	}
 
 	static Local<Value> sessionIdToJs(const FIX::SessionID* sessionId) {
-		Local<Object> session = Object::New();
+		Local<Object> session = NanNew<Object>();
 
-		session->Set(String::New("beginString"), String::New(sessionId->getBeginString().getString().c_str()));
-		session->Set(String::New("senderCompID"), String::New(sessionId->getSenderCompID().getString().c_str()));
-		session->Set(String::New("targetCompID"), String::New(sessionId->getTargetCompID().getString().c_str()));
-		session->Set(String::New("sessionQualifier"), String::New(sessionId->getSessionQualifier().c_str()));
+		session->Set(NanNew<String>("beginString"), NanNew<String>(sessionId->getBeginString().getString().c_str()));
+		session->Set(NanNew<String>("senderCompID"), NanNew<String>(sessionId->getSenderCompID().getString().c_str()));
+		session->Set(NanNew<String>("targetCompID"), NanNew<String>(sessionId->getTargetCompID().getString().c_str()));
+		session->Set(NanNew<String>("sessionQualifier"), NanNew<String>(sessionId->getSessionQualifier().c_str()));
 
 		return session;
 	}
 
 	static FIX::SessionID jsToSessionId(Local<Object> sessionId) {
-		String::Utf8Value beginString(sessionId->Get(String::New("beginString"))->ToString());
-		String::Utf8Value senderCompId(sessionId->Get(String::New("senderCompID"))->ToString());
-		String::Utf8Value targetCompId(sessionId->Get(String::New("targetCompID"))->ToString());
+		String::Utf8Value beginString(sessionId->Get(NanNew<String>("beginString"))->ToString());
+		String::Utf8Value senderCompId(sessionId->Get(NanNew<String>("senderCompID"))->ToString());
+		String::Utf8Value targetCompId(sessionId->Get(NanNew<String>("targetCompID"))->ToString());
 		return FIX::SessionID(std::string(*beginString),
 				std::string(*senderCompId),
 				std::string(*targetCompId));

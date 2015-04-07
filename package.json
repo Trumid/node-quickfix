@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "dateformat": "^1.0.8",
-    "nan": "^1.2.0",
-    "segfault-handler": "^0.2.4"
+    "nan": "^1.7.0"
   }
 }

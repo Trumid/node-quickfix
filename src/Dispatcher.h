@@ -42,7 +42,8 @@ class Dispatcher {
             fix_event_t* event = events[i];
 
             Local<String> eventName = NanNew<String>(event->eventName.c_str());
-            Local<Function> callback = Local<Function>::Cast((*event->callbacks)->Get(eventName));
+            Local<Object> callbackObj = NanNew(*event->callbacks);
+            Local<Function> callback = Local<Function>::Cast(callbackObj->Get(eventName));
 
             std::vector< Local<Value> > arguments;
             if(event->logon != NULL) {
