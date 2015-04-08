@@ -39,6 +39,8 @@ class Dispatcher {
         NODE_QUICKFIX_MUTEX_UNLOCK(&dispatcher->mutex);
 
         for (unsigned int i = 0, size = events.size(); i < size; i++) {
+            uv_unref((uv_handle_t *)&dispatcher->watcher);
+
             fix_event_t* event = events[i];
 
             Local<String> eventName = NanNew<String>(event->eventName.c_str());
@@ -68,6 +70,7 @@ class Dispatcher {
 
     void dispatch(fix_event_t* event) {
         //std::cout << "dispatching onCreate event " << '\n';
+        uv_ref((uv_handle_t *)&watcher);
 
         NODE_QUICKFIX_MUTEX_LOCK(&mutex);
         data.push_back(event);
