@@ -62,7 +62,7 @@ NAN_METHOD(FixInitiator::New) {
 
 	if(!(args[1]->IsUndefined() || args[1]->IsNull())){
 		hasOptions = true;
-		options = Local<Object>::New( args[1]->ToObject() );
+		options = NanNew( args[1]->ToObject() );
 	}
 
 	String::Utf8Value propertiesFile(args[0]);
@@ -96,7 +96,9 @@ NAN_METHOD(FixInitiator::New) {
 	}
 
 	initiator->Wrap(args.This());
-	initiator->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
+	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
+	NanAssignPersistent(initiator->mCallbacks, callbackObj);
+
 	if(hasOptions){
 		Local<String> credentialsKey =  NanNew<String>("credentials");
 		if(options->Has(credentialsKey)){
@@ -183,7 +185,7 @@ NAN_METHOD(FixInitiator::getSessions) {
 
 	std::set<FIX::SessionID> sessions = instance->mInitiator->getSessions();
 
-	Local<Array> sessionsArr = Array::New(sessions.size());
+	Local<Array> sessionsArr = NanNew<Array>(sessions.size());
 	std::set<FIX::SessionID>::iterator it;
 	int i = 0;
 	for(it = sessions.begin(); it != sessions.end(); ++it ){

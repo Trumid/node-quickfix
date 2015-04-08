@@ -54,7 +54,7 @@ NAN_METHOD(FixAcceptor::New) {
 
 	if(!(args[1]->IsUndefined() || args[1]->IsNull())){
 		hasOptions = true;
-		options = Local<Object>::New( args[1]->ToObject() );
+		options = NanNew( args[1]->ToObject() );
 	}
 
 	FIX::SessionSettings sessionSettings;
@@ -86,12 +86,13 @@ NAN_METHOD(FixAcceptor::New) {
 	}
 
 	acceptor->Wrap(args.This());
-	acceptor->mCallbacks = Persistent<Object>::New( args[0]->ToObject() );
+	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
+	NanAssignPersistent(acceptor->mCallbacks, callbackObj);
 
 	if(hasOptions){
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
-			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(Local<Object>::New(options->Get(logonProviderKey)->ToObject()));
+			acceptor->mFixLoginProvider = ObjectWrap::Unwrap<FixLoginProvider>(NanNew(options->Get(logonProviderKey)->ToObject()));
 			acceptor->mFixApplication->setLogonProvider(acceptor->mFixLoginProvider);
 		}
 
@@ -113,7 +114,7 @@ NAN_METHOD(FixAcceptor::New) {
 
 NAN_METHOD(FixAcceptor::start) {
 	NanScope();
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 	NanAsyncQueueWorker(new FixAcceptorStartWorker(callback, instance->mAcceptor));
 	NanReturnUndefined();
@@ -122,7 +123,7 @@ NAN_METHOD(FixAcceptor::start) {
 NAN_METHOD(FixAcceptor::send) {
 	NanScope();
 
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	Local<Object> message = args[0]->ToObject();
 	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
@@ -140,7 +141,7 @@ NAN_METHOD(FixAcceptor::send) {
 NAN_METHOD(FixAcceptor::sendRaw) {
 	NanScope();
 
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 
 	String::Utf8Value message(args[0]->ToString());
   
@@ -159,7 +160,7 @@ NAN_METHOD(FixAcceptor::sendRaw) {
 
 NAN_METHOD(FixAcceptor::stop) {
 	NanScope();
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	NanCallback *callback = new NanCallback(args[0].As<Function>());
 
 	NanAsyncQueueWorker(new FixAcceptorStopWorker(callback, instance->mAcceptor));
@@ -168,10 +169,10 @@ NAN_METHOD(FixAcceptor::stop) {
 
 NAN_METHOD(FixAcceptor::getSessions) {
 	NanScope();
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	std::set<FIX::SessionID> sessions = instance->mAcceptor->getSessions();
 
-	Local<Array> sessionsArr = Array::New(sessions.size());
+	Local<Array> sessionsArr = NanNew<Array>(sessions.size());
 	std::set<FIX::SessionID>::iterator it;
 	int i = 0;
 	for(it = sessions.begin(); it != sessions.end(); ++it ){
@@ -184,10 +185,11 @@ NAN_METHOD(FixAcceptor::getSessions) {
 
 NAN_METHOD(FixAcceptor::getSession) {
 	NanScope();
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.This());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	Local<Object> sessionId = args[0]->ToObject();
 
 	FIX::Session* session = instance->mAcceptor->getSession(FixMessageUtil::jsToSessionId(sessionId));
+
 	FixSession* fixSession = new FixSession();
 	fixSession->setSession(session);
 

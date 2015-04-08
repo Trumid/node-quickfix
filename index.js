@@ -1,6 +1,6 @@
-var SegfaultHandler = require('segfault-handler');
+//var SegfaultHandler = require('segfault-handler');
 
-SegfaultHandler.registerHandler();
+//SegfaultHandler.registerHandler();
 
 // javascript shim that lets our object inherit from EventEmitter
 var quickfix = require(__dirname + '/build/Release/node_quickfix.node');

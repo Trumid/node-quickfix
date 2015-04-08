@@ -23,6 +23,7 @@ public:
 	bool getIsLoggedOn();
 	void setIsFinished(bool isFinished);
 	void setIsLoggedOn(bool isLoggedOn);
+	static void close(FixLoginResponse* fixLoginResponse);
 	static Handle<Object> wrapFixLoginResponse(FixLoginResponse* fixLoginResponse);
 
 private:

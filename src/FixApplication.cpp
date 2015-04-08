@@ -104,11 +104,11 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 	  }
 
 	  if(!logonResponse->getIsLoggedOn()) {
-		  delete logonResponse;
+		  //delete logonResponse;
 		  throw FIX::RejectLogon();
 	  }
 
-	  delete logonResponse;
+	  //delete logonResponse;
   }
 
 }

@@ -43,7 +43,10 @@ Handle<Object> FixLoginResponse::wrapFixLoginResponse(FixLoginResponse* fixLogin
 	NODE_SET_PROTOTYPE_METHOD(ctor, "done", done);
 
 	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
-	obj->SetInternalField(0, External::New(fixLoginResponse));
+	//obj->SetInternalField(0, NanNew<External>(fixLoginResponse));
+
+	fixLoginResponse->Wrap(obj);
+	fixLoginResponse->Ref();
 
 	return obj;
 }
@@ -87,4 +90,7 @@ void FixLoginResponse::setIsLoggedOn(bool loggedOn) {
 	isLoggedOn = loggedOn;
 }
 
+void FixLoginResponse::close(FixLoginResponse* fixLoginResponse) {
+	fixLoginResponse->Unref();
+}
 
