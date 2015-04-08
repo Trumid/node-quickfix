@@ -38,7 +38,5 @@ void FixSendWorker::HandleOKCallback () {
 		NanNull()
 	};
 
-	delete message;
-
 	callback->Call(1, argv);
 }
