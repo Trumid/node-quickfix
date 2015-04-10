@@ -33,9 +33,11 @@ void FixInitiatorStartWorker::Execute () {
 void FixInitiatorStartWorker::HandleOKCallback () {
 	NanScope();
 
-	Local<Value> argv[] = {
-		NanNull()
-	};
+	if(!callback->IsEmpty()) {
+		Local<Value> argv[] = {
+			NanNull()
+		};
 
-	callback->Call(1, argv);
+		callback->Call(1, argv);
+	}
 }
