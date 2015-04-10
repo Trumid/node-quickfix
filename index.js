@@ -34,9 +34,6 @@ exports.initiator = function (options) {
 		fromAdmin: function(message, sessionID) {
 			initiator.emit('fromAdmin', { message: message, sessionID: sessionID });
 		},
-		toApp: function(message, sessionID) {
-			initiator.emit('toApp', { message: message, sessionID: sessionID });
-		},
 		fromApp: function(message, sessionID) {
 			initiator.emit('fromApp', { message: message, sessionID: sessionID });
 		}
@@ -64,9 +61,6 @@ exports.acceptor = function (options) {
 		},
 		fromAdmin: function(message, sessionID) {
 			acceptor.emit('fromAdmin', { message: message, sessionID: sessionID });
-		},
-		toApp: function(message, sessionID) {
-			acceptor.emit('toApp', { message: message, sessionID: sessionID });
 		},
 		fromApp: function(message, sessionID) {
 			acceptor.emit('fromApp', { message: message, sessionID: sessionID });

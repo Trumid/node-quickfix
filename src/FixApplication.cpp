@@ -116,6 +116,7 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
+	return; // no-op... don't need it and dispatching wastes time
 	// std::cout << "toApp " << sessionID.toString() << '\n';
 
 	fix_event_t *data = new fix_event_t;
