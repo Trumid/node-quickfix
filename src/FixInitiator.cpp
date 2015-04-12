@@ -19,6 +19,7 @@
 #include "FixMessageUtil.h"
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -99,6 +100,12 @@ NAN_METHOD(FixInitiator::New) {
 	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
 	NanAssignPersistent(initiator->mCallbacks, callbackObj);
 
+	Local<Array> callbackNames = callbackObj->GetOwnPropertyNames();
+	for (uint32_t i=0 ; i < callbackNames->Length() ; ++i) {
+	  String::Utf8Value callbackName(callbackNames->Get(i)->ToString());
+	  initiator->mCallbackRegistry.insert(*callbackName);
+	}
+
 	if(hasOptions){
 		Local<String> credentialsKey =  NanNew<String>("credentials");
 		if(options->Has(credentialsKey)){
@@ -130,15 +137,12 @@ NAN_METHOD(FixInitiator::start) {
 NAN_METHOD(FixInitiator::send) {
 	NanScope();
 
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
-
 	Local<Object> message = args[0]->ToObject();
-	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
 
-	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+	sendAsync(args, fixMessage);
 
 	NanReturnUndefined();
 }
@@ -146,17 +150,20 @@ NAN_METHOD(FixInitiator::send) {
 NAN_METHOD(FixInitiator::sendRaw) {
 	NanScope();
 
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
-
 	String::Utf8Value message(args[0]->ToString());
   
 	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
 
+	sendAsync(args, fixMessage);
+
+	NanReturnUndefined();
+}
+
+void FixInitiator::sendAsync(_NAN_METHOD_ARGS, FIX::Message* fixMessage) {
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
 	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
-
-	NanReturnUndefined();
 }
 
 NAN_METHOD(FixInitiator::stop) {

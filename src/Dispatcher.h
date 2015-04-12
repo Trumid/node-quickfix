@@ -29,8 +29,6 @@ class Dispatcher {
     static void listener(uv_async_t* handle, int status) {
         NanScope();
 
-        //std::cout << "received handleFixEvent " << '\n';
-
         Dispatcher* dispatcher = static_cast<Dispatcher*>(handle->data);
         std::vector<fix_event_t*> events;
 
@@ -64,20 +62,19 @@ class Dispatcher {
                 arguments.push_back(FixMessageUtil::sessionIdToJs(event->sessionId));
             }
 
-            //std::cout << "handleFixEvent " << event->eventName << '\n' << std::flush;
             NanMakeCallback(NanGetCurrentContext()->Global(), callback, arguments.size(), &arguments[0]);
         }
     }
 
     void dispatch(fix_event_t* event) {
-        //std::cout << "dispatching onCreate event " << '\n';
-        uv_ref((uv_handle_t *)&watcher);
 
-        NODE_QUICKFIX_MUTEX_LOCK(&mutex);
-        data.push_back(event);
-        NODE_QUICKFIX_MUTEX_UNLOCK(&mutex);
+		uv_ref((uv_handle_t *)&watcher);
 
-        uv_async_send(&watcher);
+		NODE_QUICKFIX_MUTEX_LOCK(&mutex);
+		data.push_back(event);
+		NODE_QUICKFIX_MUTEX_UNLOCK(&mutex);
+
+		uv_async_send(&watcher);
     }
 
   private:

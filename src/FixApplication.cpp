@@ -7,13 +7,14 @@
 #include "FixEvent.h"
 #include "FixLoginProvider.h"
 #include "FixLoginResponse.h"
+#include <unordered_set>
 
 using namespace v8;
 
 FixApplication::FixApplication() {}
 
-FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks) 
-	: mCallbacks(callbacks)
+FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry)
+	: mCallbacks(callbacks), mCallbackRegistry(callbackRegistry)
 {
 }
 
@@ -23,69 +24,33 @@ FixApplication::~FixApplication()
 
 void FixApplication::onCreate( const FIX::SessionID& sessionID )
 {
-	// std::cout << "onCreate " << sessionID.toString() << '\n';
-
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("onCreate");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-
-	Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("onCreate"), sessionID);
 }
 
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
-	// std::cout << "onLogon " << sessionID.toString() << '\n';
-
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("onLogon");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-
-	Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("onLogon"), sessionID);
 }
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
-	// std::cout << "onLogout " << sessionID.toString() << '\n';
-
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("onLogout");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-
-	Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("onLogout"), sessionID);
 }
 
 void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessionID )
 {
-	// std::cout << "toAdmin " << sessionID.toString() << '\n';
-
 	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mCredentials != NULL) {
 		message.setField(553, mCredentials->username.c_str());
 		message.setField(554, mCredentials->password.c_str());
 	}
 
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("toAdmin");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-	data->message = new FIX::Message(message);
-
-	Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("toAdmin"), message, sessionID);
 }
 
 void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
 	throw(FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon)
 {
-	// std::cout << "fromAdmin " << sessionID.toString() << '\n';
-
-  fix_event_t *data = new fix_event_t;
-  data->eventName = std::string("fromAdmin");
-  data->message = new FIX::Message(message);
-  data->sessionId = &sessionID;
-  data->callbacks = mCallbacks;
-  Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("fromAdmin"), message, sessionID);
 
 	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mLoginProvider != NULL) {
 	  fix_event_t *data = new fix_event_t;
@@ -116,30 +81,44 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
-	return; // no-op... don't need it and dispatching wastes time
-	// std::cout << "toApp " << sessionID.toString() << '\n';
-
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("toApp");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-	data->message = new FIX::Message(message);
-	
-	Dispatcher::getInstance().dispatch(data);
+	this->dispatchEvent(std::string("toApp"), message, sessionID);
 }
 
 void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
 	throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
 {
-	// std::cout << "fromApp " << sessionID.toString() << '\n';
+	this->dispatchEvent(std::string("fromApp"), message, sessionID);
+}
 
-	fix_event_t *data = new fix_event_t;
-	data->eventName = std::string("fromApp");
-	data->callbacks = mCallbacks;
-	data->sessionId = &sessionID;
-	data->message = new FIX::Message(message);
-	
-	Dispatcher::getInstance().dispatch(data);
+void FixApplication::dispatchEvent(std::string eventName, const FIX::Message& message, const FIX::SessionID& sessionID) {
+	std::unordered_set<std::string>::const_iterator got = mCallbackRegistry->find(eventName);
+
+	if ( got == mCallbackRegistry->end() ) {
+		return;
+	} else {
+		fix_event_t *data = new fix_event_t;
+		data->eventName = eventName;
+		data->callbacks = mCallbacks;
+		data->sessionId = &sessionID;
+		data->message = new FIX::Message(message);
+
+		Dispatcher::getInstance().dispatch(data);
+	}
+}
+
+void FixApplication::dispatchEvent(std::string eventName, const FIX::SessionID& sessionID) {
+	std::unordered_set<std::string>::const_iterator got = mCallbackRegistry->find(eventName);
+
+	if ( got == mCallbackRegistry->end() ) {
+		return;
+	} else {
+		fix_event_t *data = new fix_event_t;
+		data->eventName = eventName;
+		data->callbacks = mCallbacks;
+		data->sessionId = &sessionID;
+
+		Dispatcher::getInstance().dispatch(data);
+	}
 }
 
 void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {

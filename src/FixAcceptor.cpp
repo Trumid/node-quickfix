@@ -17,6 +17,7 @@
 #include "quickfix/SessionSettings.h"
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 
 using namespace FIX;
 using namespace std;
@@ -89,6 +90,12 @@ NAN_METHOD(FixAcceptor::New) {
 	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
 	NanAssignPersistent(acceptor->mCallbacks, callbackObj);
 
+	Local<Array> callbackNames = callbackObj->GetOwnPropertyNames();
+	for (uint32_t i=0 ; i < callbackNames->Length() ; ++i) {
+	  String::Utf8Value callbackName(callbackNames->Get(i)->ToString());
+	  acceptor->mCallbackRegistry.insert(*callbackName);
+	}
+
 	if(hasOptions){
 		Local<String> logonProviderKey =  NanNew<String>("logonProvider");
 		if(options->Has(logonProviderKey)) {
@@ -123,39 +130,36 @@ NAN_METHOD(FixAcceptor::start) {
 NAN_METHOD(FixAcceptor::send) {
 	NanScope();
 
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
 	Local<Object> message = args[0]->ToObject();
-	NanCallback *callback = new NanCallback(args[1].As<Function>());
-
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
 
-	FIX::SessionID senderSessionId = *(instance->mAcceptor->getSessions().begin());
-	std::string senderId = senderSessionId.getSenderCompID().getString();
-	fixMessage->getHeader().setField(49, senderId);
+	sendAsync(args, fixMessage);
 
-	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
 	NanReturnUndefined();
 }
 
 NAN_METHOD(FixAcceptor::sendRaw) {
 	NanScope();
 
-	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
-
 	String::Utf8Value message(args[0]->ToString());
   
 	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
 
-	NanCallback *callback = new NanCallback(args[1].As<Function>());	
+	sendAsync(args, fixMessage);
+
+	NanReturnUndefined();
+}
+
+void FixAcceptor::sendAsync(_NAN_METHOD_ARGS, FIX::Message* fixMessage) {
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(args.Holder());
+	NanCallback *callback = new NanCallback(args[1].As<Function>());
 
 	FIX::SessionID senderSessionId = *(instance->mAcceptor->getSessions().begin());
 	std::string senderId = senderSessionId.getSenderCompID().getString();
 	fixMessage->getHeader().setField(49, senderId);
 
 	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
-
-	NanReturnUndefined();
 }
 
 NAN_METHOD(FixAcceptor::stop) {

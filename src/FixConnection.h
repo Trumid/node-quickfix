@@ -12,7 +12,7 @@
 #include <node.h>
 #include <nan.h>
 
-
+#include <unordered_set>
 #include "quickfix/Application.h"
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
@@ -54,6 +54,7 @@ protected:
 
 	FIX::SessionSettings mSettings;
 	v8::Persistent<v8::Object> mCallbacks;
+	std::unordered_set<std::string> mCallbackRegistry;
 };
 
 #endif /* FIXCONNECTION_H_ */
