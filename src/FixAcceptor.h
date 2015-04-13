@@ -36,6 +36,7 @@ class FixAcceptor : public FixConnection {
 		~FixAcceptor();
 		FIX::ThreadedSocketAcceptor* mAcceptor;
 		FixLoginProvider* mFixLoginProvider;
+		static void sendAsync(_NAN_METHOD_ARGS, FIX::Message* message);
 };
 
 #endif /* FIXACCEPTOR_H_ */

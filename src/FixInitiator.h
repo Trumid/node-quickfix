@@ -35,6 +35,7 @@ class FixInitiator : public FixConnection {
  private:
   ~FixInitiator();
   FIX::SocketInitiator* mInitiator;
+  static void sendAsync(_NAN_METHOD_ARGS, FIX::Message* message);
 };
 
 #endif

@@ -13,7 +13,7 @@ This is a node.js wrapper of the popular QuickFIX library. Information about Qui
 ###Features######
 
 This module currently supports creating an Acceptor, an Initiator, and retrieving individual Sessions.
-Examples can be found in the examples directory of this project. 
+Examples can be found in the examples directory of this project.
 
 ####Configuration######
 
@@ -114,7 +114,7 @@ var logonProvider = quickfix.logonProvider(function(logonResponse, msg, sessionI
 });
 
 var fixAcceptor = quickfix.acceptor({
-  "logonProvider": logonProvider, 
+  "logonProvider": logonProvider,
   propertiesFile: "./acceptor.properties"
 });
 ```
@@ -151,7 +151,7 @@ message = {
 ```
 
 ####Acceptor API######
-`start(callback) //start acceptor` 
+`start(callback) //start acceptor`
 
 `send(msg, callback) //send json messages`
 
@@ -172,12 +172,11 @@ onLogout: sessionID
 onLogonAttempt:  message, sessionID
 toAdmin: message, sessionID
 fromAdmin: message, sessionID
-toApp:  message, sessionID
 fromApp:  message, sessionID
 ```
 
 ####Initiator API######
-`start(callback) //start acceptor` 
+`start(callback) //start acceptor`
 
 `send(msg, callback) //send json messages`
 

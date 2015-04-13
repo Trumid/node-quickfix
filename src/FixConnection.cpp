@@ -24,7 +24,7 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 
   mSettings = settings;
 
-	mFixApplication = new FixApplication(&mCallbacks);
+	mFixApplication = new FixApplication(&mCallbacks, &mCallbackRegistry);
 
 	#ifdef HAVE_POSTGRESQL
 	if(storeFactory == "postgresql") {

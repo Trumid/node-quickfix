@@ -11,18 +11,20 @@
 #include "FixLoginProvider.h"
 #include "FixCredentials.h"
 #include "FixEvent.h"
+#include <unordered_set>
 
 class FixApplication : public FIX::Application
 {
 	public:
 		FixApplication();
-		FixApplication(v8::Persistent<v8::Object>* callbacks);
+		FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry);
 		~FixApplication();
 		void setLogonProvider(FixLoginProvider* logonProvider);
 		void setCredentials(fix_credentials* credentials);
 
 	private:
 		v8::Persistent<v8::Object>* mCallbacks;
+		std::unordered_set<std::string>* mCallbackRegistry;
 		fix_credentials* mCredentials = NULL;
 		FixLoginProvider* mLoginProvider = NULL;
 
@@ -37,6 +39,8 @@ class FixApplication : public FIX::Application
 		void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend );
 		void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
 		throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType );
+		void dispatchEvent(std::string eventName, const FIX::Message& message, const FIX::SessionID& sessionID);
+		void dispatchEvent(std::string eventName, const FIX::SessionID& sessionID);
 };
 
 #endif
