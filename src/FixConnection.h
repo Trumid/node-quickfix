@@ -42,11 +42,13 @@ using namespace node;
 class FixConnection : public node::ObjectWrap {
 public:
 	FixConnection(FIX::SessionSettings settings, std::string storeFactory);
+	FixConnection(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory);
 
 private:
 
 protected:
 	~FixConnection();
+	void setup(FIX::SessionSettings settings, std::string storeFactory);
 
 	FixApplication* mFixApplication;
 	FIX::MessageStoreFactory* mStoreFactory;

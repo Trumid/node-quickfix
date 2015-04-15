@@ -1,5 +1,6 @@
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
 #include "Dispatcher.h"
@@ -14,8 +15,9 @@ using namespace v8;
 FixApplication::FixApplication() {}
 
 FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry)
-	: mCallbacks(callbacks), mCallbackRegistry(callbackRegistry)
 {
+	mCallbacks = callbacks;
+	mCallbackRegistry = callbackRegistry;
 }
 
 FixApplication::~FixApplication()
@@ -127,5 +129,13 @@ void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {
 
 void FixApplication::setCredentials(fix_credentials* credentials) {
 	mCredentials = credentials;
+}
+
+void FixApplication::setCallbacks(v8::Persistent<v8::Object>* callbacks) {
+	mCallbacks = callbacks;
+}
+
+void FixApplication::setCallbackRegistry(std::unordered_set<std::string>* callbackRegistry) {
+	mCallbackRegistry = callbackRegistry;
 }
 

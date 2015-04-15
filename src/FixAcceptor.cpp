@@ -26,6 +26,10 @@ FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory
 	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
+FixAcceptor::FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): FixConnection(application, settings, storeFactory) {
+	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+}
+
 FixAcceptor::~FixAcceptor() {
 }
 
