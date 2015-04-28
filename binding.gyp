@@ -2,6 +2,8 @@
   'targets': [
     {
       'target_name': 'node_quickfix',
+      'product_extension': 'node',
+      'type': 'shared_library',
       'sources': [
         'src/Threading.h',
         'src/Dispatcher.h',
@@ -51,6 +53,9 @@
         '/usr/local/include',
         '/usr/local/include/quickfix'
       ],
+      'direct_dependent_settings': {
+        'include_dirs': ['src']
+      },
       'cflags': [ '-fexceptions', '-std=c++11' ],
       'cflags!': ['-fno-exceptions', '-fno-rtti'],
       'cflags_cc': [ '-fexceptions' ],

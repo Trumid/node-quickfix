@@ -31,9 +31,10 @@ class FixAcceptor : public FixConnection {
 		static NAN_METHOD(getSession);
 
 		FixAcceptor(FIX::SessionSettings settings, std::string storeFactory);
-
-	private:
+		FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory);
 		~FixAcceptor();
+
+	protected:
 		FIX::ThreadedSocketAcceptor* mAcceptor;
 		FixLoginProvider* mFixLoginProvider;
 		static void sendAsync(_NAN_METHOD_ARGS, FIX::Message* message);

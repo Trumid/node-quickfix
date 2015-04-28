@@ -1,5 +1,6 @@
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 #include "quickfix/SessionID.h"
 #include "quickfix/Message.h"
 #include "Dispatcher.h"
@@ -14,8 +15,9 @@ using namespace v8;
 FixApplication::FixApplication() {}
 
 FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry)
-	: mCallbacks(callbacks), mCallbackRegistry(callbackRegistry)
 {
+	mCallbacks = callbacks;
+	mCallbackRegistry = callbackRegistry;
 }
 
 FixApplication::~FixApplication()
@@ -24,17 +26,17 @@ FixApplication::~FixApplication()
 
 void FixApplication::onCreate( const FIX::SessionID& sessionID )
 {
-	this->dispatchEvent(std::string("onCreate"), sessionID);
+	FixApplication::dispatchEvent(std::string("onCreate"), sessionID);
 }
 
 void FixApplication::onLogon( const FIX::SessionID& sessionID )
 {
-	this->dispatchEvent(std::string("onLogon"), sessionID);
+	FixApplication::dispatchEvent(std::string("onLogon"), sessionID);
 }
 
 void FixApplication::onLogout( const FIX::SessionID& sessionID )
 {
-	this->dispatchEvent(std::string("onLogout"), sessionID);
+	FixApplication::dispatchEvent(std::string("onLogout"), sessionID);
 }
 
 void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessionID )
@@ -44,13 +46,13 @@ void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessi
 		message.setField(554, mCredentials->password.c_str());
 	}
 
-	this->dispatchEvent(std::string("toAdmin"), message, sessionID);
+	FixApplication::dispatchEvent(std::string("toAdmin"), message, sessionID);
 }
 
 void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
 	throw(FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon)
 {
-	this->dispatchEvent(std::string("fromAdmin"), message, sessionID);
+	FixApplication::dispatchEvent(std::string("fromAdmin"), message, sessionID);
 
 	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mLoginProvider != NULL) {
 	  fix_event_t *data = new fix_event_t;
@@ -81,13 +83,13 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
 throw( FIX::DoNotSend )
 {
-	this->dispatchEvent(std::string("toApp"), message, sessionID);
+	FixApplication::dispatchEvent(std::string("toApp"), message, sessionID);
 }
 
 void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
 	throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
 {
-	this->dispatchEvent(std::string("fromApp"), message, sessionID);
+	FixApplication::dispatchEvent(std::string("fromApp"), message, sessionID);
 }
 
 void FixApplication::dispatchEvent(std::string eventName, const FIX::Message& message, const FIX::SessionID& sessionID) {
@@ -127,5 +129,13 @@ void FixApplication::setLogonProvider(FixLoginProvider* loginProvider) {
 
 void FixApplication::setCredentials(fix_credentials* credentials) {
 	mCredentials = credentials;
+}
+
+void FixApplication::setCallbacks(v8::Persistent<v8::Object>* callbacks) {
+	mCallbacks = callbacks;
+}
+
+void FixApplication::setCallbackRegistry(std::unordered_set<std::string>* callbackRegistry) {
+	mCallbackRegistry = callbackRegistry;
 }
 

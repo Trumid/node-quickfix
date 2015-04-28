@@ -26,6 +26,23 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 
 	mFixApplication = new FixApplication(&mCallbacks, &mCallbackRegistry);
 
+	setup(settings, storeFactory);
+
+}
+
+FixConnection::FixConnection(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): ObjectWrap()  {
+
+  mSettings = settings;
+
+	mFixApplication = application;
+	mFixApplication->setCallbacks(&mCallbacks);
+	mFixApplication->setCallbackRegistry(&mCallbackRegistry);
+
+	setup(settings, storeFactory);
+
+}
+
+void FixConnection::setup(FIX::SessionSettings settings, std::string storeFactory) {
 	#ifdef HAVE_POSTGRESQL
 	if(storeFactory == "postgresql") {
 		mStoreFactory = new FIX::PostgreSQLStoreFactory(mSettings);
@@ -53,7 +70,6 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 	mStoreFactory = new FIX::FileStoreFactory(mSettings);
 	mLogFactory = new FIX::FileLogFactory(mSettings);
 	#endif
-
 }
 
 FixConnection::~FixConnection() {
