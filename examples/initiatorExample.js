@@ -1,5 +1,8 @@
-var df = require('dateformat')
+var df = require('dateformat');
+var events = require('events');
 var quickfix = require('../index');
+var initiator = quickfix.initiator;
+
 var options = {
   credentials: {
     username: "USERNAME",
@@ -8,10 +11,42 @@ var options = {
   propertiesFile: "./nodeQuickfixInitiatorExample.properties"
 };
 
-var fixClient = quickfix.initiator(options);
+
+// extend prototype
+function inherits (target, source) {
+  for (var k in source.prototype)
+    target.prototype[k] = source.prototype[k];
+}
+
+inherits(initiator, events.EventEmitter);
+
+var fixClient = new initiator(
+{
+  onCreate: function(sessionID) {
+    fixClient.emit('onCreate', { sessionID: sessionID });
+  },
+  onLogon: function(sessionID) {
+    fixClient.emit('onLogon', { sessionID: sessionID });
+  },
+  onLogout: function(sessionID) {
+    fixClient.emit('onLogout', { sessionID: sessionID });
+  },
+  onLogonAttempt: function(message, sessionID) {
+    fixClient.emit('onLogonAttempt', { message: message, sessionID: sessionID });
+  },
+  toAdmin: function(message, sessionID) {
+    fixClient.emit('toAdmin', { message: message, sessionID: sessionID });
+  },
+  fromAdmin: function(message, sessionID) {
+    fixClient.emit('fromAdmin', { message: message, sessionID: sessionID });
+  },
+  fromApp: function(message, sessionID) {
+    fixClient.emit('fromApp', { message: message, sessionID: sessionID });
+  }
+}, options);
 
 fixClient.start(function() {
-	console.log("FIX Initiator Started")
+	console.log("FIX Initiator Started");
   var order = {
     header: {
       8: 'FIX.4.4',
@@ -35,6 +70,7 @@ fixClient.start(function() {
 
   fixClient.send(order, function() {
     console.log("Order sent!");
+    process.stdin.resume();
   });
 });
 
