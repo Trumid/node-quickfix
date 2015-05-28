@@ -23,7 +23,7 @@ void FixLoginProvider::Initialize(Handle<Object> target) {
   Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixLoginProvider::New);
 
   // TODO:: Figure out what the compile error is with this
-  //NanAssignPersistent(constructor, ctor);
+  // NanAssignPersistent(constructor, ctor);
 
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew("FixLoginProvider"));
