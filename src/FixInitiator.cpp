@@ -97,8 +97,8 @@ NAN_METHOD(FixInitiator::New) {
 	}
 
 	if (args.IsConstructCall()) {
-    initiator->Wrap(args.This());
-  } 
+		initiator->Wrap(args.This());
+	} 
 
 	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
 	NanAssignPersistent(initiator->mCallbacks, callbackObj);
