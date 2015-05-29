@@ -27,15 +27,17 @@ describe('node-quickfix', function () {
       initiator.getSessions()[0].targetCompID.should.eql('ELECTRONIFIE');
     });
 
-    it('should create a new initiator instance with fix beginString, senderCompID, targetCompID on defined session', function () {
+    it('should start and stop when called', function (done) {
       var initiator = new quickfix.initiator({}, {
         propertiesFile: initiatorPropertiesFile
       });
-      initiator.should.not.eql(null);
-      initiator.isLoggedOn().should.eql(false);
-      initiator.getSessions()[0].beginString.should.eql('FIX.4.4');
-      initiator.getSessions()[0].senderCompID.should.eql('NODEQUICKFIX');
-      initiator.getSessions()[0].targetCompID.should.eql('ELECTRONIFIE');
+      initiator.start(function () {
+        // todo: started with local property
+        initiator.stop(function () {
+          // todo: started with local property
+          done();  
+        });
+      });
     });
 
   });
