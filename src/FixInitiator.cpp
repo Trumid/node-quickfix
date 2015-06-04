@@ -96,7 +96,10 @@ NAN_METHOD(FixInitiator::New) {
 		initiator = new FixInitiator(sessionSettings, "file");
 	}
 
-	initiator->Wrap(args.This());
+	if (args.IsConstructCall()) {
+		initiator->Wrap(args.This());
+	} 
+
 	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
 	NanAssignPersistent(initiator->mCallbacks, callbackObj);
 

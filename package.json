@@ -15,6 +15,8 @@
     "nan": "1.8.0"
   },
   "devDependencies": {
-    "dateformat": "^1.0.8"
+    "dateformat": "^1.0.8",
+    "mocha": "^2.2.5",
+    "should": "^6.0.3"
   }
 }
