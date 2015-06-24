@@ -114,6 +114,7 @@ public:
 						addFixGroups(group, entry);
 
 						map->addGroup(group->field(), *group);
+            delete group;
 				
 					} else {
 
