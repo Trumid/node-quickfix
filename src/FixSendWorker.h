@@ -7,28 +7,27 @@
 
 #include <node.h>
 #include <nan.h>
-#include <stdio.h>
 
 using namespace v8;
 using namespace node;
 
 class FixSendWorker : public NanAsyncWorker
 {
-	public:
-		FixSendWorker(NanCallback *callback, FIX::Message* message)
-			: NanAsyncWorker(callback), message(message) {
+  public:
+    FixSendWorker(NanCallback *callback, FIX::Message* message)
+      : NanAsyncWorker(callback), message(message) {
         }
-		~FixSendWorker() {
+    ~FixSendWorker() {
       if(message) {
         delete message;
       }
     }
 
-		void Execute();
-		void HandleOKCallback();
+    void Execute();
+    void HandleOKCallback();
 
-	private:
-		FIX::Message* message;
+  private:
+    FIX::Message* message;
 };
 
 
