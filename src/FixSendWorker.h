@@ -16,7 +16,11 @@ class FixSendWorker : public NanAsyncWorker
 	public:
 		FixSendWorker(NanCallback *callback, FIX::Message* message)
 			: NanAsyncWorker(callback), message(message) {}
-		~FixSendWorker() {}
+		~FixSendWorker() {
+			if(message) {
+				delete message;
+			}
+		}
 
 		void Execute();
 		void HandleOKCallback();
