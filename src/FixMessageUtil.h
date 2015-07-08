@@ -74,6 +74,7 @@ public:
 					}
 					message->addGroup(*group);
 				}
+				delete group;
 			}
 		}
 
