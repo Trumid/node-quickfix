@@ -115,6 +115,8 @@ public:
 
 						map->addGroup(group->field(), *group);
 
+						delete group;
+
 					} else {
 
 						FIX::Group* group = new FIX::Group(
@@ -137,9 +139,10 @@ public:
 
 						map->addGroup(group->field(), *group);
 
+						delete group;
+
 					}
 				}
-				delete group;
 			}
 		}
 	}
