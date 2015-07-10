@@ -1,0 +1,455 @@
+<fix type='FIXT' major='1' minor='1' servicepack='0'>
+  <header>
+    <field name="BeginString" required="Y"/>
+    <field name="BodyLength" required="Y"/>
+    <field name="MsgType" required="Y"/>
+    <field name="ApplVerID" required="N"/>
+    <field name="ApplExtID" required="N"/>
+    <field name="CstmApplVerID" required="N"/>
+    <field name="SenderCompID" required="Y"/>
+    <field name="TargetCompID" required="Y"/>
+    <field name="OnBehalfOfCompID" required="N"/>
+    <field name="DeliverToCompID" required="N"/>
+    <field name="SecureDataLen" required="N"/>
+    <field name="SecureData" required="N"/>
+    <field name="MsgSeqNum" required="Y"/>
+    <field name="SenderSubID" required="N"/>
+    <field name="SenderLocationID" required="N"/>
+    <field name="TargetSubID" required="N"/>
+    <field name="TargetLocationID" required="N"/>
+    <field name="OnBehalfOfSubID" required="N"/>
+    <field name="OnBehalfOfLocationID" required="N"/>
+    <field name="DeliverToSubID" required="N"/>
+    <field name="DeliverToLocationID" required="N"/>
+    <field name="PossDupFlag" required="N"/>
+    <field name="PossResend" required="N"/>
+    <field name="SendingTime" required="Y"/>
+    <field name="OrigSendingTime" required="N"/>
+    <field name="XmlDataLen" required="N"/>
+    <field name="XmlData" required="N"/>
+    <field name="MessageEncoding" required="N"/>
+    <field name="LastMsgSeqNumProcessed" required="N"/>
+    <component name="HopGrp" required="N"/>
+  </header>
+  <trailer>
+    <field name="SignatureLength" required="N"/>
+    <field name="Signature" required="N"/>
+    <field name="CheckSum" required="Y"/>
+  </trailer>
+  <messages>
+    <message name="Heartbeat" msgtype="0" msgcat="admin">
+      <field name="TestReqID" required="N"/>
+    </message>
+    <message name="TestRequest" msgtype="1" msgcat="admin">
+      <field name="TestReqID" required="Y"/>
+    </message>
+    <message name="ResendRequest" msgtype="2" msgcat="admin">
+      <field name="BeginSeqNo" required="Y"/>
+      <field name="EndSeqNo" required="Y"/>
+    </message>
+    <message name="Reject" msgtype="3" msgcat="admin">
+      <field name="RefSeqNum" required="Y"/>
+      <field name="RefTagID" required="N"/>
+      <field name="RefMsgType" required="N"/>
+      <field name="RefApplVerID" required="N"/>
+      <field name="RefApplExtID" required="N"/>
+      <field name="RefCstmApplVerID" required="N"/>
+      <field name="SessionRejectReason" required="N"/>
+      <field name="Text" required="N"/>
+      <field name="EncodedTextLen" required="N"/>
+      <field name="EncodedText" required="N"/>
+    </message>
+    <message name="SequenceReset" msgtype="4" msgcat="admin">
+      <field name="GapFillFlag" required="N"/>
+      <field name="NewSeqNo" required="Y"/>
+    </message>
+    <message name="Logout" msgtype="5" msgcat="admin">
+      <field name="SessionStatus" required="N"/>
+      <field name="Text" required="N"/>
+      <field name="EncodedTextLen" required="N"/>
+      <field name="EncodedText" required="N"/>
+    </message>
+    <message name="Logon" msgtype="A" msgcat="admin">
+      <field name="EncryptMethod" required="Y"/>
+      <field name="HeartBtInt" required="Y"/>
+      <field name="RawDataLength" required="N"/>
+      <field name="RawData" required="N"/>
+      <field name="ResetSeqNumFlag" required="N"/>
+      <field name="NextExpectedMsgSeqNum" required="N"/>
+      <field name="MaxMessageSize" required="N"/>
+      <component name="MsgTypeGrp" required="N"/>
+      <field name="TestMessageIndicator" required="N"/>
+      <field name="Username" required="N"/>
+      <field name="Password" required="N"/>
+      <field name="NewPassword" required="N"/>
+      <field name="EncryptedPasswordMethod" required="N"/>
+      <field name="EncryptedPasswordLen" required="N"/>
+      <field name="EncryptedPassword" required="N"/>
+      <field name="EncryptedNewPasswordLen" required="N"/>
+      <field name="EncryptedNewPassword" required="N"/>
+      <field name="SessionStatus" required="N"/>
+      <field name="DefaultApplVerID" required="Y"/>
+      <field name="DefaultApplExtID" required="N"/>
+      <field name="DefaultCstmApplVerID" required="N"/>
+      <field name="Text" required="N"/>
+      <field name="EncodedTextLen" required="N"/>
+      <field name="EncodedText" required="N"/>
+    </message>
+    <!--
+    <message name="XMLnonFIX" msgtype="n" msgcat="admin">
+      <component name="AttachmentGrp" required="N"/>
+    </message>
+    -->
+  </messages>
+  <components>
+    <component name="HopGrp">
+      <group name="NoHops" required="N">
+        <field name="HopCompID" required="N"/>
+        <field name="HopSendingTime" required="N"/>
+        <field name="HopRefID" required="N"/>
+      </group>
+    </component>
+    <component name="MsgTypeGrp">
+      <group name="NoMsgTypes" required="N">
+        <field name="RefMsgType" required="N"/>
+        <field name="MsgDirection" required="N"/>
+        <field name="RefApplVerID" required="N"/>
+        <field name="RefApplExtID" required="N"/>
+        <field name="RefCstmApplVerID" required="N"/>
+        <field name="DefaultVerIndicator" required="N"/>
+      </group>
+    </component>
+    <component name="AttachmentKeywordGrp">
+      <group name="NoAttachmentKeywords" required="N">
+        <field name="AttachmentKeyword" required="N"/>
+      </group>
+    </component>
+    <component name="AttachmentGrp">
+      <group name="NoAttachments" required="N">
+        <field name="AttachmentName" required="N"/>
+        <field name="AttachmentMediaType" required="N"/>
+        <field name="AttachmentClassification" required="N"/>
+        <field name="AttachmentExternalURL" required="N"/>
+        <field name="AttachmentEncodingType" required="N"/>
+        <field name="UnencodedAttachmentLen" required="N"/>
+        <field name="EncodedAttachmentLen" required="N"/>
+        <field name="EncodedAttachment" required="N"/>
+        <component name="AttachmentKeywordGrp" required="N"/>
+      </group>
+    </component>
+  </components>
+  <fields>
+    <field number="7" name="BeginSeqNo" type="SEQNUM"/>
+    <field number="8" name="BeginString" type="STRING"/>
+    <field number="9" name="BodyLength" type="LENGTH"/>
+    <field number="10" name="CheckSum" type="STRING"/>
+    <field number="16" name="EndSeqNo" type="SEQNUM"/>
+    <field number="34" name="MsgSeqNum" type="SEQNUM"/>
+    <field number="35" name="MsgType" type="STRING">
+      <value enum="0" description="HEARTBEAT"/>
+      <value enum="1" description="TESTREQUEST"/>
+      <value enum="2" description="RESENDREQUEST"/>
+      <value enum="3" description="REJECT"/>
+      <value enum="4" description="SEQUENCERESET"/>
+      <value enum="5" description="LOGOUT"/>
+      <value enum="6" description="IOI"/>
+      <value enum="7" description="ADVERTISEMENT"/>
+      <value enum="8" description="EXECUTIONREPORT"/>
+      <value enum="9" description="ORDERCANCELREJECT"/>
+      <value enum="A" description="LOGON"/>
+      <value enum="B" description="NEWS"/>
+      <value enum="C" description="EMAIL"/>
+      <value enum="D" description="NEWORDERSINGLE"/>
+      <value enum="E" description="NEWORDERLIST"/>
+      <value enum="F" description="ORDERCANCELREQUEST"/>
+      <value enum="G" description="ORDERCANCELREPLACEREQUEST"/>
+      <value enum="H" description="ORDERSTATUSREQUEST"/>
+      <value enum="J" description="ALLOCATIONINSTRUCTION"/>
+      <value enum="K" description="LISTCANCELREQUEST"/>
+      <value enum="L" description="LISTEXECUTE"/>
+      <value enum="M" description="LISTSTATUSREQUEST"/>
+      <value enum="N" description="LISTSTATUS"/>
+      <value enum="P" description="ALLOCATIONINSTRUCTIONACK"/>
+      <value enum="Q" description="DONTKNOWTRADE"/>
+      <value enum="R" description="QUOTEREQUEST"/>
+      <value enum="S" description="QUOTE"/>
+      <value enum="T" description="SETTLEMENTINSTRUCTIONS"/>
+      <value enum="V" description="MARKETDATAREQUEST"/>
+      <value enum="W" description="MARKETDATASNAPSHOTFULLREFRESH"/>
+      <value enum="X" description="MARKETDATAINCREMENTALREFRESH"/>
+      <value enum="Y" description="MARKETDATAREQUESTREJECT"/>
+      <value enum="Z" description="QUOTECANCEL"/>
+      <value enum="a" description="QUOTESTATUSREQUEST"/>
+      <value enum="b" description="MASSQUOTEACK"/>
+      <value enum="c" description="SECURITYDEFINITIONREQUEST"/>
+      <value enum="d" description="SECURITYDEFINITION"/>
+      <value enum="e" description="SECURITYSTATUSREQUEST"/>
+      <value enum="f" description="SECURITYSTATUS"/>
+      <value enum="g" description="TRADINGSESSIONSTATUSREQUEST"/>
+      <value enum="h" description="TRADINGSESSIONSTATUS"/>
+      <value enum="i" description="MASSQUOTE"/>
+      <value enum="j" description="BUSINESSMESSAGEREJECT"/>
+      <value enum="k" description="BIDREQUEST"/>
+      <value enum="l" description="BIDRESPONSE"/>
+      <value enum="m" description="LISTSTRIKEPRICE"/>
+      <value enum="n" description="XMLNONFIX"/>
+      <value enum="o" description="REGISTRATIONINSTRUCTIONS"/>
+      <value enum="p" description="REGISTRATIONINSTRUCTIONSRESPONSE"/>
+      <value enum="q" description="ORDERMASSCANCELREQUEST"/>
+      <value enum="r" description="ORDERMASSCANCELREPORT"/>
+      <value enum="s" description="NEWORDERCROSS"/>
+      <value enum="t" description="CROSSORDERCANCELREPLACEREQUEST"/>
+      <value enum="u" description="CROSSORDERCANCELREQUEST"/>
+      <value enum="v" description="SECURITYTYPEREQUEST"/>
+      <value enum="w" description="SECURITYTYPES"/>
+      <value enum="x" description="SECURITYLISTREQUEST"/>
+      <value enum="y" description="SECURITYLIST"/>
+      <value enum="z" description="DERIVATIVESECURITYLISTREQUEST"/>
+      <value enum="AA" description="DERIVATIVESECURITYLIST"/>
+      <value enum="AB" description="NEWORDERMULTILEG"/>
+      <value enum="AC" description="MULTILEGORDERCANCELREPLACE"/>
+      <value enum="AD" description="TRADECAPTUREREPORTREQUEST"/>
+      <value enum="AE" description="TRADECAPTUREREPORT"/>
+      <value enum="AF" description="ORDERMASSSTATUSREQUEST"/>
+      <value enum="AG" description="QUOTEREQUESTREJECT"/>
+      <value enum="AH" description="RFQREQUEST"/>
+      <value enum="AI" description="QUOTESTATUSREPORT"/>
+      <value enum="AJ" description="QUOTERESPONSE"/>
+      <value enum="AK" description="CONFIRMATION"/>
+      <value enum="AL" description="POSITIONMAINTENANCEREQUEST"/>
+      <value enum="AM" description="POSITIONMAINTENANCEREPORT"/>
+      <value enum="AN" description="REQUESTFORPOSITIONS"/>
+      <value enum="AO" description="REQUESTFORPOSITIONSACK"/>
+      <value enum="AP" description="POSITIONREPORT"/>
+      <value enum="AQ" description="TRADECAPTUREREPORTREQUESTACK"/>
+      <value enum="AR" description="TRADECAPTUREREPORTACK"/>
+      <value enum="AS" description="ALLOCATIONREPORT"/>
+      <value enum="AT" description="ALLOCATIONREPORTACK"/>
+      <value enum="AU" description="CONFIRMATIONACK"/>
+      <value enum="AV" description="SETTLEMENTINSTRUCTIONREQUEST"/>
+      <value enum="AW" description="ASSIGNMENTREPORT"/>
+      <value enum="AX" description="COLLATERALREQUEST"/>
+      <value enum="AY" description="COLLATERALASSIGNMENT"/>
+      <value enum="AZ" description="COLLATERALRESPONSE"/>
+      <value enum="BA" description="COLLATERALREPORT"/>
+      <value enum="BB" description="COLLATERALINQUIRY"/>
+      <value enum="BC" description="NETWORKCOUNTERPARTYSYSTEMSTATUSREQUEST"/>
+      <value enum="BD" description="NETWORKCOUNTERPARTYSYSTEMSTATUSRESPONSE"/>
+      <value enum="BE" description="USERREQUEST"/>
+      <value enum="BF" description="USERRESPONSE"/>
+      <value enum="BG" description="COLLATERALINQUIRYACK"/>
+      <value enum="BH" description="CONFIRMATIONREQUEST"/>
+      <value enum="BO" description="CONTRARYINTENTIONREPORT"/>
+      <value enum="BP" description="SECURITYDEFINITIONUPDATEREPORT"/>
+      <value enum="BK" description="SECURITYLISTUPDATEREPORT"/>
+      <value enum="BL" description="ADJUSTEDPOSITIONREPORT"/>
+      <value enum="BM" description="ALLOCATIONINSTRUCTIONALERT"/>
+      <value enum="BN" description="EXECUTIONACK"/>
+      <value enum="BJ" description="TRADINGSESSIONLIST"/>
+      <value enum="BI" description="TRADINGSESSIONLISTREQUEST"/>
+      <value enum="BQ" description="SETTLEMENTOBLIGATIONREPORT"/>
+      <value enum="BR" description="DERIVATIVESECURITYLISTUPDATEREPORT"/>
+      <value enum="BS" description="TRADINGSESSIONLISTUPDATEREPORT"/>
+      <value enum="BT" description="MARKETDEFINITIONREQUEST"/>
+      <value enum="BU" description="MARKETDEFINITION"/>
+      <value enum="BV" description="MARKETDEFINITIONUPDATEREPORT"/>
+      <value enum="BW" description="APPLICATIONMESSAGEREQUEST"/>
+      <value enum="BX" description="APPLICATIONMESSAGEREQUESTACK"/>
+      <value enum="BY" description="APPLICATIONMESSAGEREPORT"/>
+      <value enum="BZ" description="ORDERMASSACTIONREPORT"/>
+      <value enum="CA" description="ORDERMASSACTIONREQUEST"/>
+      <value enum="CB" description="USERNOTIFICATION"/>
+      <value enum="CC" description="STREAMASSIGNMENTREQUEST"/>
+      <value enum="CD" description="STREAMASSIGNMENTREPORT"/>
+      <value enum="CE" description="STREAMASSIGNMENTREPORTACK"/>
+      <value enum="CF" description="PARTYDETAILSLISTREQUEST"/>
+      <value enum="CG" description="PARTYDETAILSLISTREPORT"/>
+      <value enum="CH" description="MARGINREQUIREMENTINQUIRY"/>
+      <value enum="CI" description="MARGINREQUIREMENTINQUIRYACK"/>
+      <value enum="CJ" description="MARGINREQUIREMENTREPORT"/>
+      <value enum="CK" description="PARTYDETAILSLISTUPDATEREPORT"/>
+      <value enum="CL" description="PARTYRISKLIMITSREQUEST"/>
+      <value enum="CM" description="PARTYRISKLIMITSREPORT"/>
+      <value enum="CN" description="SECURITYMASSSTATUSREQUEST"/>
+      <value enum="CO" description="SECURITYMASSSTATUS"/>
+      <value enum="CQ" description="ACCOUNTSUMMARYREPORT"/>
+      <value enum="CR" description="PARTYRISKLIMITSUPDATEREPORT"/>
+      <value enum="CS" description="PARTYRISKLIMITSDEFINITIONREQUEST"/>
+      <value enum="CT" description="PARTYRISKLIMITSDEFINITIONREQUESTACK"/>
+      <value enum="CU" description="PARTYENTITLEMENTSREQUEST"/>
+      <value enum="CV" description="PARTYENTITLEMENTSREPORT"/>
+      <value enum="CW" description="QUOTEACK"/>
+      <value enum="CX" description="PARTYDETAILSDEFINITIONREQUEST"/>
+      <value enum="CY" description="PARTYDETAILSDEFINITIONREQUESTACK"/>
+      <value enum="CZ" description="PARTYENTITLEMENTSUPDATEREPORT"/>
+      <value enum="DA" description="PARTYENTITLEMENTSDEFINITIONREQUEST"/>
+      <value enum="DB" description="PARTYENTITLEMENTSDEFINITIONREQUESTACK"/>
+      <value enum="DC" description="TRADEMATCHREPORT"/>
+      <value enum="DD" description="TRADEMATCHREPORTACK"/>
+      <value enum="DE" description="PARTYRISKLIMITSREPORTACK"/>
+      <value enum="DF" description="PARTYRISKLIMITCHECKREQUEST"/>
+      <value enum="DG" description="PARTYRISKLIMITCHECKREQUESTACK"/>
+      <value enum="DH" description="PARTYACTIONREQUEST"/>
+      <value enum="DI" description="PARTYACTIONREPORT"/>
+      <value enum="DJ" description="MASSORDER"/>
+      <value enum="DK" description="MASSORDERACK"/>
+      <value enum="DL" description="POSITIONTRANSFERINSTRUCTION"/>
+      <value enum="DM" description="POSITIONTRANSFERINSTRUCTIONACK"/>
+      <value enum="DN" description="POSITIONTRANSFERREPORT"/>
+      <value enum="DO" description="MARKETDATASTATISTICSREQUEST"/>
+      <value enum="DP" description="MARKETDATASTATISTICSREPORT"/>
+      <value enum="DQ" description="COLLATERALREPORTACK"/>
+    </field>
+    <field number="36" name="NewSeqNo" type="SEQNUM"/>
+    <field number="43" name="PossDupFlag" type="BOOLEAN">
+      <value enum="N" description="ORIGINAL_TRANSMISSION"/>
+      <value enum="Y" description="POSSIBLE_DUPLICATE"/>
+    </field>
+    <field number="45" name="RefSeqNum" type="SEQNUM"/>
+    <field number="49" name="SenderCompID" type="STRING"/>
+    <field number="50" name="SenderSubID" type="STRING"/>
+    <field number="52" name="SendingTime" type="UTCTIMESTAMP"/>
+    <field number="56" name="TargetCompID" type="STRING"/>
+    <field number="57" name="TargetSubID" type="STRING"/>
+    <field number="58" name="Text" type="STRING"/>
+    <field number="89" name="Signature" type="DATA"/>
+    <field number="90" name="SecureDataLen" type="LENGTH"/>
+    <field number="91" name="SecureData" type="DATA"/>
+    <field number="93" name="SignatureLength" type="LENGTH"/>
+    <field number="95" name="RawDataLength" type="LENGTH"/>
+    <field number="96" name="RawData" type="DATA"/>
+    <field number="97" name="PossResend" type="BOOLEAN">
+      <value enum="N" description="ORIGINAL_TRANSMISSION"/>
+      <value enum="Y" description="POSSIBLE_RESEND"/>
+    </field>
+    <field number="98" name="EncryptMethod" type="INT">
+      <value enum="0" description="NONE_OTHER"/>
+      <value enum="1" description="PKCS"/>
+      <value enum="2" description="DES"/>
+      <value enum="3" description="PKCS_DES"/>
+      <value enum="4" description="PGP_DES"/>
+      <value enum="5" description="PGP_DES_MD5"/>
+      <value enum="6" description="PEM_DES_MD5"/>
+    </field>
+    <field number="108" name="HeartBtInt" type="INT"/>
+    <field number="112" name="TestReqID" type="STRING"/>
+    <field number="115" name="OnBehalfOfCompID" type="STRING"/>
+    <field number="116" name="OnBehalfOfSubID" type="STRING"/>
+    <field number="122" name="OrigSendingTime" type="UTCTIMESTAMP"/>
+    <field number="123" name="GapFillFlag" type="BOOLEAN">
+      <value enum="N" description="SEQUENCE_RESET_IGNORE_MSG_SEQ_NUM"/>
+      <value enum="Y" description="GAP_FILL_MESSAGE_MSG_SEQ_NUM_FIELD_VALID"/>
+    </field>
+    <field number="128" name="DeliverToCompID" type="STRING"/>
+    <field number="129" name="DeliverToSubID" type="STRING"/>
+    <field number="141" name="ResetSeqNumFlag" type="BOOLEAN">
+      <value enum="N" description="NO"/>
+      <value enum="Y" description="YES_RESET_SEQUENCE_NUMBERS"/>
+    </field>
+    <field number="142" name="SenderLocationID" type="STRING"/>
+    <field number="143" name="TargetLocationID" type="STRING"/>
+    <field number="144" name="OnBehalfOfLocationID" type="STRING"/>
+    <field number="145" name="DeliverToLocationID" type="STRING"/>
+    <field number="212" name="XmlDataLen" type="LENGTH"/>
+    <field number="213" name="XmlData" type="DATA"/>
+    <field number="347" name="MessageEncoding" type="STRING"/>
+    <field number="354" name="EncodedTextLen" type="LENGTH"/>
+    <field number="355" name="EncodedText" type="DATA"/>
+    <field number="369" name="LastMsgSeqNumProcessed" type="SEQNUM"/>
+    <field number="371" name="RefTagID" type="INT"/>
+    <field number="372" name="RefMsgType" type="STRING"/>
+    <field number="373" name="SessionRejectReason" type="INT">
+      <value enum="0" description="INVALID_TAG_NUMBER"/>
+      <value enum="1" description="REQUIRED_TAG_MISSING"/>
+      <value enum="2" description="TAG_NOT_DEFINED_FOR_THIS_MESSAGE_TYPE"/>
+      <value enum="3" description="UNDEFINED_TAG"/>
+      <value enum="4" description="TAG_SPECIFIED_WITHOUT_A_VALUE"/>
+      <value enum="5" description="VALUE_IS_INCORRECT_FOR_THIS_TAG"/>
+      <value enum="6" description="INCORRECT_DATA_FORMAT_FOR_VALUE"/>
+      <value enum="7" description="DECRYPTION_PROBLEM"/>
+      <value enum="8" description="SIGNATURE_PROBLEM"/>
+      <value enum="9" description="COMPID_PROBLEM"/>
+      <value enum="10" description="SENDINGTIME_ACCURACY_PROBLEM"/>
+      <value enum="11" description="INVALID_MSGTYPE"/>
+      <value enum="12" description="XML_VALIDATION_ERROR"/>
+      <value enum="13" description="TAG_APPEARS_MORE_THAN_ONCE"/>
+      <value enum="14" description="TAG_SPECIFIED_OUT_OF_REQUIRED_ORDER"/>
+      <value enum="15" description="REPEATING_GROUP_FIELDS_OUT_OF_ORDER"/>
+      <value enum="16" description="INCORRECT_NUMINGROUP_COUNT_FOR_REPEATING_GROUP"/>
+      <value enum="17" description="NON_DATA_VALUE_INCLUDES_FIELD_DELIMITER"/>
+      <value enum="18" description="INVALID_UNSUPPORTED_APPLICATION_VERSION"/>
+      <value enum="99" description="OTHER"/>
+    </field>
+    <field number="383" name="MaxMessageSize" type="LENGTH"/>
+    <field number="384" name="NoMsgTypes" type="NUMINGROUP"/>
+    <field number="385" name="MsgDirection" type="CHAR">
+      <value enum="R" description="RECEIVE"/>
+      <value enum="S" description="SEND"/>
+    </field>
+    <field number="464" name="TestMessageIndicator" type="BOOLEAN">
+      <value enum="N" description="FALES"/>
+      <value enum="Y" description="TRUE"/>
+    </field>
+    <field number="553" name="Username" type="STRING"/>
+    <field number="554" name="Password" type="STRING"/>
+    <field number="627" name="NoHops" type="NUMINGROUP"/>
+    <field number="628" name="HopCompID" type="STRING"/>
+    <field number="629" name="HopSendingTime" type="UTCTIMESTAMP"/>
+    <field number="630" name="HopRefID" type="SEQNUM"/>
+    <field number="789" name="NextExpectedMsgSeqNum" type="SEQNUM"/>
+    <field number="925" name="NewPassword" type="STRING"/>
+    <field number="1128" name="ApplVerID" type="STRING">
+      <value enum="0" description="FIX27"/>
+      <value enum="1" description="FIX30"/>
+      <value enum="2" description="FIX40"/>
+      <value enum="3" description="FIX41"/>
+      <value enum="4" description="FIX42"/>
+      <value enum="5" description="FIX43"/>
+      <value enum="6" description="FIX44"/>
+      <value enum="7" description="FIX50"/>
+      <value enum="8" description="FIX50SP1"/>
+      <value enum="9" description="FIX50SP2"/>
+    </field>
+    <field number="1129" name="CstmApplVerID" type="STRING"/>
+    <field number="1130" name="RefApplVerID" type="STRING"/>
+    <field number="1131" name="RefCstmApplVerID" type="STRING"/>
+    <field number="1137" name="DefaultApplVerID" type="STRING"/>
+    <field number="1156" name="ApplExtID" type="INT"/>
+    <field number="1400" name="EncryptedPasswordMethod" type="INT"/>
+    <field number="1401" name="EncryptedPasswordLen" type="LENGTH"/>
+    <field number="1402" name="EncryptedPassword" type="DATA"/>
+    <field number="1403" name="EncryptedNewPasswordLen" type="LENGTH"/>
+    <field number="1404" name="EncryptedNewPassword" type="DATA"/>
+    <field number="1406" name="RefApplExtID" type="INT"/>
+    <field number="1407" name="DefaultApplExtID" type="INT"/>
+    <field number="1408" name="DefaultCstmApplVerID" type="STRING"/>
+    <field number="1409" name="SessionStatus" type="INT">
+      <value enum="0" description="SESSION_ACTIVE"/>
+      <value enum="1" description="SESSION_PASSWORD_CHANGED"/>
+      <value enum="2" description="SESSION_PASSWORD_DUE_TO_EXPIRE"/>
+      <value enum="3" description="NEW_SESSION_PASSWORD_DOES_NOT_COMPLY_WITH_POLICY"/>
+      <value enum="4" description="SESSION_LOGOUT_COMPLETE"/>
+      <value enum="5" description="INVALID_USERNAME_OR_PASSWORD"/>
+      <value enum="6" description="ACCOUNT_LOCKED"/>
+      <value enum="7" description="LOGONS_ARE_NOT_ALLOWED_AT_THIS_TIME"/>
+      <value enum="8" description="PASSWORD_EXPIRED"/>
+      <value enum="9" description="RECEIVED_MSGSEQNUM_IS_TOO_LOW_"/>
+      <value enum="10" description="RECEIVED_NEXTEXPECTEDMSGSEQNUM_IS_TOO_HIGH_"/>
+    </field>
+    <field number="1410" name="DefaultVerIndicator" type="BOOLEAN"/>
+    <field number="2104" name="NoAttachments" type="NUMINGROUP"/>
+    <field number="2105" name="AttachmentName" type="STRING"/>
+    <field number="2106" name="AttachmentMediaType" type="STRING"/>
+    <field number="2107" name="AttachmentClassification" type="STRING"/>
+    <field number="2108" name="AttachmentExternalURL" type="STRING"/>
+    <field number="2109" name="AttachmentEncodingType" type="INT">
+      <value enum="0" description="BASE64_ENCODING"/>
+      <value enum="1" description="UNENCODED_BINARY_CONTENT"/>
+    </field>
+    <field number="2110" name="UnencodedAttachmentLen" type="INT"/>
+    <field number="2111" name="EncodedAttachmentLen" type="LENGTH"/>
+    <field number="2112" name="EncodedAttachment" type="DATA"/>
+    <field number="2113" name="NoAttachmentKeywords" type="NUMINGROUP"/>
+    <field number="2114" name="AttachmentKeyword" type="STRING"/>
+  </fields>
+</fix>
