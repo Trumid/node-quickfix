@@ -17,6 +17,7 @@
   "devDependencies": {
     "dateformat": "^1.0.8",
     "mocha": "^2.2.5",
+    "mocha-jenkins-reporter": "^0.1.9",
     "segfault-handler": "^0.2.4",
     "should": "^6.0.3"
   }
