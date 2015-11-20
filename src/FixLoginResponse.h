@@ -13,7 +13,7 @@
 using namespace v8;
 using namespace node;
 
-class FixLoginResponse : public node::ObjectWrap {
+class FixLoginResponse : public Nan::ObjectWrap {
 public:
 	FixLoginResponse();
 	virtual ~FixLoginResponse();

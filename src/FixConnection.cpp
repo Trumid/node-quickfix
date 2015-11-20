@@ -20,7 +20,7 @@ using namespace v8;
 using namespace node;
 using namespace FIX;
 
-FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFactory): ObjectWrap()  {
+FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFactory): Nan::ObjectWrap()  {
 
   mSettings = settings;
 
@@ -30,7 +30,7 @@ FixConnection::FixConnection(FIX::SessionSettings settings, std::string storeFac
 
 }
 
-FixConnection::FixConnection(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): ObjectWrap()  {
+FixConnection::FixConnection(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): Nan::ObjectWrap()  {
 
   mSettings = settings;
 

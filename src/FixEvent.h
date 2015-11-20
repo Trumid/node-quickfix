@@ -19,10 +19,10 @@ using namespace v8;
 
 typedef struct fix_event_t {
 	std::string eventName;
-	v8::Persistent<v8::Object>* callbacks;
+	Nan::Persistent<v8::Object>* callbacks;
 	const FIX::SessionID* sessionId;
 	const FIX::Message* message = NULL;
-	NanCallback* logon = NULL;
+	Nan::Callback* logon = NULL;
 	FixLoginResponse* logonResponse;
 } fix_event_t;
 

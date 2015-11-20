@@ -11,7 +11,7 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
-FixLoginResponse::FixLoginResponse() : ObjectWrap(){
+FixLoginResponse::FixLoginResponse() : Nan::ObjectWrap(){
 
 }
 
@@ -19,31 +19,31 @@ FixLoginResponse::~FixLoginResponse() {
 }
 
 void FixLoginResponse::Initialize(Handle<Object> target) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixLoginResponse::New);
+  Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixLoginResponse::New);
 
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
-  ctor->SetClassName(NanNew("FixLoginResponse"));
+  ctor->SetClassName(Nan::New("FixLoginResponse").ToLocalChecked());
 
-  NODE_SET_PROTOTYPE_METHOD(ctor, "done", done);
+  Nan::SetPrototypeMethod(ctor, "done", done);
 
-  target->Set(NanNew("FixLoginResponse"), ctor->GetFunction());
+  target->Set(Nan::New("FixLoginResponse").ToLocalChecked(), ctor->GetFunction());
 }
 
 Handle<Object> FixLoginResponse::wrapFixLoginResponse(FixLoginResponse* fixLoginResponse) {
 
-	Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>();
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>();
 
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(NanNew("FixLoginResponse"));
+	ctor->SetClassName(Nan::New("FixLoginResponse").ToLocalChecked());
 
 	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
 
-	NODE_SET_PROTOTYPE_METHOD(ctor, "done", done);
+	Nan::SetPrototypeMethod(ctor, "done", done);
 
 	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
-	//obj->SetInternalField(0, NanNew<External>(fixLoginResponse));
+	//obj->SetInternalField(0, Nan::New<External>(fixLoginResponse));
 
 	fixLoginResponse->Wrap(obj);
 	fixLoginResponse->Ref();
@@ -52,26 +52,26 @@ Handle<Object> FixLoginResponse::wrapFixLoginResponse(FixLoginResponse* fixLogin
 }
 
 NAN_METHOD(FixLoginResponse::New) {
-	NanScope();
+	Nan::HandleScope scope;
 
 	FixLoginResponse *loginResponse = new FixLoginResponse();
 
-	loginResponse->Wrap(args.This());
+	loginResponse->Wrap(info.This());
 
-	NanReturnValue(args.This());
+	info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(FixLoginResponse::done) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixLoginResponse* instance = ObjectWrap::Unwrap<FixLoginResponse>(args.This());
+	FixLoginResponse* instance = Nan::ObjectWrap::Unwrap<FixLoginResponse>(info.This());
 
-	bool success = args[0]->ToBoolean()->BooleanValue();
+	bool success = info[0]->ToBoolean()->BooleanValue();
 
 	instance->setIsFinished(true);
 	instance->setIsLoggedOn(success);
 
-	NanReturnUndefined();
+	return;
 }
 
 bool FixLoginResponse::getIsFinished() {
