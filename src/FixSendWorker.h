@@ -11,11 +11,11 @@
 using namespace v8;
 using namespace node;
 
-class FixSendWorker : public NanAsyncWorker
+class FixSendWorker : public Nan::AsyncWorker
 {
 	public:
-		FixSendWorker(NanCallback *callback, FIX::Message* message)
-			: NanAsyncWorker(callback), message(message) {}
+		FixSendWorker(Nan::Callback *callback, FIX::Message* message)
+			: Nan::AsyncWorker(callback), message(message) {}
 		~FixSendWorker() {
 			if(message) {
 				delete message;
