@@ -3,7 +3,7 @@
     {
       'target_name': 'node_quickfix',
       'product_extension': 'node',
-      'type': 'loadable_module',
+      'type': 'shared_library',
       'sources': [
         'src/Threading.h',
         'src/Dispatcher.h',
@@ -39,6 +39,9 @@
       	'src/node_quickfix.cpp'
       ],
       'link_settings': {
+        'ldflags': [
+          '-undefined dynamic_lookup'
+        ],
         'libraries': [
           '-L/usr/lib',
           '-L/usr/local/lib',
@@ -65,6 +68,9 @@
           'xcode_settings': {
             'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
             'GCC_ENABLE_CPP_RTTI': 'YES',
+	    'OTHER_LDFLAGS': [
+              '-undefined dynamic_lookup'
+            ],
             "OTHER_CFLAGS": ["-mmacosx-version-min=10.7", "-stdlib=libc++"]
           }
         }]
