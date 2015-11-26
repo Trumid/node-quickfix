@@ -3,7 +3,7 @@
     {
       'target_name': 'node_quickfix',
       'product_extension': 'node',
-      'type': 'shared_library',
+      'type': 'loadable_module',
       'sources': [
         'src/Threading.h',
         'src/Dispatcher.h',
