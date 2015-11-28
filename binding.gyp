@@ -39,9 +39,6 @@
       	'src/node_quickfix.cpp'
       ],
       'link_settings': {
-        'ldflags': [
-          '-undefined dynamic_lookup'
-        ],
         'libraries': [
           '-L/usr/lib',
           '-L/usr/local/lib',
