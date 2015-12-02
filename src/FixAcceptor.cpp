@@ -159,9 +159,18 @@ void FixAcceptor::sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FI
 	FixAcceptor* instance = Nan::ObjectWrap::Unwrap<FixAcceptor>(info.Holder());
 	Nan::Callback *callback = new Nan::Callback(info[1].template As<Function>());
 
-	FIX::SessionID senderSessionId = *(instance->mAcceptor->getSessions().begin());
-	std::string senderId = senderSessionId.getSenderCompID().getString();
-	fixMessage->getHeader().setField(49, senderId);
+	if(!fixMessage->getHeader().isSetField(FIELD::SenderCompID)) {
+		std::set<FIX::SessionID>::iterator it;
+		std::set<FIX::SessionID> sessions = instance->mAcceptor->getSessions();
+		std::string targetCompId = fixMessage->getHeader().getField(FIELD::TargetCompID);
+
+		for(it = sessions.begin(); it != sessions.end(); ++it ){
+			if(targetCompId.compare(it->getTargetCompID()) == 0) {
+				fixMessage->setSessionID(*it);
+				break;
+			}
+		}
+	}
 
 	Nan::AsyncQueueWorker(new FixSendWorker(callback, fixMessage));
 }
