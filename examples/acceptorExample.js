@@ -1,6 +1,7 @@
 var events = require('events');
 var path = require('path');
 var quickfix = require('../index');
+var common = require('./common');
 var fixAcceptor = quickfix.acceptor;
 
 var logonProvider = new quickfix.logonProvider(function (logonResponse, msg, sessionId) {	
@@ -22,25 +23,25 @@ inherits(fixAcceptor, events.EventEmitter);
 var fixServer = new fixAcceptor(
 {
   onCreate: function(sessionID) {
-    fixServer.emit('onCreate', { sessionID: sessionID });
+    fixServer.emit('onCreate', common.stats(fixServer, sessionID));
   },
   onLogon: function(sessionID) {
-    fixServer.emit('onLogon', { sessionID: sessionID });
+    fixServer.emit('onLogon', common.stats(fixServer, sessionID));
   },
   onLogout: function(sessionID) {
-    fixServer.emit('onLogout', { sessionID: sessionID });
+    fixServer.emit('onLogout', common.stats(fixServer, sessionID));
   },
   onLogonAttempt: function(message, sessionID) {
-    fixServer.emit('onLogonAttempt', { message: message, sessionID: sessionID });
+    fixServer.emit('onLogonAttempt', common.stats(fixServer, sessionID, message));
   },
   toAdmin: function(message, sessionID) {
-    fixServer.emit('toAdmin', { message: message, sessionID: sessionID });
+    fixServer.emit('toAdmin', common.stats(fixServer, sessionID, message));
   },
   fromAdmin: function(message, sessionID) {
-    fixServer.emit('fromAdmin', { message: message, sessionID: sessionID });
+    fixServer.emit('fromAdmin', common.stats(fixServer, sessionID, message));
   },
   fromApp: function(message, sessionID) {
-    fixServer.emit('fromApp', { message: message, sessionID: sessionID });
+    fixServer.emit('fromApp', common.stats(fixServer, sessionID, message));
   }
 }, {
   logonProvider: logonProvider, 
@@ -59,5 +60,6 @@ var fixServer = new fixAcceptor(
 
 fixServer.start(function() {
 	console.log("FIX Acceptor Started");
+  common.printStats(fixServer);
   process.stdin.resume();
 });
