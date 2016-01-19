@@ -14,7 +14,7 @@ using namespace v8;
 
 FixApplication::FixApplication() {}
 
-FixApplication::FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry)
+FixApplication::FixApplication(Nan::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry)
 {
 	mCallbacks = callbacks;
 	mCallbackRegistry = callbackRegistry;
@@ -131,11 +131,10 @@ void FixApplication::setCredentials(fix_credentials* credentials) {
 	mCredentials = credentials;
 }
 
-void FixApplication::setCallbacks(v8::Persistent<v8::Object>* callbacks) {
+void FixApplication::setCallbacks(Nan::Persistent<v8::Object>* callbacks) {
 	mCallbacks = callbacks;
 }
 
 void FixApplication::setCallbackRegistry(std::unordered_set<std::string>* callbackRegistry) {
 	mCallbackRegistry = callbackRegistry;
 }
-

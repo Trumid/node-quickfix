@@ -17,15 +17,15 @@ class FixApplication : public FIX::Application
 {
 	public:
 		FixApplication();
-		FixApplication(v8::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry);
+		FixApplication(Nan::Persistent<v8::Object>* callbacks, std::unordered_set<std::string>* callbackRegistry);
 		~FixApplication();
 		void setLogonProvider(FixLoginProvider* logonProvider);
 		void setCredentials(fix_credentials* credentials);
-		void setCallbacks(v8::Persistent<v8::Object>* callbacks);
+		void setCallbacks(Nan::Persistent<v8::Object>* callbacks);
 		void setCallbackRegistry(std::unordered_set<std::string>* callbackRegistry);
 
 	protected:
-		v8::Persistent<v8::Object>* mCallbacks;
+		Nan::Persistent<v8::Object>* mCallbacks;
 		std::unordered_set<std::string>* mCallbackRegistry;
 		fix_credentials* mCredentials = NULL;
 		FixLoginProvider* mLoginProvider = NULL;
@@ -33,7 +33,7 @@ class FixApplication : public FIX::Application
 		virtual void onCreate( const FIX::SessionID& sessionID );
 		virtual void onLogon( const FIX::SessionID& sessionID );
 		virtual void onLogout( const FIX::SessionID& sessionID );
-		
+
 		virtual void toAdmin( FIX::Message& message, const FIX::SessionID& sessionID);
 		virtual void fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
 		throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon );

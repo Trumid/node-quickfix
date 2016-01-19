@@ -17,7 +17,7 @@
 using namespace v8;
 using namespace node;
 
-class FixSession : public node::ObjectWrap {
+class FixSession : public Nan::ObjectWrap {
 public:
 	FixSession();
 	static void Initialize(v8::Handle<v8::Object> target);

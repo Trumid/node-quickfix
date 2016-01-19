@@ -31,11 +31,11 @@ void FixAcceptorStopWorker::Execute () {
 // this function will be run inside the main event loop
 // so it is safe to use V8 again
 void FixAcceptorStopWorker::HandleOKCallback () {
-	NanScope();
+	Nan::HandleScope scope;
 
 	if(!callback->IsEmpty()) {
 		Local<Value> argv[] = {
-			NanNull()
+			Nan::Null()
 		};
 
 		callback->Call(1, argv);

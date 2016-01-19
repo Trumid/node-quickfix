@@ -10,7 +10,7 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
-FixLoginProvider::FixLoginProvider() : ObjectWrap() {
+FixLoginProvider::FixLoginProvider() : Nan::ObjectWrap() {
 
 }
 
@@ -18,30 +18,30 @@ FixLoginProvider::~FixLoginProvider() {
 }
 
 void FixLoginProvider::Initialize(Handle<Object> target) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixLoginProvider::New);
+  Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixLoginProvider::New);
 
   // TODO:: Figure out what the compile error is with this
-  // NanAssignPersistent(constructor, ctor);
+  // constructor.Reset(ctor);
 
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
-  ctor->SetClassName(NanNew("FixLoginProvider"));
+  ctor->SetClassName(Nan::New("FixLoginProvider").ToLocalChecked());
 
-  target->Set(NanNew("FixLoginProvider"), ctor->GetFunction());
+  target->Set(Nan::New("FixLoginProvider").ToLocalChecked(), ctor->GetFunction());
 }
 
 NAN_METHOD(FixLoginProvider::New) {
-	NanScope();
+	Nan::HandleScope scope;
 
 	FixLoginProvider *loginProvider = new FixLoginProvider();
 
-	loginProvider->Wrap(args.This());
-	loginProvider->logon = new NanCallback(args[0].As<Function>());
+	loginProvider->Wrap(info.This());
+	loginProvider->logon = new Nan::Callback(info[0].As<Function>());
 
-	NanReturnValue(args.This());
+	info.GetReturnValue().Set(info.This());
 }
 
-NanCallback* FixLoginProvider::getLogon() {
+Nan::Callback* FixLoginProvider::getLogon() {
 	return logon;
 }

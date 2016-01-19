@@ -6,18 +6,18 @@
 using namespace v8;
 
 NAN_METHOD(Initiator) {
-  NanScope();
-  FixInitiator::New(args);
+  Nan::HandleScope scope;
+  FixInitiator::New(info);
 }
 
 NAN_METHOD(Acceptor) {
-  NanScope();
-  FixAcceptor::New(args);
+  Nan::HandleScope scope;
+  FixAcceptor::New(info);
 }
 
 NAN_METHOD(LoginProvider) {
-  NanScope();
-  FixLoginProvider::New(args);
+  Nan::HandleScope scope;
+  FixLoginProvider::New(info);
 }
 
 void init(Handle<Object> target) {

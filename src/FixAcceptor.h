@@ -20,7 +20,7 @@ using namespace node;
 
 class FixAcceptor : public FixConnection {
 	public:
-		//static Persistent<Function> constructor;
+		//static Nan::Persistent<Function> constructor;
 		static void Initialize(Handle<Object> target);
 		static NAN_METHOD(New);
 		static NAN_METHOD(start);
@@ -37,7 +37,7 @@ class FixAcceptor : public FixConnection {
 	protected:
 		FIX::ThreadedSocketAcceptor* mAcceptor;
 		FixLoginProvider* mFixLoginProvider;
-		static void sendAsync(_NAN_METHOD_ARGS, FIX::Message* message);
+		static void sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* message);
 };
 
 #endif /* FIXACCEPTOR_H_ */

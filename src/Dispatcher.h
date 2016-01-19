@@ -27,7 +27,7 @@ class Dispatcher {
     }
 
     static void listener(uv_async_t* handle, int status) {
-        NanScope();
+        Nan::HandleScope scope;
 
         Dispatcher* dispatcher = static_cast<Dispatcher*>(handle->data);
         std::vector<fix_event_t*> events;
@@ -41,28 +41,28 @@ class Dispatcher {
 
             fix_event_t* event = events[i];
 
-            Local<String> eventName = NanNew<String>(event->eventName.c_str());
-            Local<Object> callbackObj = NanNew(*event->callbacks);
+            Local<String> eventName = Nan::New<String>(event->eventName.c_str()).ToLocalChecked();
+            Local<Object> callbackObj = Nan::New(*event->callbacks);
             Local<Function> callback = Local<Function>::Cast(callbackObj->Get(eventName));
 
             std::vector< Local<Value> > arguments;
             if(event->logon != NULL) {
                 callback = event->logon->GetFunction();
                 Handle<Object> jsLogonResponse = FixLoginResponse::wrapFixLoginResponse(event->logonResponse);
-                arguments.push_back(NanNew<Object>(jsLogonResponse));
+                arguments.push_back(jsLogonResponse);
             }
 
             if(event->message != NULL) {
-                Local<Object> msg = NanNew<Object>();
+                Local<Object> msg = Nan::New<Object>();
                 FixMessageUtil::fix2Js(msg, event->message);
                 arguments.push_back(msg);
                 arguments.push_back(FixMessageUtil::sessionIdToJs(event->sessionId));
-                
+
             } else {
                 arguments.push_back(FixMessageUtil::sessionIdToJs(event->sessionId));
             }
 
-            NanMakeCallback(NanGetCurrentContext()->Global(), callback, arguments.size(), &arguments[0]);
+            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, arguments.size(), &arguments[0]);
         }
     }
 

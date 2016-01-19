@@ -25,7 +25,7 @@ using namespace std;
 
 //#include "closure.h"
 
-//Persistent<Function> FixInitiator::constructor;
+//Nan::Persistent<Function> FixInitiator::constructor;
 
 
 /*
@@ -33,61 +33,61 @@ using namespace std;
  */
 
 void FixInitiator::Initialize(Handle<Object> target) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixInitiator::New);
+  Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
 
   // TODO:: Figure out what the compile error is with this
-  //NanAssignPersistent(constructor, ctor);
+  //constructor.Reset(ctor);
 
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
-  ctor->SetClassName(NanNew("FixInitiator"));
+  ctor->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
 
-  NODE_SET_PROTOTYPE_METHOD(ctor, "start", start);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "send", send);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "sendRaw", sendRaw);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "stop", stop);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "getSessions", getSessions);
-  NODE_SET_PROTOTYPE_METHOD(ctor, "getSession", getSession);
+  Nan::SetPrototypeMethod(ctor, "start", start);
+  Nan::SetPrototypeMethod(ctor, "send", send);
+  Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
+  Nan::SetPrototypeMethod(ctor, "stop", stop);
+  Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
+  Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
+  Nan::SetPrototypeMethod(ctor, "getSession", getSession);
 
-  target->Set(NanNew("FixInitiator"), ctor->GetFunction());
+  target->Set(Nan::New("FixInitiator").ToLocalChecked(), ctor->GetFunction());
 }
 
 NAN_METHOD(FixInitiator::New) {
-	NanScope();
+	Nan::HandleScope scope;
 
 	bool hasOptions = false;
 	Local<Object> options;
 	FixInitiator *initiator = NULL;
 
-	if(!(args[1]->IsUndefined() || args[1]->IsNull())){
+	if(!(info[1]->IsUndefined() || info[1]->IsNull())){
 		hasOptions = true;
-		options = NanNew( args[1]->ToObject() );
+		options = info[1]->ToObject();
 	}
 
-	String::Utf8Value propertiesFile(args[0]);
+	String::Utf8Value propertiesFile(info[0]);
 
 	FIX::SessionSettings sessionSettings;
 
-	if ( ! hasOptions) return NanThrowError("FixInitiator requires an options parameter");
+	if ( ! hasOptions) return Nan::ThrowError("FixInitiator requires an options parameter");
 
-	Local<String> propertiesFileKey =  NanNew<String>("propertiesFile");
-	Local<String> settingsKey =  NanNew<String>("settings");
+	Local<String> propertiesFileKey =  Nan::New<String>("propertiesFile").ToLocalChecked();
+	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
 
-	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return NanThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
+	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
 
 	if (options->Has(propertiesFileKey)){
-		String::Utf8Value propertiesFile(options->Get(NanNew<String>("propertiesFile"))->ToString());
+		String::Utf8Value propertiesFile(options->Get(Nan::New<String>("propertiesFile").ToLocalChecked())->ToString());
 		sessionSettings = FIX::SessionSettings(*propertiesFile);
 	} else if (options->Has(settingsKey)){
-		String::Utf8Value settings(options->Get(NanNew<String>("settings"))->ToString());
+		String::Utf8Value settings(options->Get(Nan::New<String>("settings").ToLocalChecked())->ToString());
 		stringstream stream;
 		stream << *settings;
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
-	Local<String> storeFactoryKey =  NanNew<String>("storeFactory");
+	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
 	if(options->Has(storeFactoryKey)) {
 		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
@@ -96,12 +96,12 @@ NAN_METHOD(FixInitiator::New) {
 		initiator = new FixInitiator(sessionSettings, "file");
 	}
 
-	if (args.IsConstructCall()) {
-		initiator->Wrap(args.This());
-	} 
+	if (info.IsConstructCall()) {
+		initiator->Wrap(info.This());
+	}
 
-	Local<Object> callbackObj = NanNew( args[0]->ToObject() );
-	NanAssignPersistent(initiator->mCallbacks, callbackObj);
+	Local<Object> callbackObj = info[0]->ToObject();
+	initiator->mCallbacks.Reset(callbackObj);
 
 	Local<Array> callbackNames = callbackObj->GetOwnPropertyNames();
 	for (uint32_t i=0 ; i < callbackNames->Length() ; ++i) {
@@ -110,92 +110,92 @@ NAN_METHOD(FixInitiator::New) {
 	}
 
 	if(hasOptions){
-		Local<String> credentialsKey =  NanNew<String>("credentials");
+		Local<String> credentialsKey =  Nan::New<String>("credentials").ToLocalChecked();
 		if(options->Has(credentialsKey)){
 			Local<Object> creds = options->Get(credentialsKey)->ToObject();
 			fix_credentials* credentials = new fix_credentials;
-			String::Utf8Value usernameStr(creds->Get(NanNew<String>("username"))->ToString());
-			String::Utf8Value passwordStr(creds->Get(NanNew<String>("password"))->ToString());
+			String::Utf8Value usernameStr(creds->Get(Nan::New<String>("username").ToLocalChecked())->ToString());
+			String::Utf8Value passwordStr(creds->Get(Nan::New<String>("password").ToLocalChecked())->ToString());
 			credentials->username = std::string(*usernameStr);
 			credentials->password = std::string(*passwordStr);
 			initiator->mFixApplication->setCredentials(credentials);
 		}
 	}
 
-	NanReturnValue(args.This());
+	info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(FixInitiator::start) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
 
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixInitiatorStartWorker(callback, instance->mInitiator));
+	Nan::AsyncQueueWorker(new FixInitiatorStartWorker(callback, instance->mInitiator));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixInitiator::send) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	Local<Object> message = args[0]->ToObject();
+	Local<Object> message = info[0]->ToObject();
 
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
 
-	sendAsync(args, fixMessage);
+	sendAsync(info, fixMessage);
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixInitiator::sendRaw) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	String::Utf8Value message(args[0]->ToString());
-  
+	String::Utf8Value message(info[0]->ToString());
+
 	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
 
-	sendAsync(args, fixMessage);
+	sendAsync(info, fixMessage);
 
-	NanReturnUndefined();
+	return;
 }
 
-void FixInitiator::sendAsync(_NAN_METHOD_ARGS, FIX::Message* fixMessage) {
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
-	NanCallback *callback = new NanCallback(args[1].As<Function>());
+void FixInitiator::sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* fixMessage) {
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
+	Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
 
-	NanAsyncQueueWorker(new FixSendWorker(callback, fixMessage));
+	Nan::AsyncQueueWorker(new FixSendWorker(callback, fixMessage));
 }
 
 NAN_METHOD(FixInitiator::stop) {
-	NanScope();
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+	Nan::HandleScope scope;
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
 
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixInitiatorStopWorker(callback, instance->mInitiator));
+	Nan::AsyncQueueWorker(new FixInitiatorStopWorker(callback, instance->mInitiator));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixInitiator::isLoggedOn) {
-	NanScope();
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+	Nan::HandleScope scope;
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
 
 	bool loggedOn = instance->mInitiator->isLoggedOn();
 
-	NanReturnValue(loggedOn ? NanTrue() : NanFalse());
+	info.GetReturnValue().Set(loggedOn ? Nan::True() : Nan::False());
 }
 
 NAN_METHOD(FixInitiator::getSessions) {
-	NanScope();
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+	Nan::HandleScope scope;
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
 
 	std::set<FIX::SessionID> sessions = instance->mInitiator->getSessions();
 
-	Local<Array> sessionsArr = NanNew<Array>(sessions.size());
+	Local<Array> sessionsArr = Nan::New<Array>(sessions.size());
 	std::set<FIX::SessionID>::iterator it;
 	int i = 0;
 	for(it = sessions.begin(); it != sessions.end(); ++it ){
@@ -204,14 +204,14 @@ NAN_METHOD(FixInitiator::getSessions) {
 		i++;
 	}
 
-	NanReturnValue(sessionsArr);
+	info.GetReturnValue().Set(sessionsArr);
 }
 
 NAN_METHOD(FixInitiator::getSession) {
-	NanScope();
-	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(args.This());
+	Nan::HandleScope scope;
+	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
 
-	Local<Object> sessionId = args[0]->ToObject();
+	Local<Object> sessionId = info[0]->ToObject();
 
 	FIX::Session* session = instance->mInitiator->getSession(FixMessageUtil::jsToSessionId(sessionId));
 	FixSession* fixSession = new FixSession();
@@ -219,7 +219,7 @@ NAN_METHOD(FixInitiator::getSession) {
 
 	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
 
-	NanReturnValue(jsSession);
+	info.GetReturnValue().Set(jsSession);
 }
 
 FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
@@ -228,6 +228,3 @@ FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFacto
 
 FixInitiator::~FixInitiator() {
 }
-
-
-

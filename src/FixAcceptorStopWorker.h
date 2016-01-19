@@ -10,11 +10,11 @@
 using namespace v8;
 using namespace node;
 
-class FixAcceptorStopWorker : public NanAsyncWorker
+class FixAcceptorStopWorker : public Nan::AsyncWorker
 {
 	public:
-		FixAcceptorStopWorker(NanCallback *callback, FIX::ThreadedSocketAcceptor* acceptor)
-			: NanAsyncWorker(callback), acceptor(acceptor) {}
+		FixAcceptorStopWorker(Nan::Callback *callback, FIX::ThreadedSocketAcceptor* acceptor)
+			: Nan::AsyncWorker(callback), acceptor(acceptor) {}
 		~FixAcceptorStopWorker() {}
 
 		void Execute();

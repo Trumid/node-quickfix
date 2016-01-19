@@ -25,7 +25,7 @@ public:
 
 	static void addFixHeader(FIX::Message* message, Local<v8::Object> msg) {
 
-		Local<v8::Object> header = Local<v8::Object>::Cast(msg->Get(NanNew<String>("header")));
+		Local<v8::Object> header = Local<v8::Object>::Cast(msg->Get(Nan::New<String>("header").ToLocalChecked()));
 		FIX::Header &msgHeader = message->getHeader();
 		Local<v8::Array> headerTags = header->GetPropertyNames();
 
@@ -40,7 +40,7 @@ public:
 
 	static void addFixTags(FIX::FieldMap* map, Local<v8::Object> msg) {
 
-		Local<v8::String> tagsKey = NanNew<v8::String>("tags");
+		Local<v8::String> tagsKey = Nan::New<v8::String>("tags").ToLocalChecked();
 
 		if(msg->Has(tagsKey)) {
 
@@ -63,7 +63,7 @@ public:
 	}
 
 	static void addFixGroups(FIX::FieldMap* map, Local<v8::Object> msg) {
-		Local<v8::String> groupKey = NanNew<v8::String>("groups");
+		Local<v8::String> groupKey = Nan::New<v8::String>("groups").ToLocalChecked();
 
 		// TODO: add type checking and dev-helpful error throwing
 
@@ -78,22 +78,22 @@ public:
 
 				Local<v8::Object> groupObj = groups->Get(i)->ToObject();
 
-				Local<v8::String> delimKey = NanNew<v8::String>("delim");
-				Local<v8::String> indexKey = NanNew<v8::String>("index");
+				Local<v8::String> delimKey = Nan::New<v8::String>("delim").ToLocalChecked();
+				Local<v8::String> indexKey = Nan::New<v8::String>("index").ToLocalChecked();
 
 				if( ! groupObj->Has(indexKey)) {
-						NanThrowError("no index property found on object");
+						Nan::ThrowError("no index property found on object");
 				}
 
 				if( ! groupObj->Has(delimKey)) {
-						NanThrowError("no delim property found on object");
+						Nan::ThrowError("no delim property found on object");
 				}
 
 
-				Local<v8::String> entriesKey = NanNew<v8::String>("entries");
+				Local<v8::String> entriesKey = Nan::New<v8::String>("entries").ToLocalChecked();
 
 				if( ! groupObj->Has(entriesKey)) {
-						NanThrowError("no entries property found on object");
+						Nan::ThrowError("no entries property found on object");
 				}
 
 				Local<v8::Array> groupEntries = Local<v8::Array>::Cast(groupObj->Get(entriesKey));
@@ -102,7 +102,7 @@ public:
 
 					Local<v8::Object> entry = groupEntries->Get(j)->ToObject();
 
-					Local<v8::String> tagKey = NanNew<v8::String>("tags");
+					Local<v8::String> tagKey = Nan::New<v8::String>("tags").ToLocalChecked();
 
 					if(entry->Has(groupKey) || entry->Has(tagKey)) {
 
@@ -151,7 +151,7 @@ public:
 
 		FIX::Trailer &msgTrailer = message->getTrailer();
 
-		Local<v8::String> trailerKey = NanNew<v8::String>("trailer");
+		Local<v8::String> trailerKey = Nan::New<v8::String>("trailer").ToLocalChecked();
 
 		if(msg->Has(trailerKey)) {
 
@@ -186,55 +186,55 @@ public:
 	}
 
 	static void addJsHeader(Local<v8::Object> msg, const FIX::Message* message) {
-		Local<v8::Object> header = NanNew<v8::Object>();
+		Local<v8::Object> header = Nan::New<v8::Object>();
 		FIX::Header messageHeader = message->getHeader();
 
 		for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
 		{
-			header->Set(NanNew<Integer>(it->first), NanNew<v8::String>(it->second.getString().c_str()));
+			header->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
 		}
 
-		msg->Set(NanNew<v8::String>("header"), header);
+		msg->Set(Nan::New<v8::String>("header").ToLocalChecked(), header);
 	}
 
 	static void addJsTags(Local<v8::Object> msg, const FIX::FieldMap* map) {
-		Local<v8::Object> tags = NanNew<v8::Object>();
+		Local<v8::Object> tags = Nan::New<v8::Object>();
 		int noTags = 0;
 
 		for(FIX::FieldMap::iterator it = map->begin(); it != map->end(); ++it)
 		{
-			tags->Set(NanNew<Integer>(it->first), NanNew<v8::String>(it->second.getString().c_str()));
+			tags->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
 			noTags++;
 		}
 
 		if (noTags > 0) {
-			msg->Set(NanNew<v8::String>("tags"), tags);
+			msg->Set(Nan::New<v8::String>("tags").ToLocalChecked(), tags);
 		}
 	}
 
 	static void addJsTrailer(Local<v8::Object> msg, const FIX::Message* message) {
-		Local<v8::Object> trailer = NanNew<v8::Object>();
+		Local<v8::Object> trailer = Nan::New<v8::Object>();
 		FIX::Trailer messageTrailer = message->getTrailer();
 
 		for(FIX::FieldMap::iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
 		{
-			trailer->Set(NanNew<Integer>(it->first), NanNew<v8::String>(it->second.getString().c_str()));
+			trailer->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
 		}
 
-		msg->Set(NanNew<v8::String>("trailer"), trailer);
+		msg->Set(Nan::New<v8::String>("trailer").ToLocalChecked(), trailer);
 	}
 
 	static void addJsGroups(Local<v8::Object> msg, const FIX::FieldMap* map) {
-		Local<v8::Object> groups = NanNew<v8::Object>();
+		Local<v8::Object> groups = Nan::New<v8::Object>();
 		int noGroups = 0;
 
 		for(FIX::FieldMap::g_iterator it = map->g_begin(); it != map->g_end(); ++it) {
 			std::vector< FIX::FieldMap* > groupVector = it->second;
-			Handle<v8::Array> groupList = NanNew<v8::Array>(groupVector.size());
+			Handle<v8::Array> groupList = Nan::New<v8::Array>(groupVector.size());
 			int i = 0;
 
 			for(std::vector< FIX::FieldMap* >::iterator v_it = groupVector.begin(); v_it != groupVector.end(); ++v_it) {
-				Local<v8::Object> groupEntry = NanNew<v8::Object>();
+				Local<v8::Object> groupEntry = Nan::New<v8::Object>();
 
 				FIX::FieldMap* fields = *v_it;
 
@@ -247,13 +247,13 @@ public:
 				i++;
 			}
 
-			groups->Set(NanNew<Integer>(it->first), groupList);
+			groups->Set(Nan::New<Integer>(it->first), groupList);
 
 			noGroups++;
 		}
 
 		if (noGroups > 0) {
-			msg->Set(NanNew<v8::String>("groups"), groups);
+			msg->Set(Nan::New<v8::String>("groups").ToLocalChecked(), groups);
 		}
 	}
 
@@ -270,20 +270,20 @@ public:
 	}
 
 	static Local<Value> sessionIdToJs(const FIX::SessionID* sessionId) {
-		Local<v8::Object> session = NanNew<v8::Object>();
+		Local<v8::Object> session = Nan::New<v8::Object>();
 
-		session->Set(NanNew<v8::String>("beginString"), NanNew<v8::String>(sessionId->getBeginString().getString().c_str()));
-		session->Set(NanNew<v8::String>("senderCompID"), NanNew<v8::String>(sessionId->getSenderCompID().getString().c_str()));
-		session->Set(NanNew<v8::String>("targetCompID"), NanNew<v8::String>(sessionId->getTargetCompID().getString().c_str()));
-		session->Set(NanNew<v8::String>("sessionQualifier"), NanNew<v8::String>(sessionId->getSessionQualifier().c_str()));
+		session->Set(Nan::New<v8::String>("beginString").ToLocalChecked(), Nan::New<v8::String>(sessionId->getBeginString().getString().c_str()).ToLocalChecked());
+		session->Set(Nan::New<v8::String>("senderCompID").ToLocalChecked(), Nan::New<v8::String>(sessionId->getSenderCompID().getString().c_str()).ToLocalChecked());
+		session->Set(Nan::New<v8::String>("targetCompID").ToLocalChecked(), Nan::New<v8::String>(sessionId->getTargetCompID().getString().c_str()).ToLocalChecked());
+		session->Set(Nan::New<v8::String>("sessionQualifier").ToLocalChecked(), Nan::New<v8::String>(sessionId->getSessionQualifier().c_str()).ToLocalChecked());
 
 		return session;
 	}
 
 	static FIX::SessionID jsToSessionId(Local<v8::Object> sessionId) {
-		String::Utf8Value beginString(sessionId->Get(NanNew<v8::String>("beginString"))->ToString());
-		String::Utf8Value senderCompId(sessionId->Get(NanNew<v8::String>("senderCompID"))->ToString());
-		String::Utf8Value targetCompId(sessionId->Get(NanNew<v8::String>("targetCompID"))->ToString());
+		String::Utf8Value beginString(sessionId->Get(Nan::New<v8::String>("beginString").ToLocalChecked())->ToString());
+		String::Utf8Value senderCompId(sessionId->Get(Nan::New<v8::String>("senderCompID").ToLocalChecked())->ToString());
+		String::Utf8Value targetCompId(sessionId->Get(Nan::New<v8::String>("targetCompID").ToLocalChecked())->ToString());
 		return FIX::SessionID(std::string(*beginString),
 				std::string(*senderCompId),
 				std::string(*targetCompId));

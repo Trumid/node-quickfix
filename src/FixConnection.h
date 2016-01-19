@@ -39,7 +39,7 @@
 using namespace v8;
 using namespace node;
 
-class FixConnection : public node::ObjectWrap {
+class FixConnection : public Nan::ObjectWrap {
 public:
 	FixConnection(FIX::SessionSettings settings, std::string storeFactory);
 	FixConnection(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory);
@@ -55,7 +55,7 @@ protected:
 	FIX::LogFactory* mLogFactory;
 
 	FIX::SessionSettings mSettings;
-	v8::Persistent<v8::Object> mCallbacks;
+	Nan::Persistent<v8::Object> mCallbacks;
 	std::unordered_set<std::string> mCallbackRegistry;
 };
 

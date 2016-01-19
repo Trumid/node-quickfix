@@ -8,18 +8,18 @@
 #include "FixSession.h"
 #include "FixMessageUtil.h"
 
-class FixSessionAsyncWorker : public NanAsyncWorker {
+class FixSessionAsyncWorker : public Nan::AsyncWorker {
 	public:
-		FixSessionAsyncWorker(NanCallback *callback, FIX::Session* session)
-			: NanAsyncWorker(callback), session(session) {}
+		FixSessionAsyncWorker(Nan::Callback *callback, FIX::Session* session)
+			: Nan::AsyncWorker(callback), session(session) {}
 		~FixSessionAsyncWorker() {}
 
 		void HandleOKCallback () {
-			NanScope();
+			Nan::HandleScope scope;
 
 			if(!callback->IsEmpty()) {
 				Local<Value> argv[] = {
-					NanNull()
+					Nan::Null()
 				};
 
 				callback->Call(1, argv);
@@ -32,7 +32,7 @@ class FixSessionAsyncWorker : public NanAsyncWorker {
 
 class FixSessionDisconnectWorker : public FixSessionAsyncWorker {
 	public:
-		FixSessionDisconnectWorker(NanCallback *callback, FIX::Session* session)
+		FixSessionDisconnectWorker(Nan::Callback *callback, FIX::Session* session)
 				: FixSessionAsyncWorker(callback, session) {}
 		~FixSessionDisconnectWorker() {}
 
@@ -43,7 +43,7 @@ class FixSessionDisconnectWorker : public FixSessionAsyncWorker {
 
 class FixSessionLogonWorker : public FixSessionAsyncWorker {
 	public:
-		FixSessionLogonWorker(NanCallback *callback, FIX::Session* session)
+		FixSessionLogonWorker(Nan::Callback *callback, FIX::Session* session)
 				: FixSessionAsyncWorker(callback, session) {}
 		~FixSessionLogonWorker() {}
 
@@ -54,7 +54,7 @@ class FixSessionLogonWorker : public FixSessionAsyncWorker {
 
 class FixSessionLogoutWorker : public FixSessionAsyncWorker {
 	public:
-		FixSessionLogoutWorker(NanCallback *callback, FIX::Session* session)
+		FixSessionLogoutWorker(Nan::Callback *callback, FIX::Session* session)
 				: FixSessionAsyncWorker(callback, session) {}
 		~FixSessionLogoutWorker() {}
 
@@ -65,7 +65,7 @@ class FixSessionLogoutWorker : public FixSessionAsyncWorker {
 
 class FixSessionRefreshWorker : public FixSessionAsyncWorker {
 	public:
-		FixSessionRefreshWorker(NanCallback *callback, FIX::Session* session)
+		FixSessionRefreshWorker(Nan::Callback *callback, FIX::Session* session)
 				: FixSessionAsyncWorker(callback, session) {}
 		~FixSessionRefreshWorker() {}
 
@@ -76,7 +76,7 @@ class FixSessionRefreshWorker : public FixSessionAsyncWorker {
 
 class FixSessionResetWorker : public FixSessionAsyncWorker {
 	public:
-		FixSessionResetWorker(NanCallback *callback, FIX::Session* session)
+		FixSessionResetWorker(Nan::Callback *callback, FIX::Session* session)
 				: FixSessionAsyncWorker(callback, session) {}
 		~FixSessionResetWorker() {}
 
@@ -85,7 +85,7 @@ class FixSessionResetWorker : public FixSessionAsyncWorker {
 		};
 };
 
-FixSession::FixSession() : ObjectWrap() {
+FixSession::FixSession() : Nan::ObjectWrap() {
 }
 
 FixSession::~FixSession() {
@@ -96,174 +96,171 @@ void FixSession::setSession(FIX::Session* session) {
 }
 
 void FixSession::Initialize(Handle<Object> target) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(FixSession::New);
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixSession::New);
 
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(NanNew("FixSession"));
+	ctor->SetClassName(Nan::New("FixSession").ToLocalChecked());
 
 	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
 
-	NODE_SET_PROTOTYPE_METHOD(ctor, "disconnect", disconnect);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "getSessionID", getSessionID);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "isEnabled", isEnabled);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "refresh", refresh);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "reset", reset);
+	Nan::SetPrototypeMethod(ctor, "disconnect", disconnect);
+	Nan::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
+	Nan::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
+	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
+	Nan::SetPrototypeMethod(ctor, "logon", logon);
+	Nan::SetPrototypeMethod(ctor, "logout", logout);
+	Nan::SetPrototypeMethod(ctor, "refresh", refresh);
+	Nan::SetPrototypeMethod(ctor, "reset", reset);
 
-	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
-	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
+	Nan::SetAccessor(proto, Nan::New("senderSeqNum").ToLocalChecked(), getSenderSeqNum, setSenderSeqNum);
+	Nan::SetAccessor(proto, Nan::New("targetSeqNum").ToLocalChecked(), getTargetSeqNum, setTargetSeqNum);
 
-	target->Set(NanNew("FixSession"), ctor->GetFunction());
+	target->Set(Nan::New("FixSession").ToLocalChecked(), ctor->GetFunction());
 }
 
 Handle<Object> FixSession::wrapFixSession(FixSession* fixSession) {
-	Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>();
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>();
 
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(NanNew("FixSession"));
+	ctor->SetClassName(Nan::New("FixSession").ToLocalChecked());
 
 	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
 
-	NODE_SET_PROTOTYPE_METHOD(ctor, "disconnect", disconnect);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "getSessionID", getSessionID);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "isEnabled", isEnabled);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "isLoggedOn", isLoggedOn);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "logon", logon);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "logout", logout);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "refresh", refresh);
-	NODE_SET_PROTOTYPE_METHOD(ctor, "reset", reset);
+	Nan::SetPrototypeMethod(ctor, "disconnect", disconnect);
+	Nan::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
+	Nan::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
+	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
+	Nan::SetPrototypeMethod(ctor, "logon", logon);
+	Nan::SetPrototypeMethod(ctor, "logout", logout);
+	Nan::SetPrototypeMethod(ctor, "refresh", refresh);
+	Nan::SetPrototypeMethod(ctor, "reset", reset);
 
-	proto->SetAccessor(NanNew("senderSeqNum"), getSenderSeqNum, setSenderSeqNum);
-	proto->SetAccessor(NanNew("targetSeqNum"), getTargetSeqNum, setTargetSeqNum);
+	Nan::SetAccessor(proto, Nan::New("senderSeqNum").ToLocalChecked(), getSenderSeqNum, setSenderSeqNum);
+	Nan::SetAccessor(proto, Nan::New("targetSeqNum").ToLocalChecked(), getTargetSeqNum, setTargetSeqNum);
 
 	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
 
-	//obj->SetAlignedPointerInInternalField(0, NanNew<External>(fixSession));
+	//obj->SetAlignedPointerInInternalField(0, Nan::New<External>(fixSession));
 	fixSession->Wrap(obj);
 	return obj;
 }
 
 NAN_METHOD(FixSession::New) {
-	NanScope();
+	Nan::HandleScope scope;
 
 	FixSession *fixSession = new FixSession();
 
-	fixSession->Wrap(args.This());
+	fixSession->Wrap(info.This());
 
-	NanReturnValue(args.This());
+	info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(FixSession::isEnabled) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
 	bool isEnabled = instance->mSession->isEnabled();
 
-	NanReturnValue(isEnabled ? NanTrue() : NanFalse());
+	info.GetReturnValue().Set(isEnabled ? Nan::True() : Nan::False());
 }
 
 NAN_METHOD(FixSession::isLoggedOn) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
 	bool isLoggedOn = instance->mSession->isLoggedOn();
 
-	NanReturnValue(isLoggedOn ? NanTrue() : NanFalse());
+	info.GetReturnValue().Set(isLoggedOn ? Nan::True() : Nan::False());
 }
 
 NAN_METHOD(FixSession::getSessionID) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
 	FIX::SessionID sessionId = instance->mSession->getSessionID();
 	Handle<Value> jsSessionId = FixMessageUtil::sessionIdToJs(&sessionId);
 
-	NanReturnValue(jsSessionId);
+	info.GetReturnValue().Set(jsSessionId);
 }
 
 NAN_METHOD(FixSession::disconnect) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixSessionDisconnectWorker(callback, instance->mSession));
+	Nan::AsyncQueueWorker(new FixSessionDisconnectWorker(callback, instance->mSession));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixSession::logon) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixSessionLogonWorker(callback, instance->mSession));
+	Nan::AsyncQueueWorker(new FixSessionLogonWorker(callback, instance->mSession));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixSession::logout) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixSessionLogoutWorker(callback, instance->mSession));
+	Nan::AsyncQueueWorker(new FixSessionLogoutWorker(callback, instance->mSession));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixSession::refresh) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixSessionRefreshWorker(callback, instance->mSession));
+	Nan::AsyncQueueWorker(new FixSessionRefreshWorker(callback, instance->mSession));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_METHOD(FixSession::reset) {
-	NanScope();
+	Nan::HandleScope scope;
 
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
-	NanCallback *callback = new NanCallback(args[0].As<Function>());
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
-	NanAsyncQueueWorker(new FixSessionResetWorker(callback, instance->mSession));
+	Nan::AsyncQueueWorker(new FixSessionResetWorker(callback, instance->mSession));
 
-	NanReturnUndefined();
+	return;
 }
 
 NAN_GETTER(FixSession::getSenderSeqNum) {
-	NanScope();
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
-	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedSenderNum()));
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Number>(instance->mSession->getExpectedSenderNum()));
 }
 
 NAN_SETTER(FixSession::setSenderSeqNum) {
-	NanScope();
 	if(value->IsNumber()) {
-		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
 		instance->mSession->setNextSenderMsgSeqNum(value->Uint32Value());
 	}
 }
 
 NAN_GETTER(FixSession::getTargetSeqNum) {
-	NanScope();
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
-	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedTargetNum()));
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Number>(instance->mSession->getExpectedTargetNum()));
 }
 
 NAN_SETTER(FixSession::setTargetSeqNum) {
-	NanScope();
+	Nan::HandleScope scope;
 	if(value->IsNumber()) {
-		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
+		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
 		instance->mSession->setNextTargetMsgSeqNum(value->Uint32Value());
 	}
 }
