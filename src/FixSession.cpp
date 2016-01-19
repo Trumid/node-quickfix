@@ -242,28 +242,28 @@ NAN_METHOD(FixSession::reset) {
 
 NAN_GETTER(FixSession::getSenderSeqNum) {
 	NanScope();
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
 	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedSenderNum()));
 }
 
 NAN_SETTER(FixSession::setSenderSeqNum) {
 	NanScope();
 	if(value->IsNumber()) {
-		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
 		instance->mSession->setNextSenderMsgSeqNum(value->Uint32Value());
 	}
 }
 
 NAN_GETTER(FixSession::getTargetSeqNum) {
 	NanScope();
-	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+	FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
 	NanReturnValue(NanNew<Number>(instance->mSession->getExpectedTargetNum()));
 }
 
 NAN_SETTER(FixSession::setTargetSeqNum) {
 	NanScope();
 	if(value->IsNumber()) {
-		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.Holder());
+		FixSession* instance = ObjectWrap::Unwrap<FixSession>(args.This());
 		instance->mSession->setNextTargetMsgSeqNum(value->Uint32Value());
 	}
 }
