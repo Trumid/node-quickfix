@@ -1,6 +1,7 @@
 var df = require('dateformat');
 var events = require('events');
 var quickfix = require('../index');
+var common = require('./common');
 var initiator = quickfix.initiator;
 
 var options = {
@@ -23,25 +24,25 @@ inherits(initiator, events.EventEmitter);
 var fixClient = new initiator(
 {
   onCreate: function(sessionID) {
-    fixClient.emit('onCreate', { sessionID: sessionID });
+    fixClient.emit('onCreate', common.stats(fixClient, sessionID));
   },
   onLogon: function(sessionID) {
-    fixClient.emit('onLogon', { sessionID: sessionID });
+    fixClient.emit('onLogon', common.stats(fixClient, sessionID));
   },
   onLogout: function(sessionID) {
-    fixClient.emit('onLogout', { sessionID: sessionID });
+    fixClient.emit('onLogout', common.stats(fixClient, sessionID));
   },
   onLogonAttempt: function(message, sessionID) {
-    fixClient.emit('onLogonAttempt', { message: message, sessionID: sessionID });
+    fixClient.emit('onLogonAttempt', common.stats(fixClient, sessionID, message));
   },
   toAdmin: function(message, sessionID) {
-    fixClient.emit('toAdmin', { message: message, sessionID: sessionID });
+    fixClient.emit('toAdmin', common.stats(fixClient, sessionID, message));
   },
   fromAdmin: function(message, sessionID) {
-    fixClient.emit('fromAdmin', { message: message, sessionID: sessionID });
+    fixClient.emit('fromAdmin', common.stats(fixClient, sessionID, message));
   },
   fromApp: function(message, sessionID) {
-    fixClient.emit('fromApp', { message: message, sessionID: sessionID });
+    fixClient.emit('fromApp', common.stats(fixClient, sessionID, message));
   }
 }, options);
 
@@ -70,6 +71,7 @@ fixClient.start(function() {
 
   fixClient.send(order, function() {
     console.log("Order sent!");
+    common.printStats(fixClient);
     process.stdin.resume();
   });
 });
