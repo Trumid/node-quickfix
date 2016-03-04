@@ -63,6 +63,9 @@ class Dispatcher {
             }
 
             Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, arguments.size(), &arguments[0]);
+
+            delete event->message;
+            delete event;
         }
     }
 
