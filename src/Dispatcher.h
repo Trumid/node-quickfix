@@ -58,11 +58,14 @@ class Dispatcher {
                 arguments.push_back(msg);
                 arguments.push_back(FixMessageUtil::sessionIdToJs(event->sessionId));
 
+                delete event->message;
             } else {
                 arguments.push_back(FixMessageUtil::sessionIdToJs(event->sessionId));
             }
 
             Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, arguments.size(), &arguments[0]);
+
+            delete event;
         }
     }
 
