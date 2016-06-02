@@ -119,16 +119,16 @@ void FixSession::Initialize() {
 	Nan::SetAccessor(proto, Nan::New("senderSeqNum").ToLocalChecked(), getSenderSeqNum, setSenderSeqNum);
 	Nan::SetAccessor(proto, Nan::New("targetSeqNum").ToLocalChecked(), getTargetSeqNum, setTargetSeqNum);
 
-  g_Ctor.Reset(ctor->GetFunction());
+	g_Ctor.Reset(ctor->GetFunction());
 }
 
 Handle<Object> FixSession::wrapFixSession(FIX::Session *session) {
-  Nan::EscapableHandleScope scope;
-  Local<Function> ctor = Nan::New<Function>(g_Ctor);
-  Local<Object> instance = ctor->NewInstance(0, {});
-  FixSession* fs = ObjectWrap::Unwrap<FixSession>(instance);
-  fs->setSession(session);
-  return scope.Escape(instance);
+	Nan::EscapableHandleScope scope;
+	Local<Function> ctor = Nan::New<Function>(g_Ctor);
+	Local<Object> instance = ctor->NewInstance(0, {});
+	FixSession* fs = ObjectWrap::Unwrap<FixSession>(instance);
+	fs->setSession(session);
+	return scope.Escape(instance);
 }
 
 NAN_METHOD(FixSession::New) {

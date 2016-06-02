@@ -25,7 +25,7 @@ void init(Handle<Object> target) {
 	FixLoginProvider::Initialize(target);
 	FixInitiator::Initialize(target);
 	FixAcceptor::Initialize(target);
-  FixSession::Initialize();
+	FixSession::Initialize();
 }
 
 // Register the module with node.
