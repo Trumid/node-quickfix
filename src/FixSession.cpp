@@ -8,6 +8,8 @@
 #include "FixSession.h"
 #include "FixMessageUtil.h"
 
+Nan::Persistent<Function> g_Ctor;
+
 class FixSessionAsyncWorker : public Nan::AsyncWorker {
 	public:
 		FixSessionAsyncWorker(Nan::Callback *callback, FIX::Session* session)
@@ -95,7 +97,7 @@ void FixSession::setSession(FIX::Session* session) {
 	mSession = session;
 }
 
-void FixSession::Initialize(Handle<Object> target) {
+void FixSession::Initialize() {
 	Nan::HandleScope scope;
 
 	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixSession::New);
@@ -117,34 +119,16 @@ void FixSession::Initialize(Handle<Object> target) {
 	Nan::SetAccessor(proto, Nan::New("senderSeqNum").ToLocalChecked(), getSenderSeqNum, setSenderSeqNum);
 	Nan::SetAccessor(proto, Nan::New("targetSeqNum").ToLocalChecked(), getTargetSeqNum, setTargetSeqNum);
 
-	target->Set(Nan::New("FixSession").ToLocalChecked(), ctor->GetFunction());
+  g_Ctor.Reset(ctor->GetFunction());
 }
 
-Handle<Object> FixSession::wrapFixSession(FixSession* fixSession) {
-	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>();
-
-	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(Nan::New("FixSession").ToLocalChecked());
-
-	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
-
-	Nan::SetPrototypeMethod(ctor, "disconnect", disconnect);
-	Nan::SetPrototypeMethod(ctor, "getSessionID", getSessionID);
-	Nan::SetPrototypeMethod(ctor, "isEnabled", isEnabled);
-	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-	Nan::SetPrototypeMethod(ctor, "logon", logon);
-	Nan::SetPrototypeMethod(ctor, "logout", logout);
-	Nan::SetPrototypeMethod(ctor, "refresh", refresh);
-	Nan::SetPrototypeMethod(ctor, "reset", reset);
-
-	Nan::SetAccessor(proto, Nan::New("senderSeqNum").ToLocalChecked(), getSenderSeqNum, setSenderSeqNum);
-	Nan::SetAccessor(proto, Nan::New("targetSeqNum").ToLocalChecked(), getTargetSeqNum, setTargetSeqNum);
-
-	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
-
-	//obj->SetAlignedPointerInInternalField(0, Nan::New<External>(fixSession));
-	fixSession->Wrap(obj);
-	return obj;
+Handle<Object> FixSession::wrapFixSession(FIX::Session *session) {
+  Nan::EscapableHandleScope scope;
+  Local<Function> ctor = Nan::New<Function>(g_Ctor);
+  Local<Object> instance = ctor->NewInstance(0, {});
+  FixSession* fs = ObjectWrap::Unwrap<FixSession>(instance);
+  fs->setSession(session);
+  return scope.Escape(instance);
 }
 
 NAN_METHOD(FixSession::New) {

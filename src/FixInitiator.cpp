@@ -209,15 +209,13 @@ NAN_METHOD(FixInitiator::getSessions) {
 
 NAN_METHOD(FixInitiator::getSession) {
 	Nan::HandleScope scope;
-	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(info.This());
 
 	Local<Object> sessionId = info[0]->ToObject();
 
 	FIX::Session* session = instance->mInitiator->getSession(FixMessageUtil::jsToSessionId(sessionId));
-	FixSession* fixSession = new FixSession();
-	fixSession->setSession(session);
 
-	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
+	Handle<Object> jsSession(FixSession::wrapFixSession(session));
 
 	info.GetReturnValue().Set(jsSession);
 }

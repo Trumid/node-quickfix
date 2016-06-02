@@ -202,14 +202,11 @@ NAN_METHOD(FixAcceptor::getSessions) {
 
 NAN_METHOD(FixAcceptor::getSession) {
 	Nan::HandleScope scope;
-	FixAcceptor* instance = Nan::ObjectWrap::Unwrap<FixAcceptor>(info.Holder());
+	FixAcceptor* instance = ObjectWrap::Unwrap<FixAcceptor>(info.Holder());
 	Local<Object> sessionId = info[0]->ToObject();
 
 	FIX::Session* session = instance->mAcceptor->getSession(FixMessageUtil::jsToSessionId(sessionId));
 
-	FixSession* fixSession = new FixSession();
-	fixSession->setSession(session);
-
-	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
+	Handle<Object> jsSession(FixSession::wrapFixSession(session));
 	info.GetReturnValue().Set(jsSession);
 }
