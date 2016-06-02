@@ -33,9 +33,9 @@ using namespace std;
  */
 
 void FixInitiator::Initialize(Handle<Object> target) {
-Nan::HandleScope scope;
+	Nan::HandleScope scope;
 
-Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
 
 	// TODO:: Figure out what the compile error is with this
 	//constructor.Reset(ctor);
