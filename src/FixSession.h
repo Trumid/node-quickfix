@@ -20,10 +20,10 @@ using namespace node;
 class FixSession : public Nan::ObjectWrap {
 public:
 	FixSession();
-	static void Initialize(v8::Handle<v8::Object> target);
+	static void Initialize();
 	static NAN_METHOD(New);
 	void setSession(FIX::Session* session);
-	static Handle<Object> wrapFixSession(FixSession* fixSession);
+	static Handle<Object> wrapFixSession(FIX::Session *session);
 
 private:
 	virtual ~FixSession();

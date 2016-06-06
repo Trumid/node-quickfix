@@ -2,6 +2,7 @@
 #include <node.h>
 #include "FixInitiator.h"
 #include "FixAcceptor.h"
+#include "FixSession.h"
 
 using namespace v8;
 
@@ -24,6 +25,7 @@ void init(Handle<Object> target) {
 	FixLoginProvider::Initialize(target);
 	FixInitiator::Initialize(target);
 	FixAcceptor::Initialize(target);
+	FixSession::Initialize();
 }
 
 // Register the module with node.

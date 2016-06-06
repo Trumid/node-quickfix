@@ -33,25 +33,25 @@ using namespace std;
  */
 
 void FixInitiator::Initialize(Handle<Object> target) {
-  Nan::HandleScope scope;
+	Nan::HandleScope scope;
 
-  Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
 
-  // TODO:: Figure out what the compile error is with this
-  //constructor.Reset(ctor);
+	// TODO:: Figure out what the compile error is with this
+	//constructor.Reset(ctor);
 
-  ctor->InstanceTemplate()->SetInternalFieldCount(1);
-  ctor->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
+	ctor->InstanceTemplate()->SetInternalFieldCount(1);
+	ctor->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
 
-  Nan::SetPrototypeMethod(ctor, "start", start);
-  Nan::SetPrototypeMethod(ctor, "send", send);
-  Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
-  Nan::SetPrototypeMethod(ctor, "stop", stop);
-  Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-  Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
-  Nan::SetPrototypeMethod(ctor, "getSession", getSession);
+	Nan::SetPrototypeMethod(ctor, "start", start);
+	Nan::SetPrototypeMethod(ctor, "send", send);
+	Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
+	Nan::SetPrototypeMethod(ctor, "stop", stop);
+	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
+	Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
+	Nan::SetPrototypeMethod(ctor, "getSession", getSession);
 
-  target->Set(Nan::New("FixInitiator").ToLocalChecked(), ctor->GetFunction());
+	target->Set(Nan::New("FixInitiator").ToLocalChecked(), ctor->GetFunction());
 }
 
 NAN_METHOD(FixInitiator::New) {
@@ -209,15 +209,13 @@ NAN_METHOD(FixInitiator::getSessions) {
 
 NAN_METHOD(FixInitiator::getSession) {
 	Nan::HandleScope scope;
-	FixInitiator* instance = Nan::ObjectWrap::Unwrap<FixInitiator>(info.This());
+	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(info.This());
 
 	Local<Object> sessionId = info[0]->ToObject();
 
 	FIX::Session* session = instance->mInitiator->getSession(FixMessageUtil::jsToSessionId(sessionId));
-	FixSession* fixSession = new FixSession();
-	fixSession->setSession(session);
 
-	Handle<Object> jsSession = FixSession::wrapFixSession(fixSession);
+	Handle<Object> jsSession(FixSession::wrapFixSession(session));
 
 	info.GetReturnValue().Set(jsSession);
 }
