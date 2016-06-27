@@ -20,5 +20,9 @@
     "mocha-jenkins-reporter": "^0.1.9",
     "segfault-handler": "^1.0.0",
     "should": "^6.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/electronifie/node-quickfix"
   }
 }
