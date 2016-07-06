@@ -3,7 +3,8 @@
   "version": "2.0.5",
   "scripts": {
     "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
-    "preuninstall": "rm -rf build/*"
+    "preuninstall": "rm -rf build/*",
+    "test": "mocha"
   },
   "main": "index.js",
   "description": "This is a wrapper for the Quickfix C++ library to be used within node.js applications",
