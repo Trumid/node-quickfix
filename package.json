@@ -13,7 +13,7 @@
     "email": "kermen.deol@electronifie.com"
   },
   "dependencies": {
-    "nan": "2.2.0"
+    "nan": "2.3.5"
   },
   "devDependencies": {
     "dateformat": "^1.0.8",
