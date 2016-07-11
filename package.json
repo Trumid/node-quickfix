@@ -1,6 +1,6 @@
 {
   "name": "node-quickfix",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "scripts": {
     "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
     "preuninstall": "rm -rf build/*",
@@ -13,7 +13,7 @@
     "email": "kermen.deol@electronifie.com"
   },
   "dependencies": {
-    "nan": "2.3.5"
+    "nan": "2.4.0"
   },
   "devDependencies": {
     "dateformat": "^1.0.8",
