@@ -6,9 +6,11 @@ This is a node.js wrapper of the popular QuickFIX library. Information about Qui
 ###Installing######
 
 1. Download quickfix tar here: http://www.quickfixengine.org/
-2. Install via the following instructions: http://www.quickfixengine.org/quickfix/doc/html/building.html
-3. After installing copy "config.h" from the install directory to your include directory (usually /usr/local/include/quickfix)
-4. Include this module in your package.json file.
+2. Check required dependencies: http://www.quickfixengine.org/quickfix/doc/html/dependencies.html
+  - On Ubuntu 14.04 LTS (Trusty Tahr) [zlib1g-dev](http://packages.ubuntu.com/trusty/zlib1g-dev) is required.
+3. Install via the following instructions: http://www.quickfixengine.org/quickfix/doc/html/building.html
+4. After installing copy "config.h" from the install directory to your include directory (usually /usr/local/include/quickfix)
+5. Include this module in your package.json file.
 
 ###Features######
 
