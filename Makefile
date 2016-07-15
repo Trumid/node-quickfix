@@ -1,5 +1,11 @@
 REPORTER=spec
 
+acceptor:
+	node ./examples/acceptorExample.js
+
+initiator:
+	node ./examples/initiatorExample.js
+
 test:
 	DEBUG= ./node_modules/.bin/mocha -R $(REPORTER) test
 
