@@ -125,11 +125,14 @@ void FixSession::Initialize() {
 
 Handle<Object> FixSession::wrapFixSession(FIX::Session *session) {
 	Nan::EscapableHandleScope scope;
+    FixSession* fs = new FixSession();
+    fs->setSession(session);
+
 	Local<Function> ctor = Nan::New<Function>(g_Ctor);
-	Local<Object> instance = ctor->NewInstance(0, {});
-	FixSession* fs = ObjectWrap::Unwrap<FixSession>(instance);
-	fs->setSession(session);
-	return scope.Escape(instance);
+	Local<Object> instance = Nan::NewInstance(ctor, 0, {}).ToLocalChecked();
+
+	fs->Wrap(instance);
+    return scope.Escape(instance);
 }
 
 NAN_METHOD(FixSession::New) {
@@ -226,26 +229,29 @@ NAN_METHOD(FixSession::reset) {
 }
 
 NAN_GETTER(FixSession::getSenderSeqNum) {
-	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::HandleScope scope;
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.This());
 	info.GetReturnValue().Set(Nan::New<Number>(instance->mSession->getExpectedSenderNum()));
 }
 
 NAN_SETTER(FixSession::setSenderSeqNum) {
+	Nan::HandleScope scope;
 	if(value->IsNumber()) {
-		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.This());
 		instance->mSession->setNextSenderMsgSeqNum(value->Uint32Value());
 	}
 }
 
 NAN_GETTER(FixSession::getTargetSeqNum) {
-	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+	Nan::HandleScope scope;
+	FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.This());
 	info.GetReturnValue().Set(Nan::New<Number>(instance->mSession->getExpectedTargetNum()));
 }
 
 NAN_SETTER(FixSession::setTargetSeqNum) {
 	Nan::HandleScope scope;
 	if(value->IsNumber()) {
-		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.Holder());
+		FixSession* instance = Nan::ObjectWrap::Unwrap<FixSession>(info.This());
 		instance->mSession->setNextTargetMsgSeqNum(value->Uint32Value());
 	}
 }

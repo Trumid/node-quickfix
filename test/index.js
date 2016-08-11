@@ -83,7 +83,7 @@ describe('acceptor', function () {
   });
 });
 
-describe('initiator + acceptor', function () {
+/*describe('initiator + acceptor', function () {
 
  this.timeout(5000);
 
@@ -306,4 +306,4 @@ describe('initiator + acceptor', function () {
 
  });
 
-});
+});*/
