@@ -2,6 +2,7 @@ var df = require('dateformat');
 var events = require('events');
 var quickfix = require('../index');
 var common = require('./common');
+var path = require('path');
 var initiator = quickfix.initiator;
 
 var options = {
@@ -9,7 +10,7 @@ var options = {
     username: "USERNAME",
     password: "PASSWORD"
   },
-  propertiesFile: "./nodeQuickfixInitiatorExample.properties"
+  propertiesFile: path.join(__dirname, "nodeQuickfixInitiatorExample.properties")
 };
 
 

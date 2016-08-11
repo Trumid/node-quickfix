@@ -12,7 +12,9 @@ function stats(fixentity, sessionID, message) {
 }
 
 function printStats(fixentity){
-  var sess = fixentity.getSession(fixentity.getSessions()[0]);
+  var sessions = fixentity.getSessions();
+  var sessionId = sessions[0];
+  var sess = fixentity.getSession(sessionId);
   console.log('senderSeqNum', sess.senderSeqNum, 'targetSeqNum', sess.targetSeqNum);
 }
 

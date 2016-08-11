@@ -54,9 +54,10 @@ var fixServer = new fixAcceptor(
   'onLogonAttempt',
   'toAdmin',
   'fromAdmin',
-  'fromApp'].forEach(function (event) {
-  fixServer.on(event, console.log.bind(null, event));
-});
+  'fromApp']
+  .forEach(function (event) {
+    fixServer.on(event, console.log.bind(null, event));
+  });
 
 fixServer.start(function () {
   console.log("FIX Acceptor Started");
