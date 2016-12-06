@@ -42,7 +42,9 @@ void FixApplication::onLogout( const FIX::SessionID& sessionID )
 void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessionID )
 {
 	if(strcmp(message.getHeader().getField(35).c_str(), "A") == 0 && mCredentials != NULL) {
-		message.setField(553, mCredentials->username.c_str());
+		if (strcmp(mCredentials->username.c_str(), "") != 0) {
+			message.setField(553, mCredentials->username.c_str());
+		}
 		message.setField(554, mCredentials->password.c_str());
 	}
 
