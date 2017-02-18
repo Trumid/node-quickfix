@@ -1,7 +1,10 @@
-node-quickfix
-==========
+node-quickfix-ssl support SSL
+=============================
 
-This is a node.js wrapper of the popular QuickFIX library. Information about QuickFIX can be found at http://quickfixengine.org/. FIX is a standardized messaging protocol used for electronic communication of financial information. More information about FIX can be found at http://www.fixprotocol.org/
+This is a node.js wrapper of the popular QuickFIX library support SSL. 
+Information about QuickFIX can be found at http://quickfixengine.org/. FIX is a standardized messaging protocol used for electronic communication of financial information. More information about FIX can be found at http://www.fixprotocol.org/
+
+NOTE: Use the QuickFIX fork which support SSL here: https://github.com/karopawil/quickfix.git
 
 ###Installing######
 
@@ -40,6 +43,9 @@ HeartBtInt=30
 UseDataDictionary=Y
 DataDictionary=./fix_spec/FIX44.xml
 RefreshOnLogon=Y
+
+SSLProtocol=all
+
 ```
 You can pass a String in to the options of your acceptor/initiator:
 ```
@@ -127,6 +133,7 @@ var fixClient = quickfix.initiator({
     username: "USERNAME",
     password: "PASSWORD"
   },
+  ssl: true,
   propertiesFile: "./initiator.properties"
 });
 ```

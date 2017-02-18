@@ -74,6 +74,7 @@ NAN_METHOD(FixInitiator::New) {
 
 	Local<String> propertiesFileKey =  Nan::New<String>("propertiesFile").ToLocalChecked();
 	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
+	Local<String> sslKey = Nan::New<String>("ssl").ToLocalChecked();
 
 	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
 
@@ -87,13 +88,18 @@ NAN_METHOD(FixInitiator::New) {
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
+    bool ssl = false;
+	if (options->Has(sslKey)) {
+	    ssl = options->Get(sslKey)->BooleanValue();
+	}
+
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
 	if(options->Has(storeFactoryKey)) {
 		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-		initiator = new FixInitiator(sessionSettings, std::string(*value));
+		initiator = new FixInitiator(sessionSettings, std::string(*value), ssl);
 	} else {
-		initiator = new FixInitiator(sessionSettings, "file");
+		initiator = new FixInitiator(sessionSettings, "file", ssl);
 	}
 
 	if (info.IsConstructCall()) {
@@ -221,8 +227,13 @@ NAN_METHOD(FixInitiator::getSession) {
 	info.GetReturnValue().Set(jsSession);
 }
 
-FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
-	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(settings, storeFactory) {
+#ifdef HAVE_SSL
+    if (ssl)
+        mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+    else
+#endif
+        mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
 FixInitiator::~FixInitiator() {

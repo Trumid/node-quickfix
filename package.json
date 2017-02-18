@@ -1,5 +1,5 @@
 {
-  "name": "node-quickfix",
+  "name": "node-quickfix-ssl",
   "version": "2.0.10",
   "scripts": {
     "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
