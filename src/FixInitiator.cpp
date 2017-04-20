@@ -228,12 +228,25 @@ NAN_METHOD(FixInitiator::getSession) {
 }
 
 FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(settings, storeFactory) {
+    bool disableLog = storeFactory == "null";
 #ifdef HAVE_SSL
     if (ssl)
-        mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+    {
+        if (disableLog) {
+            mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings);
+        } else {
+            mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+        }
+    }
     else
 #endif
-        mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+    {
+        if (disableLog) {
+            mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings);
+        } else {
+            mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+        }
+    }
 }
 
 FixInitiator::~FixInitiator() {
