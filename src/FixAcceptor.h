@@ -14,14 +14,17 @@
 #include "FixConnection.h"
 #include "FixLoginProvider.h"
 #include "quickfix/ThreadedSocketAcceptor.h"
+#ifdef HAVE_SSL
+#include "quickfix/ThreadedSSLSocketAcceptor.h"
+#endif
 
 using namespace v8;
 using namespace node;
 
 class FixAcceptor : public FixConnection {
 	public:
-		//static Nan::Persistent<Function> constructor;
-		static void Initialize(Handle<Object> target);
+  	static NAN_MODULE_INIT(Init);
+
 		static NAN_METHOD(New);
 		static NAN_METHOD(start);
 		static NAN_METHOD(send);
@@ -30,14 +33,16 @@ class FixAcceptor : public FixConnection {
 		static NAN_METHOD(getSessions);
 		static NAN_METHOD(getSession);
 
-		FixAcceptor(FIX::SessionSettings settings, std::string storeFactory);
-		FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory);
+		FixAcceptor(FIX::SessionSettings settings, std::string storeFactory, bool ssl = false);
+		FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory, bool ssl = false);
+		
+	private:
 		~FixAcceptor();
 
-	protected:
-		FIX::ThreadedSocketAcceptor* mAcceptor;
-		FixLoginProvider* mFixLoginProvider;
+		static Nan::Persistent<v8::Function> constructor;
 		static void sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* message);
+		FIX::Acceptor* mAcceptor;
+		FixLoginProvider* mFixLoginProvider;
 };
 
 #endif /* FIXACCEPTOR_H_ */

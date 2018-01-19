@@ -23,35 +23,28 @@
 
 using namespace std;
 
-//#include "closure.h"
-
-//Nan::Persistent<Function> FixInitiator::constructor;
-
-
 /*
  * Node API
  */
 
-void FixInitiator::Initialize(Handle<Object> target) {
-	Nan::HandleScope scope;
+Nan::Persistent<Function> FixInitiator::constructor;
 
-	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
+NAN_MODULE_INIT(FixInitiator::Init) {
 
-	// TODO:: Figure out what the compile error is with this
-	//constructor.Reset(ctor);
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+	tpl->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
+	Nan::SetPrototypeMethod(tpl, "start", start);
+	Nan::SetPrototypeMethod(tpl, "send", send);
+	Nan::SetPrototypeMethod(tpl, "sendRaw", sendRaw);
+	Nan::SetPrototypeMethod(tpl, "stop", stop);
+	Nan::SetPrototypeMethod(tpl, "isLoggedOn", isLoggedOn);
+	Nan::SetPrototypeMethod(tpl, "getSessions", getSessions);
+	Nan::SetPrototypeMethod(tpl, "getSession", getSession);
 
-	Nan::SetPrototypeMethod(ctor, "start", start);
-	Nan::SetPrototypeMethod(ctor, "send", send);
-	Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
-	Nan::SetPrototypeMethod(ctor, "stop", stop);
-	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-	Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
-	Nan::SetPrototypeMethod(ctor, "getSession", getSession);
-
-	target->Set(Nan::New("FixInitiator").ToLocalChecked(), ctor->GetFunction());
+	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target, Nan::New("FixInitiator").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 NAN_METHOD(FixInitiator::New) {
@@ -74,6 +67,7 @@ NAN_METHOD(FixInitiator::New) {
 
 	Local<String> propertiesFileKey =  Nan::New<String>("propertiesFile").ToLocalChecked();
 	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
+	Local<String> sslKey = Nan::New<String>("ssl").ToLocalChecked();
 
 	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
 
@@ -87,13 +81,18 @@ NAN_METHOD(FixInitiator::New) {
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
+  bool ssl = false;
+	if (options->Has(sslKey)) {
+	  ssl = options->Get(sslKey)->BooleanValue();
+	}
+
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
 	if(options->Has(storeFactoryKey)) {
 		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-		initiator = new FixInitiator(sessionSettings, std::string(*value));
+		initiator = new FixInitiator(sessionSettings, std::string(*value), ssl);
 	} else {
-		initiator = new FixInitiator(sessionSettings, "file");
+		initiator = new FixInitiator(sessionSettings, "file", ssl);
 	}
 
 	if (info.IsConstructCall()) {
@@ -221,8 +220,26 @@ NAN_METHOD(FixInitiator::getSession) {
 	info.GetReturnValue().Set(jsSession);
 }
 
-FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
-	mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+FixInitiator::FixInitiator(FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(settings, storeFactory) {
+    bool disableLog = storeFactory == "null";
+#ifdef HAVE_SSL
+    if (ssl)
+    {
+        if (disableLog) {
+            mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings);
+        } else {
+            mInitiator = new FIX::ThreadedSSLSocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+        }
+    }
+    else
+#endif
+    {
+        if (disableLog) {
+            mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings);
+        } else {
+            mInitiator = new FIX::SocketInitiator(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+        }
+    }
 }
 
 FixInitiator::~FixInitiator() {

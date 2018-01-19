@@ -1,10 +1,7 @@
 var events = require('events');
-var quickfix = require('../');
+var quickfix = require('../index.js');
 var path = require('path');
 var should = require('should');
-
-var segfaultHandler = require('segfault-handler');
-segfaultHandler.registerHandler();
 
 var acceptorPropertiesFile = path.resolve(path.join(__dirname, 'support', 'acceptor.properties'));
 var initiatorPropertiesFile = path.resolve(path.join(__dirname, 'support', 'initiator.properties'));
@@ -14,11 +11,11 @@ describe('initiator', function () {
  this.timeout(5000);
 
  it('should throw if not supplied options', function () {
-   (function () { quickfix.initiator(); }).should.throw('FixInitiator requires an options parameter');
+   (function () { new quickfix.initiator(); }).should.throw('FixInitiator requires an options parameter');
  });
 
  it('should throw if supplied options with no settings or propertiesFile', function () {
-   (function () { quickfix.initiator({}, {}); }).should.throw('you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file');
+   (function () { new quickfix.initiator({}, {}); }).should.throw('you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file');
  });
 
  it('should create a new initiator instance with fix beginString, senderCompID, targetCompID on defined session', function () {

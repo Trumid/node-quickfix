@@ -70,7 +70,6 @@ class Dispatcher {
     }
 
     void dispatch(fix_event_t* event) {
-
 		uv_ref((uv_handle_t *)&watcher);
 
 		NODE_QUICKFIX_MUTEX_LOCK(&mutex);

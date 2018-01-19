@@ -22,32 +22,44 @@
 using namespace FIX;
 using namespace std;
 
-FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
-	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(settings, storeFactory) {
+#ifdef HAVE_SSL
+	if (ssl)
+		mAcceptor = new FIX::ThreadedSSLSocketAcceptor (*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+	else
+#endif
+		mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
-FixAcceptor::FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): FixConnection(application, settings, storeFactory) {
-	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+FixAcceptor::FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(application, settings, storeFactory) {
+#ifdef HAVE_SSL
+	if (ssl)
+		mAcceptor = new FIX::ThreadedSSLSocketAcceptor (*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+	else
+#endif
+		mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
 FixAcceptor::~FixAcceptor() {
 }
 
-void FixAcceptor::Initialize(Handle<Object> target) {
-  Nan::HandleScope scope;
+Nan::Persistent<Function> FixAcceptor::constructor;
 
-  Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixAcceptor::New);
-  ctor->InstanceTemplate()->SetInternalFieldCount(1);
-  ctor->SetClassName(Nan::New("FixAcceptor").ToLocalChecked());
+NAN_MODULE_INIT(FixAcceptor::Init) {
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
 
-  Nan::SetPrototypeMethod(ctor, "start", start);
-  Nan::SetPrototypeMethod(ctor, "send", send);
-  Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
-  Nan::SetPrototypeMethod(ctor, "stop", stop);
-  Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
-  Nan::SetPrototypeMethod(ctor, "getSession", getSession);
+  tpl->SetClassName(Nan::New("FixAcceptor").ToLocalChecked());
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  target->Set(Nan::New("FixAcceptor").ToLocalChecked(), ctor->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "start", start);
+  Nan::SetPrototypeMethod(tpl, "send", send);
+  Nan::SetPrototypeMethod(tpl, "sendRaw", sendRaw);
+  Nan::SetPrototypeMethod(tpl, "stop", stop);
+  Nan::SetPrototypeMethod(tpl, "getSessions", getSessions);
+  Nan::SetPrototypeMethod(tpl, "getSession", getSession);
+
+	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target, Nan::New("FixAcceptor").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 NAN_METHOD(FixAcceptor::New) {
@@ -68,6 +80,7 @@ NAN_METHOD(FixAcceptor::New) {
 
 	Local<String> propertiesFileKey =  Nan::New<String>("propertiesFile").ToLocalChecked();
 	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
+	Local<String> sslKey = Nan::New<String>("ssl").ToLocalChecked();
 
 	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixAcceptor either an options.settings string or options.propertiesFile path to a properties file");
 
@@ -81,13 +94,18 @@ NAN_METHOD(FixAcceptor::New) {
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
+	bool ssl = false;
+	if (options->Has(sslKey)) {
+		ssl = options->Get(sslKey)->BooleanValue();
+	}
+
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
 	if(options->Has(storeFactoryKey)) {
 		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-		acceptor = new FixAcceptor(sessionSettings, std::string(*value));
+		acceptor = new FixAcceptor(sessionSettings, std::string(*value), ssl);
 	} else {
-		acceptor = new FixAcceptor(sessionSettings, "file");
+		acceptor = new FixAcceptor(sessionSettings, "file", ssl);
 	}
 
 	acceptor->Wrap(info.This());

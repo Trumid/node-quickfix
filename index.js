@@ -1,10 +1,5 @@
-var quickfix = require(__dirname + '/build/Release/node_quickfix.node');
+var NodeQuickfix = require('bindings')('NodeQuickfix')
 
-var FIXInitiator = quickfix.FixInitiator;
-var FIXAcceptor = quickfix.FixAcceptor;
-
-exports.logonProvider = quickfix.FixLoginProvider;
-
-exports.initiator = FIXInitiator;
-
-exports.acceptor = FIXAcceptor;
+exports.logonProvider = NodeQuickfix.FixLoginProvider;
+exports.initiator = NodeQuickfix.FixInitiator;
+exports.acceptor = NodeQuickfix.FixAcceptor;

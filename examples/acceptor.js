@@ -45,7 +45,7 @@ var fixServer = new fixAcceptor(
     }
   }, {
     logonProvider: logonProvider,
-    propertiesFile: path.join(__dirname, 'nodeQuickfixExample.properties')
+    propertiesFile: path.join(__dirname, 'acceptor.properties')
   });
 
 ['onCreate',

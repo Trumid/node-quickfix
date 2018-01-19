@@ -10,9 +10,9 @@ var options = {
     username: "USERNAME",
     password: "PASSWORD"
   },
-  propertiesFile: path.join(__dirname, "nodeQuickfixInitiatorExample.properties")
+  ssl : true,
+  propertiesFile: path.join(__dirname, "initiator.properties")
 };
-
 
 // extend prototype
 function inherits (target, source) {
@@ -53,8 +53,8 @@ fixClient.start(function() {
     header: {
       8: 'FIX.4.4',
       35: 'D',
-      49: "NODEQUICKFIX",
-      56: "ELECTRONIFIE"
+      49: "INITIATOR",
+      56: "ACCEPTOR"
     },
     tags: {
       11: "0E0Z86K00000",

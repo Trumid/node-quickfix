@@ -13,15 +13,17 @@
 #include <nan.h>
 
 class FixLoginProvider : public Nan::ObjectWrap {
-public:
-	FixLoginProvider();
-	static void Initialize(v8::Handle<v8::Object> target);
-	static NAN_METHOD(New);
-	Nan::Callback* getLogon();
+	public:
+		static NAN_MODULE_INIT(Init);
+		
+		static NAN_METHOD(New);
+		Nan::Callback* getLogon();
 
-private:
-	virtual ~FixLoginProvider();
-	Nan::Callback* logon;
+	private:
+		~FixLoginProvider();
+
+		static Nan::Persistent<v8::Function> constructor;
+		Nan::Callback* logon;
 };
 
 #endif /* FIXLOGINPROVIDER_H_ */

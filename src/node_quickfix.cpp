@@ -6,27 +6,12 @@
 
 using namespace v8;
 
-NAN_METHOD(Initiator) {
-  Nan::HandleScope scope;
-  FixInitiator::New(info);
-}
-
-NAN_METHOD(Acceptor) {
-  Nan::HandleScope scope;
-  FixAcceptor::New(info);
-}
-
-NAN_METHOD(LoginProvider) {
-  Nan::HandleScope scope;
-  FixLoginProvider::New(info);
-}
-
-void init(Handle<Object> target) {
-	FixLoginProvider::Initialize(target);
-	FixInitiator::Initialize(target);
-	FixAcceptor::Initialize(target);
+NAN_MODULE_INIT(InitAll) {
+	FixLoginProvider::Init(target);
+	FixInitiator::Init(target);
+	FixAcceptor::Init(target);
 	FixSession::Initialize();
 }
 
 // Register the module with node.
-NODE_MODULE(node_quickfix, init)
+NODE_MODULE(NodeQuickfix, InitAll)
