@@ -38,8 +38,6 @@ Handle<Object> FixLoginResponse::wrapFixLoginResponse(FixLoginResponse* fixLogin
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
 	ctor->SetClassName(Nan::New("FixLoginResponse").ToLocalChecked());
 
-	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
-
 	Nan::SetPrototypeMethod(ctor, "done", done);
 
 	Handle<Object> obj = ctor->InstanceTemplate()->NewInstance();
