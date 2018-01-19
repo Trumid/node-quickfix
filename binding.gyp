@@ -1,9 +1,7 @@
 {
   'targets': [
     {
-      'target_name': 'node_quickfix',
-      'product_extension': 'node',
-      'type': 'shared_library',
+      'target_name': 'NodeQuickfix',
       'sources': [
         'src/Threading.h',
         'src/Dispatcher.h',

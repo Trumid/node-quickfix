@@ -23,35 +23,28 @@
 
 using namespace std;
 
-//#include "closure.h"
-
-//Nan::Persistent<Function> FixInitiator::constructor;
-
-
 /*
  * Node API
  */
 
-void FixInitiator::Initialize(Handle<Object> target) {
-	Nan::HandleScope scope;
+Nan::Persistent<Function> FixInitiator::constructor;
 
-	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(FixInitiator::New);
+NAN_MODULE_INIT(FixInitiator::Init) {
 
-	// TODO:: Figure out what the compile error is with this
-	//constructor.Reset(ctor);
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+	tpl->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(Nan::New("FixInitiator").ToLocalChecked());
+	Nan::SetPrototypeMethod(tpl, "start", start);
+	Nan::SetPrototypeMethod(tpl, "send", send);
+	Nan::SetPrototypeMethod(tpl, "sendRaw", sendRaw);
+	Nan::SetPrototypeMethod(tpl, "stop", stop);
+	Nan::SetPrototypeMethod(tpl, "isLoggedOn", isLoggedOn);
+	Nan::SetPrototypeMethod(tpl, "getSessions", getSessions);
+	Nan::SetPrototypeMethod(tpl, "getSession", getSession);
 
-	Nan::SetPrototypeMethod(ctor, "start", start);
-	Nan::SetPrototypeMethod(ctor, "send", send);
-	Nan::SetPrototypeMethod(ctor, "sendRaw", sendRaw);
-	Nan::SetPrototypeMethod(ctor, "stop", stop);
-	Nan::SetPrototypeMethod(ctor, "isLoggedOn", isLoggedOn);
-	Nan::SetPrototypeMethod(ctor, "getSessions", getSessions);
-	Nan::SetPrototypeMethod(ctor, "getSession", getSession);
-
-	target->Set(Nan::New("FixInitiator").ToLocalChecked(), ctor->GetFunction());
+	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target, Nan::New("FixInitiator").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 NAN_METHOD(FixInitiator::New) {
@@ -88,9 +81,9 @@ NAN_METHOD(FixInitiator::New) {
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
-    bool ssl = false;
+  bool ssl = false;
 	if (options->Has(sslKey)) {
-	    ssl = options->Get(sslKey)->BooleanValue();
+	  ssl = options->Get(sslKey)->BooleanValue();
 	}
 
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();

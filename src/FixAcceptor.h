@@ -23,8 +23,8 @@ using namespace node;
 
 class FixAcceptor : public FixConnection {
 	public:
-		//static Nan::Persistent<Function> constructor;
-		static void Initialize(Handle<Object> target);
+  	static NAN_MODULE_INIT(Init);
+
 		static NAN_METHOD(New);
 		static NAN_METHOD(start);
 		static NAN_METHOD(send);
@@ -35,12 +35,14 @@ class FixAcceptor : public FixConnection {
 
 		FixAcceptor(FIX::SessionSettings settings, std::string storeFactory, bool ssl = false);
 		FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory, bool ssl = false);
+		
+	private:
 		~FixAcceptor();
 
-	protected:
+		static Nan::Persistent<v8::Function> constructor;
+		static void sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* message);
 		FIX::Acceptor* mAcceptor;
 		FixLoginProvider* mFixLoginProvider;
-		static void sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* message);
 };
 
 #endif /* FIXACCEPTOR_H_ */

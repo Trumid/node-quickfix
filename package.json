@@ -1,9 +1,9 @@
 {
-  "name": "node-quickfix-ssl",
-  "version": "2.0.11",
+  "name": "node-quickfix",
+  "version": "2.1.0",
   "scripts": {
-    "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
-    "preuninstall": "rm -rf build/*",
+    "configure": "node-gyp configure",
+    "build": "node-gyp build",
     "test": "mocha"
   },
   "main": "index.js",
@@ -12,18 +12,18 @@
     "name": "Kermen Deol",
     "email": "kermen.deol@electronifie.com"
   },
-  "dependencies": {
-    "nan": "2.4.0"
-  },
   "devDependencies": {
-    "dateformat": "^1.0.8",
+    "dateformat": "^3.0.2",
     "mocha": "^2.2.5",
-    "mocha-jenkins-reporter": "^0.1.9",
-    "segfault-handler": "^1.0.0",
-    "should": "^6.0.3"
+    "nan": "^2.8.0",
+    "node-gyp": "^3.6.2",
+    "should": "^13.2.1"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/electronifie/node-quickfix"
+  },
+  "dependencies": {
+    "bindings": "^1.3.0"
   }
 }

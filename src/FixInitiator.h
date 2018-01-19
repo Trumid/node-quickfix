@@ -22,8 +22,8 @@ using namespace node;
 
 class FixInitiator : public FixConnection {
  public:
-  //virtual static Nan::Persistent<Function> constructor;
-  static void Initialize(Handle<Object> target);
+  static NAN_MODULE_INIT(Init);
+
   static NAN_METHOD(New);
   static NAN_METHOD(start);
   static NAN_METHOD(send);
@@ -37,8 +37,10 @@ class FixInitiator : public FixConnection {
 
  private:
   ~FixInitiator();
-  FIX::Initiator* mInitiator;
+
+  static Nan::Persistent<v8::Function> constructor;
   static void sendAsync(const Nan::FunctionCallbackInfo<v8::Value>& info, FIX::Message* message);
+  FIX::Initiator* mInitiator;
 };
 
 #endif

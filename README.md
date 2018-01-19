@@ -1,7 +1,8 @@
 node-quickfix-ssl support SSL
 =============================
 
-This is a node.js wrapper of the popular QuickFIX library support SSL. 
+This is a node.js wrapper of the popular QuickFIX library with support SSL.
+
 Information about QuickFIX can be found at http://quickfixengine.org/. FIX is a standardized messaging protocol used for electronic communication of financial information. More information about FIX can be found at http://www.fixprotocol.org/
 
 NOTE: Use the QuickFIX fork which support SSL here: https://github.com/karopawil/quickfix.git
@@ -43,7 +44,6 @@ HeartBtInt=30
 UseDataDictionary=Y
 DataDictionary=./fix_spec/FIX44.xml
 RefreshOnLogon=Y
-
 SSLProtocol=all
 
 ```

@@ -1,6 +1,6 @@
-/data/
-/log/
-/node_modules/
+data
+log
+node_modules
 build/
 .project
 .cproject
