@@ -1,11 +1,11 @@
-node-quickfix-ssl support SSL
+node-quickfix
 =============================
 
-This is a node.js wrapper of the popular QuickFIX library with support SSL.
+This is a node.js wrapper of the popular QuickFIX library with optional support for SSL.
 
 Information about QuickFIX can be found at http://quickfixengine.org/. FIX is a standardized messaging protocol used for electronic communication of financial information. More information about FIX can be found at http://www.fixprotocol.org/
 
-NOTE: Use the QuickFIX fork which support SSL here: https://github.com/karopawil/quickfix.git
+NOTE: If your application requires SSL support, use the QuickFIX fork here: https://github.com/karopawil/quickfix.git
 
 ###Installing######
 
@@ -51,7 +51,7 @@ You can pass a String in to the options of your acceptor/initiator:
 ```
 var quickfix = require('node-quickfix');
 
-var fixAcceptor = quickfix.acceptor({
+var fixAcceptor = new quickfix.acceptor({
   settings: "[DEFAULT]\n
   	ReconnectInterval=60\n
   	RefreshOnLogon=Y\n
@@ -99,7 +99,7 @@ HttpAcceptPort=9011
 ```
 
 ```
-var fixAcceptor = quickfix.acceptor({
+var fixAcceptor = new quickfix.acceptor({
   propertiesFile: './acceptor.properties',
   logonProvider: logonProvider,
   storeFactory: 'postgresql'
@@ -113,7 +113,7 @@ You can create a custom logon handler in node-quickfix by creating a logon provi
 ```
 var quickfix = require('node-quickfix');
 
-var logonProvider = quickfix.logonProvider(function(logonResponse, msg, sessionId) {
+var logonProvider = new quickfix.logonProvider(function(logonResponse, msg, sessionId) {
 	if(msg.tags[553] == 'USERNAME' && msg.tags[554] == 'PASSWORD') {
 		logonResponse.done(true); //successful logon
 	} else {
@@ -121,14 +121,14 @@ var logonProvider = quickfix.logonProvider(function(logonResponse, msg, sessionI
 	}
 });
 
-var fixAcceptor = quickfix.acceptor({
+var fixAcceptor = new quickfix.acceptor({
   "logonProvider": logonProvider,
   propertiesFile: "./acceptor.properties"
 });
 ```
 
 ```
-var fixClient = quickfix.initiator({
+var fixClient = new quickfix.initiator({
   credentials: {
     username: "USERNAME",
     password: "PASSWORD"
