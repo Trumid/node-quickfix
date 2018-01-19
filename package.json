@@ -1,6 +1,6 @@
 {
-  "name": "node-quickfix",
-  "version": "2.0.10",
+  "name": "node-quickfix-ssl",
+  "version": "2.0.11",
   "scripts": {
     "preinstall": "npm install nan && node-gyp clean && node-gyp configure && node-gyp build",
     "preuninstall": "rm -rf build/*",
