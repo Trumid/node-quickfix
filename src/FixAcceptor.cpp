@@ -22,11 +22,21 @@
 using namespace FIX;
 using namespace std;
 
-FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory): FixConnection(settings, storeFactory) {
-	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+FixAcceptor::FixAcceptor(FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(settings, storeFactory) {
+#ifdef HAVE_SSL
+    if (ssl)
+        mAcceptor = new FIX::ThreadedSSLSocketAcceptor (*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+    else
+#endif
+	    mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
-FixAcceptor::FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory): FixConnection(application, settings, storeFactory) {
+FixAcceptor::FixAcceptor(FixApplication* application, FIX::SessionSettings settings, std::string storeFactory, bool ssl): FixConnection(application, settings, storeFactory) {
+#ifdef HAVE_SSL
+    if (ssl)
+        mAcceptor = new FIX::ThreadedSSLSocketAcceptor (*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
+    else
+#endif
 	mAcceptor = new FIX::ThreadedSocketAcceptor(*mFixApplication, *mStoreFactory, mSettings, *mLogFactory);
 }
 
@@ -68,6 +78,7 @@ NAN_METHOD(FixAcceptor::New) {
 
 	Local<String> propertiesFileKey =  Nan::New<String>("propertiesFile").ToLocalChecked();
 	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
+	Local<String> sslKey = Nan::New<String>("ssl").ToLocalChecked();
 
 	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixAcceptor either an options.settings string or options.propertiesFile path to a properties file");
 
@@ -81,13 +92,18 @@ NAN_METHOD(FixAcceptor::New) {
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
+    bool ssl = false;
+	if (options->Has(sslKey)) {
+	    ssl = options->Get(sslKey)->BooleanValue();
+	}
+
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
 	if(options->Has(storeFactoryKey)) {
 		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
-		acceptor = new FixAcceptor(sessionSettings, std::string(*value));
+		acceptor = new FixAcceptor(sessionSettings, std::string(*value), ssl);
 	} else {
-		acceptor = new FixAcceptor(sessionSettings, "file");
+		acceptor = new FixAcceptor(sessionSettings, "file", ssl);
 	}
 
 	acceptor->Wrap(info.This());

@@ -13,7 +13,7 @@ using namespace node;
 class FixInitiatorStartWorker : public Nan::AsyncWorker
 {
 	public:
-		FixInitiatorStartWorker(Nan::Callback *callback, FIX::SocketInitiator* initiator)
+		FixInitiatorStartWorker(Nan::Callback *callback, FIX::Initiator* initiator)
 			: Nan::AsyncWorker(callback), initiator(initiator) {}
 		~FixInitiatorStartWorker() {}
 
@@ -21,7 +21,7 @@ class FixInitiatorStartWorker : public Nan::AsyncWorker
 		void HandleOKCallback();
 
 	private:
-		FIX::SocketInitiator* initiator;
+		FIX::Initiator* initiator;
 };
 
 

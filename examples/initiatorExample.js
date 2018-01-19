@@ -7,9 +7,10 @@ var initiator = quickfix.initiator;
 
 var options = {
   credentials: {
-    username: "USERNAME",
-    password: "PASSWORD"
+    username: "",
+    password: ""
   },
+  ssl : true,
   propertiesFile: path.join(__dirname, "nodeQuickfixInitiatorExample.properties")
 };
 
@@ -53,8 +54,8 @@ fixClient.start(function() {
     header: {
       8: 'FIX.4.4',
       35: 'D',
-      49: "NODEQUICKFIX",
-      56: "ELECTRONIFIE"
+      49: "62608e08adc29a8d6dbc9754e659f125",
+      56: "SERVER"
     },
     tags: {
       11: "0E0Z86K00000",
