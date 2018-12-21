@@ -7,7 +7,7 @@ Information about QuickFIX can be found at http://quickfixengine.org/. FIX is a 
 
 NOTE: If your application requires SSL support, use the QuickFIX fork here: https://github.com/karopawil/quickfix.git
 
-###Installing######
+## Installing ##
 
 1. Download quickfix tar here: http://www.quickfixengine.org/
 2. Check required dependencies: http://www.quickfixengine.org/quickfix/doc/html/dependencies.html
@@ -16,12 +16,12 @@ NOTE: If your application requires SSL support, use the QuickFIX fork here: http
 4. After installing copy "config.h" from the install directory to your include directory (usually /usr/local/include/quickfix)
 5. Include this module in your package.json file.
 
-###Features######
+## Features ##
 
 This module currently supports creating an Acceptor, an Initiator, and retrieving individual Sessions.
 Examples can be found in the examples directory of this project.
 
-####Configuration######
+## Configuration ##
 
 Sessions can be configured through a properties file or directly with a String (which can be built from a JSON variable). For example, if your properties file has the following:
 ```
@@ -106,7 +106,7 @@ var fixAcceptor = new quickfix.acceptor({
 });
 ```
 
-####Logon Handling#######
+## Logon Handling ##
 
 You can create a custom logon handler in node-quickfix by creating a logon provider and then constructing your acceptor or initiator with it. You can also pass credentials to the constructor that will be used to populate field 553 and 554 of your logon messages.
 
@@ -138,7 +138,8 @@ var fixClient = new quickfix.initiator({
 });
 ```
 
-####Message format######
+## Message format ##
+
 ```
 message = {
     header: {
@@ -159,7 +160,8 @@ message = {
   }
 ```
 
-####Acceptor API######
+## Acceptor API ##
+
 `start(callback) //start acceptor`
 
 `send(msg, callback) //send json messages`
@@ -184,7 +186,8 @@ fromAdmin: message, sessionID
 fromApp:  message, sessionID
 ```
 
-####Initiator API######
+## Initiator API ##
+
 `start(callback) //start acceptor`
 
 `send(msg, callback) //send json messages`
@@ -199,8 +202,8 @@ fromApp:  message, sessionID
 
 `isLoggedOn() //is initiator is currently connected to a session`
 
+## Session API ##
 
-####Session API######
 `disconnect(callback) //disconnect a session`
 
 `getSessionID() //get session id for a session`
