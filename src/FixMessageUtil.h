@@ -119,9 +119,7 @@ public:
 
 					} else {
 
-						FIX::Group* group = new FIX::Group(
-							groupObj->Get(indexKey)->ToInteger()->Value(),
-							groupObj->Get(delimKey)->ToInteger()->Value());
+						FIX::Group* group = getGroup(groupObj);
 
 						// compat for old, non-nested format
 
@@ -144,6 +142,33 @@ public:
 					}
 				}
 			}
+		}
+	}
+
+	static std::vector<int> getTagOrder(Local<v8::Array> tagsOrder){
+		std::vector<int> values;
+		int numValues = tagsOrder->Length();
+		for (int i = 0; i < numValues; i++) {
+			values.push_back(tagsOrder->Get(i)->NumberValue());
+		}
+		values.push_back(0);
+		return values;
+	}
+
+	static FIX::Group* getGroup(Local<v8::Object> groupObj){
+		Local<v8::String> delimKey = Nan::New<v8::String>("delim").ToLocalChecked();
+		Local<v8::String> orderKey = Nan::New<v8::String>("order").ToLocalChecked();
+		Local<v8::String> indexKey = Nan::New<v8::String>("index").ToLocalChecked();
+		if( ! groupObj->Has(orderKey)){
+			return new FIX::Group(
+					groupObj->Get(indexKey)->ToInteger()->Value(),
+					groupObj->Get(delimKey)->ToInteger()->Value());
+		} else {
+			Local<v8::Array> tagsOrder = Local<v8::Array>::Cast(groupObj->Get(orderKey));
+			return new FIX::Group(
+					groupObj->Get(indexKey)->ToInteger()->Value(),
+					groupObj->Get(delimKey)->ToInteger()->Value(),
+					&getTagOrder(tagsOrder)[0]); //correct
 		}
 	}
 
