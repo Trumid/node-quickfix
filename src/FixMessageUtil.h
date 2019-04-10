@@ -189,9 +189,9 @@ public:
 		Local<v8::Object> header = Nan::New<v8::Object>();
 		FIX::Header messageHeader = message->getHeader();
 
-		for(FIX::FieldMap::iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
+		for(FIX::FieldMap::const_iterator it = messageHeader.begin(); it != messageHeader.end(); ++it)
 		{
-			header->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
+			header->Set(Nan::New<Integer>(it->getTag()), Nan::New<v8::String>(it->getString().c_str()).ToLocalChecked());
 		}
 
 		msg->Set(Nan::New<v8::String>("header").ToLocalChecked(), header);
@@ -201,9 +201,9 @@ public:
 		Local<v8::Object> tags = Nan::New<v8::Object>();
 		int noTags = 0;
 
-		for(FIX::FieldMap::iterator it = map->begin(); it != map->end(); ++it)
+		for(FIX::FieldMap::const_iterator it = map->begin(); it != map->end(); ++it)
 		{
-			tags->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
+			tags->Set(Nan::New<Integer>(it->getTag()), Nan::New<v8::String>(it->getString().c_str()).ToLocalChecked());
 			noTags++;
 		}
 
@@ -216,9 +216,9 @@ public:
 		Local<v8::Object> trailer = Nan::New<v8::Object>();
 		FIX::Trailer messageTrailer = message->getTrailer();
 
-		for(FIX::FieldMap::iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
+		for(FIX::FieldMap::const_iterator it = messageTrailer.begin(); it != messageTrailer.end(); ++it)
 		{
-			trailer->Set(Nan::New<Integer>(it->first), Nan::New<v8::String>(it->second.getString().c_str()).ToLocalChecked());
+			trailer->Set(Nan::New<Integer>(it->getTag()), Nan::New<v8::String>(it->getString().c_str()).ToLocalChecked());
 		}
 
 		msg->Set(Nan::New<v8::String>("trailer").ToLocalChecked(), trailer);
@@ -228,7 +228,7 @@ public:
 		Local<v8::Object> groups = Nan::New<v8::Object>();
 		int noGroups = 0;
 
-		for(FIX::FieldMap::g_iterator it = map->g_begin(); it != map->g_end(); ++it) {
+		for(FIX::FieldMap::g_const_iterator it = map->g_begin(); it != map->g_end(); ++it) {
 			std::vector< FIX::FieldMap* > groupVector = it->second;
 			Handle<v8::Array> groupList = Nan::New<v8::Array>(groupVector.size());
 			int i = 0;
