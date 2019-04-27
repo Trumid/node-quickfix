@@ -51,6 +51,10 @@ void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessi
 		}
 	}
 
+	if (!mCredentials->targetSubId.empty()) {
+		message.setField(57, mCredentials->targetSubId.c_str());
+	}
+
 	FixApplication::dispatchEvent(std::string("toAdmin"), message, sessionID);
 }
 
