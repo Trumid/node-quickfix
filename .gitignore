@@ -11,3 +11,4 @@ npm-debug.log
 .nadconfig.mk
 node-0.10.36
 test-report.xml
+.vscode

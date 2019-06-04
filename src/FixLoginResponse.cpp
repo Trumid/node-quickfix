@@ -28,7 +28,9 @@ void FixLoginResponse::Initialize(Handle<Object> target) {
 
   Nan::SetPrototypeMethod(ctor, "done", done);
 
-  target->Set(Nan::New("FixLoginResponse").ToLocalChecked(), ctor->GetFunction());
+  Local<Context> context = Nan::GetCurrentContext();
+
+  target->Set(Nan::New("FixLoginResponse").ToLocalChecked(), ctor->GetFunction(context));
 }
 
 Handle<Object> FixLoginResponse::wrapFixLoginResponse(FixLoginResponse* fixLoginResponse) {
