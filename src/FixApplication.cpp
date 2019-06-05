@@ -55,7 +55,6 @@ void FixApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sessi
 }
 
 void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
-	throw(FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon)
 {
 	FixApplication::dispatchEvent(std::string("fromAdmin"), message, sessionID);
 
@@ -86,13 +85,11 @@ void FixApplication::fromAdmin( const FIX::Message& message, const FIX::SessionI
 }
 
 void FixApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
-throw( FIX::DoNotSend )
 {
 	FixApplication::dispatchEvent(std::string("toApp"), message, sessionID);
 }
 
 void FixApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-	throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType )
 {
 	FixApplication::dispatchEvent(std::string("fromApp"), message, sessionID);
 }

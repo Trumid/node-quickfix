@@ -50,16 +50,18 @@ NAN_MODULE_INIT(FixInitiator::Init) {
 NAN_METHOD(FixInitiator::New) {
 	Nan::HandleScope scope;
 
+  auto context = Nan::GetCurrentContext();
+
 	bool hasOptions = false;
 	Local<Object> options;
 	FixInitiator *initiator = NULL;
 
 	if(!(info[1]->IsUndefined() || info[1]->IsNull())){
 		hasOptions = true;
-		options = info[1]->ToObject();
+		options = info[1]->ToObject(context).ToLocalChecked();
 	}
 
-	String::Utf8Value propertiesFile(info[0]);
+	Nan::Utf8String propertiesFile(info[0]);
 
 	FIX::SessionSettings sessionSettings;
 
@@ -69,27 +71,29 @@ NAN_METHOD(FixInitiator::New) {
 	Local<String> settingsKey =  Nan::New<String>("settings").ToLocalChecked();
 	Local<String> sslKey = Nan::New<String>("ssl").ToLocalChecked();
 
-	if ( ! options->Has(propertiesFileKey) && ! options->Has(settingsKey)) return Nan::ThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
+	if ( ! options->Has(context, propertiesFileKey).FromJust() && ! options->Has(context, settingsKey).FromJust()) return Nan::ThrowError("you must provide FixInitiator either an options.settings string or options.propertiesFile path to a properties file");
 
-	if (options->Has(propertiesFileKey)){
-		String::Utf8Value propertiesFile(options->Get(Nan::New<String>("propertiesFile").ToLocalChecked())->ToString());
+	if (options->Has(context, propertiesFileKey).FromJust()){
+    auto propertyFile = options->Get(context, propertiesFileKey).ToLocalChecked();
+		Nan::Utf8String propertiesFile(propertyFile->ToString(context).ToLocalChecked());
 		sessionSettings = FIX::SessionSettings(*propertiesFile);
-	} else if (options->Has(settingsKey)){
-		String::Utf8Value settings(options->Get(Nan::New<String>("settings").ToLocalChecked())->ToString());
+	} else if (options->Has(context, settingsKey).FromJust()){
+    auto settingsConfig = options->Get(context, settingsKey).ToLocalChecked();
+		Nan::Utf8String settings(settingsConfig);
 		stringstream stream;
 		stream << *settings;
 		sessionSettings = FIX::SessionSettings(stream);
 	}
 
   bool ssl = false;
-	if (options->Has(sslKey)) {
-	  ssl = options->Get(sslKey)->BooleanValue();
+	if (options->Has(context, sslKey).FromJust()) {
+	  ssl = Nan::To<bool>(options->Get(context, sslKey).ToLocalChecked()).FromJust();
 	}
 
 	Local<String> storeFactoryKey =  Nan::New<String>("storeFactory").ToLocalChecked();
 
-	if(options->Has(storeFactoryKey)) {
-		String::Utf8Value value(options->Get(storeFactoryKey)->ToString());
+	if(options->Has(context, storeFactoryKey).FromJust()) {
+		Nan::Utf8String value(options->Get(context, storeFactoryKey).ToLocalChecked());
 		initiator = new FixInitiator(sessionSettings, std::string(*value), ssl);
 	} else {
 		initiator = new FixInitiator(sessionSettings, "file", ssl);
@@ -99,22 +103,22 @@ NAN_METHOD(FixInitiator::New) {
 		initiator->Wrap(info.This());
 	}
 
-	Local<Object> callbackObj = info[0]->ToObject();
+	Local<Object> callbackObj = info[0]->ToObject(context).ToLocalChecked();
 	initiator->mCallbacks.Reset(callbackObj);
 
-	Local<Array> callbackNames = callbackObj->GetOwnPropertyNames();
+	Local<Array> callbackNames = callbackObj->GetOwnPropertyNames(context).ToLocalChecked();
 	for (uint32_t i=0 ; i < callbackNames->Length() ; ++i) {
-	  String::Utf8Value callbackName(callbackNames->Get(i)->ToString());
+	  Nan::Utf8String callbackName(callbackNames->Get(context, i).ToLocalChecked());
 	  initiator->mCallbackRegistry.insert(*callbackName);
 	}
 
 	if(hasOptions){
 		Local<String> credentialsKey =  Nan::New<String>("credentials").ToLocalChecked();
-		if(options->Has(credentialsKey)){
-			Local<Object> creds = options->Get(credentialsKey)->ToObject();
+		if(options->Has(context, credentialsKey).FromJust()){
+			Local<Object> creds = options->Get(context, credentialsKey).ToLocalChecked();
 			fix_credentials* credentials = new fix_credentials;
-			String::Utf8Value usernameStr(creds->Get(Nan::New<String>("username").ToLocalChecked())->ToString());
-			String::Utf8Value passwordStr(creds->Get(Nan::New<String>("password").ToLocalChecked())->ToString());
+			Nan::Utf8String usernameStr(creds->Get(context, Nan::New<String>("username").ToLocalChecked()).ToLocalChecked());
+			Nan::Utf8String passwordStr(creds->Get(context, Nan::New<String>("password").ToLocalChecked()).ToLocalChecked());
 			credentials->username = std::string(*usernameStr);
 			credentials->password = std::string(*passwordStr);
 			initiator->mFixApplication->setCredentials(credentials);
@@ -139,7 +143,7 @@ NAN_METHOD(FixInitiator::start) {
 NAN_METHOD(FixInitiator::send) {
 	Nan::HandleScope scope;
 
-	Local<Object> message = info[0]->ToObject();
+	Local<Object> message = info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
 
 	FIX::Message* fixMessage = new FIX::Message();
 	FixMessageUtil::js2Fix(fixMessage, message);
@@ -152,7 +156,7 @@ NAN_METHOD(FixInitiator::send) {
 NAN_METHOD(FixInitiator::sendRaw) {
 	Nan::HandleScope scope;
 
-	String::Utf8Value message(info[0]->ToString());
+	Nan::Utf8String message(info[0]->ToString(Nan::GetCurrentContext()).ToLocalChecked());
 
 	FIX::Message* fixMessage  = new FIX::Message(std::string(* message));
 
@@ -209,7 +213,7 @@ NAN_METHOD(FixInitiator::getSession) {
 	Nan::HandleScope scope;
 	FixInitiator* instance = ObjectWrap::Unwrap<FixInitiator>(info.This());
 
-	Local<Object> sessionId = info[0]->ToObject();
+	Local<Object> sessionId = info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
 
 	FIX::Session* session = instance->mInitiator->getSession(FixMessageUtil::jsToSessionId(sessionId));
 

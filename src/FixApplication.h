@@ -35,12 +35,10 @@ class FixApplication : public FIX::Application
 		virtual void onLogout( const FIX::SessionID& sessionID );
 
 		virtual void toAdmin( FIX::Message& message, const FIX::SessionID& sessionID);
-		virtual void fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID )
-		throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon );
-
-		virtual void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend );
-		virtual void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-		throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType );
+		virtual void fromAdmin( const FIX::Message& message, const FIX::SessionID& sessionID );
+		
+		virtual void toApp( FIX::Message&, const FIX::SessionID& );
+		virtual void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID );
 		virtual void dispatchEvent(std::string eventName, const FIX::Message& message, const FIX::SessionID& sessionID);
 		virtual void dispatchEvent(std::string eventName, const FIX::SessionID& sessionID);
 };
