@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "dateformat": "^3.0.2",
-    "mocha": "^2.2.5",
+    "mocha": "^10.1.0",
     "nan": "^2.8.0",
     "node-gyp": "^3.6.2",
     "should": "^13.2.1"
